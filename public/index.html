@@ -3,243 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centuria - Sistema de Asistencia</title>
+    <title>Sistema de Asistencia</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, var(--color-institucional-dark) 0%, var(--color-institucional-base) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            color: white;
-            overflow-x: hidden;
-        }
 
-        .background-blobs {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
-        }
-
-        .blob {
-            position: absolute;
-            filter: blur(80px);
-            opacity: 0.5;
-            border-radius: 50%;
-            animation: float 10s ease-in-out infinite;
-        }
-
-        .blob-1 {
-            background: var(--color-institucional-accent);
-            width: 300px;
-            height: 300px;
-            top: -100px;
-            left: -100px;
-            animation-delay: 0s;
-        }
-
-        .blob-2 {
-            background: var(--color-institucional-light);
-            width: 400px;
-            height: 400px;
-            bottom: -150px;
-            right: -150px;
-            opacity: 0.2;
-            animation-delay: -5s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-20px) scale(1.05); }
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 3rem;
-            max-width: 1000px;
-            width: 90%;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #ffffff, var(--color-institucional-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.02em;
-        }
-
-        .header p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.1rem;
-            margin-bottom: 3rem;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 2rem 1.5rem;
-            text-decoration: none;
-            color: white;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--color-institucional-accent);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .card:hover::before {
-            transform: translateX(100%);
-        }
-
-        .icon-wrapper {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover .icon-wrapper {
-            background: var(--color-institucional-accent);
-            transform: scale(1.1);
-        }
-
-        .icon {
-            width: 32px;
-            height: 32px;
-            fill: currentColor;
-        }
-
-        .card h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .card p {
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 2rem 1.5rem;
-            }
-            .header h1 {
-                font-size: 2rem;
-            }
-        }
-    </style>
 </head>
-<body>
+<body class="animated-bg" style="align-items: center; justify-content: center;">
     <div class="background-blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
     </div>
 
-    <div class="container">
-        <div class="header">
-            <h1>Sistema de Asistencia Centuria</h1>
-            <p>Seleccione el módulo al que desea acceder</p>
+    <div class="glass-panel" style="padding: 3rem; max-width: 1000px; width: 90%; text-align: center; animation: fadeIn 0.8s ease-out; z-index: 1;">
+        <div style="margin-bottom: 3rem;">
+            <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(to right, #ffffff, var(--color-institucional-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.02em;">Sistema de Asistencia</h1>
+            <p style="color: rgba(255, 255, 255, 0.8); font-size: 1.1rem;">Seleccione el módulo al que desea acceder</p>
         </div>
 
-        <div class="grid">
-            <a href="asistencia.html" class="card">
-                <div class="icon-wrapper">
-                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+            <a href="asistencia.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 14v8H4a8 8 0 0 1 8-8zm0-1c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm9 4h1v5h-8v-5h1v-1a3 3 0 0 1 6 0v1zm-2 0v-1a1 1 0 0 0-2 0v1h2z"/>
                     </svg>
                 </div>
-                <h2>Registrar Asistencia</h2>
-                <p>Registro de ingreso para alumnos</p>
+                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Registrar Asistencia</h2>
+                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Registro de ingreso para alumnos</p>
             </a>
 
-            <a href="consultar.html" class="card">
-                <div class="icon-wrapper">
-                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <a href="consultar.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"/>
                         <path d="M11.412 8.586c.379.38.588.882.588 1.414h2a3.977 3.977 0 0 0-1.174-2.828c-1.514-1.512-4.139-1.512-5.652 0l1.412 1.416c.76-.758 2.07-.756 2.826 0z"/>
                     </svg>
                 </div>
-                <h2>Consultar</h2>
-                <p>Verifique su estado de asistencia</p>
+                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Consultar</h2>
+                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Verifique su estado de asistencia</p>
             </a>
 
-            <a href="validar.html" class="card">
-                <div class="icon-wrapper">
-                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <a href="validar.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm-1.999 14.413-3.713-3.705L7.7 11.292l2.299 2.295 5.294-5.294 1.414 1.414-6.706 6.706z"/>
                     </svg>
                 </div>
-                <h2>Validar</h2>
-                <p>Validación de justificaciones y faltas</p>
+                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Validar</h2>
+                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Validación de justificaciones y faltas</p>
             </a>
 
-            <a href="teacher_panel.html" class="card">
-                <div class="icon-wrapper">
-                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <a href="teacher_panel.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M20 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM4 19V5h16l.002 14H4z"/>
                         <path d="M6 7h12v2H6zm0 4h12v2H6zm0 4h6v2H6z"/>
                     </svg>
                 </div>
-                <h2>Panel Docente</h2>
-                <p>Gestión completa para profesores</p>
+                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Panel Docente</h2>
+                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Gestión completa para profesores</p>
             </a>
         </div>
     </div>

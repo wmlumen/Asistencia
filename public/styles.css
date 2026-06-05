@@ -1,12 +1,14 @@
 /* ==========================================================================
    1. VARIABLES GLOBALES Y CONFIGURACIÓN BASE
    ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
-    /* Paleta de Colores Institucionales Refinados */
-    --color-institucional-dark: #1e3f20;   /* Verde follaje profundo corporativo */
-    --color-institucional-base: #2c5d3d;   /* Verde primario de identidad */
-    --color-institucional-light: #e1efe6;  /* Fondo suave de contraste */
-    --color-institucional-accent: #b38f43; /* Dorado académico elegante */
+    /* Paleta Premium / Glassmorphism */
+    --color-institucional-dark: #0f172a;   /* Slate 900 */
+    --color-institucional-base: #1e293b;   /* Slate 800 */
+    --color-institucional-light: #3b82f6;  /* Blue 500 para acentos brillantes */
+    --color-institucional-accent: #10b981; /* Emerald 500 para llamadas a la accion */
     
     /* Paleta de Soporte (Grises y Semánticos) */
     --slate-50: #f8fafc;
@@ -19,11 +21,11 @@
     --slate-800: #1e293b;
     --slate-900: #0f172a;
     
-    --color-rojo-vivo: #dc2626;
+    --color-rojo-vivo: #ef4444;
     --color-rojo-fondo: #fef2f2;
-    --color-esmeralda: #059669;
+    --color-esmeralda: #10b981;
     --color-esmeralda-fondo: #ecfdf5;
-    --color-azul-link: #2563eb;
+    --color-azul-link: #3b82f6;
     --color-azul-fondo: #eff6ff;
 
     /* Tipografías */
@@ -42,60 +44,166 @@ body {
     font-family: var(--fuente-principal);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    min-height: screen;
+    min-height: 100vh;
     display: flex;
+    flex-direction: column;
 }
 
 /* ==========================================================================
-   2. ESTRUCTURA Y ESTRUCTURAS DE SOPORTE (LAYOUT)
+   2. FONDOS ANIMADOS (BLOBS)
+   ========================================================================== */
+body.animated-bg {
+    background: linear-gradient(135deg, var(--color-institucional-dark) 0%, var(--color-institucional-base) 100%);
+    color: white;
+}
+
+.background-blobs {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.blob {
+    position: absolute;
+    filter: blur(90px);
+    opacity: 0.4;
+    border-radius: 50%;
+    animation: float 12s ease-in-out infinite;
+}
+
+.blob-1 {
+    background: var(--color-institucional-accent);
+    width: 350px;
+    height: 350px;
+    top: -100px;
+    left: -100px;
+    animation-delay: 0s;
+}
+
+.blob-2 {
+    background: var(--color-institucional-light);
+    width: 450px;
+    height: 450px;
+    bottom: -150px;
+    right: -150px;
+    opacity: 0.3;
+    animation-delay: -6s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-30px) scale(1.05); }
+}
+
+/* ==========================================================================
+   3. GLASSMORPHISM UTILITIES
+   ========================================================================== */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+}
+
+.glass-panel-light {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+}
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.glass-input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-institucional-accent);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    outline: none;
+}
+
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.glass-input-light {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid var(--slate-200);
+    color: var(--slate-800);
+    transition: all 0.3s ease;
+}
+
+.glass-input-light:focus {
+    border-color: var(--color-institucional-light);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    outline: none;
+    background: #ffffff;
+}
+
+/* ==========================================================================
+   4. ESTRUCTURA Y COMPONENTES (LAYOUT)
    ========================================================================== */
 
 /* Sidebar de Navegación Fija */
-aside {
-    background-color: var(--color-institucional-dark);
+aside.app-sidebar {
+    background-color: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
     color: #ffffff;
-    width: 16rem; /* 256px - Equivalente a w-64 */
+    width: 16rem; /* 256px */
     position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 20;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Contenedor Principal Ajustado al Sidebar */
-main {
+main.app-content {
     flex: 1 1 0%;
-    padding-left: 16rem; /* Deja el espacio exacto para el Sidebar */
+    padding-left: 16rem;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     transition: all 0.3s ease;
 }
 
-/* Encabezado Superior de Control */
-header {
-    background-color: #ffffff;
+/* Encabezado Superior */
+header.app-header {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
     border-b: 1px solid var(--slate-200);
-    height: 4rem; /* 64px */
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    height: 4.5rem;
+    padding: 0 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: sticky;
     top: 0;
     z-index: 10;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-/* Área de contenido de trabajo */
 .content-wrapper {
-    padding: 1.5rem;
+    padding: 2rem;
     width: 100%;
     max-width: 1600px;
     margin-left: auto;
@@ -103,34 +211,20 @@ header {
 }
 
 /* ==========================================================================
-   3. COMPONENTES REUTILIZABLES (DASHBOARD CARDS & TABLES)
+   5. TABLAS DE DATOS MODERNAS
    ========================================================================== */
-
-/* Tarjetas de Indicadores Clave (KPIs) */
-.kpi-card {
-    background-color: #ffffff;
-    padding: 1.25rem;
-    border-radius: 1rem;
-    border: 1px solid var(--slate-200);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-/* Estructuración de Tablas de Datos Avanzadas */
 .table-container {
     background-color: #ffffff;
     border-radius: 1rem;
     border: 1px solid var(--slate-200);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
     overflow: hidden;
 }
 
 .table-header-styled {
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--slate-100);
-    background-color: rgba(248, 250, 252, 0.7);
+    background-color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -143,44 +237,49 @@ table {
 }
 
 th {
-    background-color: var(--slate-100);
-    color: var(--slate-600);
-    font-size: 11px;
-    font-weight: 600;
+    background-color: var(--slate-50);
+    color: var(--slate-500);
+    font-size: 0.75rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--slate-200);
 }
 
 td {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--slate-100);
     font-size: 0.875rem;
     color: var(--slate-700);
     vertical-align: middle;
 }
 
-tr.row-interactive:hover {
-    background-color: rgba(241, 245, 249, 0.8);
-    cursor: pointer;
+tr.row-interactive {
     transition: all 0.2s ease;
 }
 
+tr.row-interactive:hover {
+    background-color: var(--slate-50);
+    cursor: pointer;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
 /* ==========================================================================
-   4. BARRAS DE DESPLAZAMIENTO FLUIDAS (SCROLLBARS)
+   6. SCROLLBARS Y ANIMACIONES
    ========================================================================== */
 .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: var(--slate-100);
+    background: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--slate-200);
+    background: var(--slate-300);
     border-radius: 4px;
 }
 
@@ -188,34 +287,18 @@ tr.row-interactive:hover {
     background: var(--slate-400);
 }
 
-/* ==========================================================================
-   5. MICROMOVIMIENTOS Y ANIMACIONES (INTERFACES DINÁMICAS)
-   ========================================================================== */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade {
-    animation: fadeIn 0.35s ease-out forwards;
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* Estado de alerta parpadeante de monitoreo "En Vivo" */
 @keyframes pingPulse {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    70%, 100% {
-        transform: scale(2);
-        opacity: 0;
-    }
+    0% { transform: scale(1); opacity: 1; }
+    70%, 100% { transform: scale(2.5); opacity: 0; }
 }
 
 .live-indicator-ping {
@@ -238,26 +321,29 @@ tr.row-interactive:hover {
 }
 
 /* ==========================================================================
-   6. RESPONSIVIDAD (SOPORTE PARA DISPOSITIVOS MÓVILES)
+   7. RESPONSIVIDAD
    ========================================================================== */
 @media (max-width: 768px) {
-    aside {
-        transform: translateX(-100%); /* Oculta el sidebar en móviles por defecto */
+    aside.app-sidebar {
+        transform: translateX(-100%);
     }
-    aside.open {
-        transform: translateX(0); /* Clase gatillo para abrir desde JS en móviles */
+    aside.app-sidebar.open {
+        transform: translateX(0);
     }
-    main {
-        padding-left: 0 !important; /* Libera el espacio lateral */
+    main.app-content {
+        padding-left: 0 !important;
     }
 }
 
 @media print {
-    .no-print, aside, header, .toolbar {
+    .no-print, aside, header, .toolbar, .background-blobs {
         display: none !important;
     }
-    main {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    main.app-content {
         padding: 0 !important;
-        background-color: #ffffff;
     }
 }

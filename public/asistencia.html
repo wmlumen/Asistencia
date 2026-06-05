@@ -3,19 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Asistencia - Centuria</title>
+    <title>Registro de Asistencia - Institución</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js"></script>
+    <style>
+        .glass-panel-light { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .background-blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+        .blob { position: absolute; filter: blur(80px); opacity: 0.6; border-radius: 50%; }
+        .blob-1 { width: 400px; height: 400px; background: #059669; top: -100px; left: -100px; }
+        .blob-2 { width: 400px; height: 400px; background: #a3e635; bottom: -100px; right: -100px; }
+    </style>
 </head>
-<body id="attendance-registration-page" class="min-h-screen bg-slate-100 text-slate-800">
-    <main class="max-w-7xl mx-auto px-4 py-6 md:px-6">
+<body class="min-h-screen text-slate-800 p-4 md:p-8">
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+    <main class="max-w-7xl mx-auto">
         <div class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <section class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+            <section class="glass-panel-light overflow-hidden">
                 <div class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-lime-700 text-white p-6 md:p-8">
-                    <p class="text-xs uppercase tracking-[0.3em] text-emerald-100 mb-3">Instituto Superior Centuria</p>
+                    <p class="text-xs uppercase tracking-[0.3em] text-emerald-100 mb-3">Institución</p>
                     <h1 class="text-3xl md:text-4xl font-black mb-3">Registro de Asistencia</h1>
                     <p class="text-sm md:text-base text-emerald-100 max-w-2xl">
                         El alumno puede registrar su asistencia desde esta página o escanear el QR para abrirla en el celular.
@@ -24,10 +35,10 @@
 
                 <div class="p-6 md:p-8 grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
                     <div class="space-y-5">
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div class="rounded-2xl border border-slate-200/50 bg-white/50 p-4">
                             <div class="flex items-center justify-between mb-2">
                                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">URL pública</p>
-                                <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('attendance-page-link').href).then(() => alert('Enlace copiado!'))" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2 py-1 rounded">
+                                <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('attendance-page-link').href).then(() => alert('Enlace copiado!'))" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-100/50 hover:bg-emerald-200 px-2 py-1 rounded">
                                     <i class="fas fa-copy mr-1"></i>Copiar
                                 </button>
                             </div>
@@ -37,45 +48,45 @@
                         <form id="attendance-registration-form" class="space-y-4">
                             <div>
                                 <label for="attendance-id" class="block text-sm font-semibold text-slate-700 mb-2">Cedula o matricula</label>
-                                <input id="attendance-id" type="text" required class="w-full rounded-xl border-2 border-slate-200 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: 1234567">
+                                <input id="attendance-id" type="text" required class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: 1234567">
                             </div>
 
                             <div>
                                 <label for="attendance-name" class="block text-sm font-semibold text-slate-700 mb-2">Nombre y apellido</label>
-                                <input id="attendance-name" type="text" required class="w-full rounded-xl border-2 border-slate-200 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: Juan Perez">
+                                <input id="attendance-name" type="text" required class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: Juan Perez">
                             </div>
 
                             <div>
                                 <label for="attendance-career" class="block text-sm font-semibold text-slate-700 mb-2">Carrera</label>
-                                <select id="attendance-career" required class="w-full rounded-xl border-2 border-slate-200 px-4 py-3 focus:border-emerald-600 focus:outline-none">
+                                <select id="attendance-career" required class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none">
                                     <option value="">Cargando carreras...</option>
                                 </select>
                             </div>
 
                             <div>
                                 <label for="attendance-notes" class="block text-sm font-semibold text-slate-700 mb-2">Observacion <span class="text-slate-400 font-normal">(Opcional)</span></label>
-                                <textarea id="attendance-notes" rows="3" class="w-full rounded-xl border-2 border-slate-200 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: Llegada tardía, clase virtual, etc."></textarea>
+                                <textarea id="attendance-notes" rows="3" class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: Llegada tardía, clase virtual, etc."></textarea>
                             </div>
 
-                            <button type="submit" class="w-full rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-3 shadow-lg transition-all">
+                            <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-bold px-4 py-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
                                 <i class="fas fa-check-circle mr-2"></i>Registrar asistencia
                             </button>
                         </form>
 
-                        <div id="attendance-form-status" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                        <div id="attendance-form-status" class="rounded-xl border border-slate-200 bg-white/50 px-4 py-3 text-sm text-slate-600 backdrop-blur-sm">
                             Complete los datos para registrar la asistencia.<br>
                             <span class="text-xs font-semibold">Ingrese la cédula sin puntos ni guiones.</span>
                         </div>
                     </div>
 
                     <div class="space-y-4">
-                        <div class="bg-white border border-slate-200 rounded-3xl p-5 text-center shadow-sm">
+                        <div class="bg-white/50 backdrop-blur-md border border-slate-200/50 rounded-3xl p-5 text-center shadow-sm">
                             <p class="text-xs uppercase tracking-[0.24em] text-slate-500 mb-4">QR de acceso</p>
                             <div id="attendance-qr" class="flex justify-center items-center min-h-[220px]"></div>
                             <p class="text-xs text-slate-500 mt-4">Apunte la cámara de su celular aquí para abrir esta página.</p>
                         </div>
 
-                        <div class="rounded-3xl border border-emerald-100 bg-emerald-50 p-5 hidden md:block">
+                        <div class="rounded-3xl border border-emerald-100 bg-emerald-50/50 p-5 hidden md:block">
                             <h2 class="font-bold text-emerald-900 mb-2 text-sm uppercase tracking-wide">Sincronizacion (Admin)</h2>
                             <p class="text-xs text-emerald-800">
                                 Si <code>asistencia.api.url</code> está configurado, el registro se guardará directamente en la base de datos externa.
@@ -85,8 +96,8 @@
                 </div>
             </section>
 
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
-                <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between gap-4">
+            <div class="glass-panel-light overflow-hidden">
+                <div class="px-6 py-5 border-b border-slate-200/50 flex items-center justify-between gap-4">
                     <div>
                         <p class="text-xs uppercase tracking-[0.24em] text-slate-500 mb-1">Panel rapido</p>
                         <h2 class="text-xl font-bold text-slate-900">Asistencias recientes</h2>
