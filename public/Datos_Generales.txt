@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # DATOS GENERALES DEL EXAMEN - INSTITUTO CENTURIA
 # ============================================
 # Edita este archivo para configurar el examen.
@@ -50,7 +50,13 @@ motivo.otro=Otros
 # Link de Google Forms (dejar vacío si no hay)
 link.google.forms=
 # Link de Google Sheets asistencia
-link.asistencia=https://docs.google.com/spreadsheets/d/1mMd2UbVxCQqLz4IaMUX88CE-Ov6F4ndp1NjxE9m-pY4
+link.asistencia=https://docs.google.com/spreadsheets/d/1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk/edit?resourcekey=&gid=178512863#gid=178512863
+# URL publica de la pagina de asistencia
+asistencia.public.url=
+# Web App o endpoint que guarda y lista la asistencia desde Drive/Sheets
+asistencia.api.url=
+# Carreras disponibles para el registro, separadas por |
+asistencia.carreras=Ingenieria Comercial|Contabilidad
 # Link de Google Sheets respuestas
 link.respuestas=https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R3fm8H6pnPxcp_eOHb5s
 # Link para solicitudes extraordinarias (Google Forms)
