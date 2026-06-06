@@ -91,10 +91,10 @@
         /* === Layout Principal === */
         .main-wrapper {
             display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 16px;
-            padding: 16px;
-            max-width: 1440px;
+            grid-template-columns: 1fr 480px;
+            gap: 24px;
+            padding: 24px;
+            max-width: 1600px;
             margin: 0 auto;
             height: 100vh;
             align-items: start;
@@ -1143,7 +1143,7 @@
         }
 
         .side-panel-header {
-            padding: 20px 24px;
+            padding: 14px 16px;
             border-bottom: 2px solid var(--border-light);
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             display: flex;
@@ -1152,16 +1152,16 @@
         }
 
         .side-panel-header .panel-title {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .side-panel-header h2 {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
             color: var(--text);
             margin: 0;
@@ -1171,24 +1171,24 @@
             text-align: center;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 10px 16px;
+            padding: 8px 12px;
             border-radius: var(--radius-sm);
-            min-width: 70px;
+            min-width: 60px;
         }
 
         .registros-count .number {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 800;
             line-height: 1;
             display: block;
         }
 
         .registros-count .label {
-            font-size: 9px;
+            font-size: 8px;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             opacity: 0.8;
-            margin-top: 4px;
+            margin-top: 2px;
             display: block;
         }
 
@@ -1220,7 +1220,7 @@
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            font-size: 13px;
+            font-size: 11px;
         }
 
         thead th {
@@ -1228,22 +1228,32 @@
             top: 0;
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border-bottom: 2px solid var(--border);
-            padding: 12px 16px;
+            padding: 8px 10px;
             text-align: left;
             font-weight: 700;
             color: var(--text-muted);
-            font-size: 11px;
+            font-size: 9px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             z-index: 2;
+            white-space: nowrap;
         }
 
         tbody td {
             border-bottom: 1px solid var(--border-light);
-            padding: 12px 16px;
+            padding: 8px 10px;
             color: var(--text-secondary);
             transition: var(--transition);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
         }
+
+        tbody td:first-child { max-width: 80px; }
+        tbody td:nth-child(2) { max-width: 180px; }
+        tbody td:nth-child(3) { max-width: 60px; }
+        tbody td:nth-child(4) { max-width: 100px; }
 
         tbody tr {
             transition: var(--transition);
@@ -1302,7 +1312,7 @@
         }
 
         /* === Responsive === */
-        @media (max-width: 1100px) {
+        @media (max-width: 1200px) {
             body { overflow: auto; height: auto; }
             .main-wrapper {
                 grid-template-columns: 1fr;
