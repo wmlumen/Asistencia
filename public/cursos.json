@@ -1,6 +1,6 @@
 [
     {
-        "nombre": "Licenciatura en Administración de Empresas",
+        "nombre": "*Licenciatura en Administración de Empresas",
         "nivel": "Grado",
         "sede": "Central/Asunción"
     },
@@ -15,7 +15,7 @@
         "sede": "Central/Asunción"
     },
     {
-        "nombre": "Licenciatura en Administración y Gestión Pública",
+        "nombre": "*Licenciatura en Administración y Gestión Pública",
         "nivel": "Grado",
         "sede": "Central/Asunción"
     },
