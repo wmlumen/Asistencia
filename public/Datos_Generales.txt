@@ -59,7 +59,7 @@ asistencia.public.url=https://wmlumen.github.io/Asistencia/asistencia.html
 # CSV publico de la hoja de asistencia (para lectura/sincronizacion)
 # Se obtiene en: Abrir link.asistencia > Archivo > Compartir > Publicar en la web > CSV
 # Asegurarse de que el gid coincida con la hoja de respuestas del formulario (gid=178512863)
-asistencia.csv.url=https://docs.google.com/spreadsheets/d/e/2PACX-1vTgnKZRiJrc6JTwgclB2qslXV5iqVBP5MiCif3HABqgUJxhYB95KgnvwaTHHkuKqxvLPXaVc1f8Pbkk/pub?gid=178512863&single=true&output=csv
+asistencia.csv.url=https://docs.google.com/spreadsheets/d/e/2PACX-1vTgnKZRiJrc6JTwgclB2qslXV5iqVBP5MiCif3HABqgUJxhYB95KgnvwaTHHkuKqxvLPXaVc1f8Pbkk/pub?output=csv
 # Web App de Google Apps Script (para escritura POST directa)
 # Proyecto: https://script.google.com/home/projects/1hJhNk5IlDLqQuNa9Xoy3pmsm2nmVZjzoEJO9462n6ZpQMoc8GCAiSJp4/edit
 # URL implementada (Web App) - permite que el formulario propio guarde directo en Sheets
