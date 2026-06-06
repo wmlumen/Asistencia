@@ -1707,13 +1707,15 @@
         window.refreshAttendanceData = async function() {
             try {
                 const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
+                const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
                 const csvUrl = (typeof getAttendanceCsvUrl === 'function') ? getAttendanceCsvUrl() : '';
                 let records = [];
 
                 // 1. Intentar API primero (Registro sheet)
                 if (apiUrl) {
                     try {
-                        const resp = await fetch(apiUrl, { method: 'GET' });
+                        const url = apiKey ? (apiUrl + (apiUrl.includes('?') ? '&' : '?') + 'apiKey=' + encodeURIComponent(apiKey)) : apiUrl;
+                        const resp = await fetch(url, { method: 'GET' });
                         if (resp.ok) {
                             const payload = await resp.json();
                             const source = Array.isArray(payload) ? payload : (Array.isArray(payload?.records) ? payload.records : (Array.isArray(payload?.registros) ? payload.registros : []));

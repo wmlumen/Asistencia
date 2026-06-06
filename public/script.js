@@ -3096,6 +3096,10 @@ function getAttendanceApiUrl() {
     return (CONFIG.asistencia_api_url || '').trim();
 }
 
+function getApiKey() {
+    return ((CONFIG.apiSecret || CONFIG.api_secret || '') ).trim();
+}
+
 function getAttendancePublicUrl() {
     // El QR y el enlace publico apuntan a la PAGINA WEB (asistencia.html)
     // El Google Form se abre solo desde el boton "Abrir Formulario"
@@ -3242,8 +3246,10 @@ async function fetchAttendanceRemoteRecords() {
     }
 
     const apiUrl = getAttendanceApiUrl();
+    const apiKey = getApiKey();
     if (apiUrl) {
-        const response = await fetch(apiUrl, { method: 'GET' });
+        const url = apiKey ? (apiUrl + (apiUrl.includes('?') ? '&' : '?') + 'apiKey=' + encodeURIComponent(apiKey)) : apiUrl;
+        const response = await fetch(url, { method: 'GET' });
         if (!response.ok) {
             throw new Error('No se pudo leer la asistencia desde Drive.');
         }
@@ -3315,20 +3321,24 @@ function saveAttendanceRecords(records) {
 
 async function submitAttendanceRecord(payload) {
     const apiUrl = getAttendanceApiUrl();
+    const apiKey = getApiKey();
     const normalized = normalizeAttendanceRecord(payload);
 
     if (apiUrl) {
+        const body = {
+            studentName: normalized.nombre,
+            studentId: normalized.cedula,
+            career: normalized.carrera,
+            notes: normalized.observacion,
+            estado: normalized.estado,
+            timestamp: normalized.marcaTemporal,
+            sourcePage: getAttendancePublicUrl()
+        };
+        if (apiKey) body.apiKey = apiKey;
+
         const response = await fetch(apiUrl, {
             method: 'POST',
-            body: JSON.stringify({
-                studentName: normalized.nombre,
-                studentId: normalized.cedula,
-                career: normalized.carrera,
-                notes: normalized.observacion,
-                estado: normalized.estado,
-                timestamp: normalized.marcaTemporal,
-                sourcePage: getAttendancePublicUrl()
-            })
+            body: JSON.stringify(body)
         });
 
         if (!response.ok) {

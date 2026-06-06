@@ -689,7 +689,9 @@
 
                         // Cargar justificaciones desde API
                         try {
-                            const respJ = await fetch(apiUrl + '?modo=justificaciones', { method: 'GET' });
+                            const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
+                            const urlJ = apiUrl + '?modo=justificaciones' + (apiKey ? '&apiKey=' + encodeURIComponent(apiKey) : '');
+                            const respJ = await fetch(urlJ, { method: 'GET' });
                             if (respJ.ok) {
                                 const payloadJ = await respJ.json();
                                 const sourceJ = Array.isArray(payloadJ) ? payloadJ : (Array.isArray(payloadJ?.justificaciones) ? payloadJ.justificaciones : []);

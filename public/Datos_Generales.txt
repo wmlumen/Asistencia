@@ -46,6 +46,11 @@ motivo.trabajo=Trabajo
 motivo.familiar=Problema Familiar
 motivo.otro=Otros
 
+# === SEGURIDAD ===
+# API Secret para validar requests al Google Apps Script
+# Debe coincidir con API_SECRET en el archivo .gs
+api.secret=CenturiaApi2024!
+
 # === LINKS ===
 # Link de Google Forms para registro de asistencia
 # IMPORTANTE: Este formulario DEBE estar vinculado a la planilla de abajo (link.asistencia)

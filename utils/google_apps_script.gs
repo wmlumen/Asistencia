@@ -18,6 +18,9 @@ const SHEET_REGISTRO = 'Registro';
 const SHEET_JUSTIFICACIONES = 'Justificaciones';
 const SHEET_RESUMEN = 'Resumen';
 
+// CAMBIAR ESTA CLAVE Y MANTENERLA EN SECRETO
+const API_SECRET = 'CenturiaApi2024!';
+
 /* ============================================================
    CONFIGURACIÓN INICIAL DE HOJAS
    ============================================================ */
@@ -46,6 +49,15 @@ function json_(payload) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function validarApiKey_(data, e) {
+  // Permitir validación tanto en body (POST) como en query params (GET)
+  const key = (data?.apiKey || data?.api_secret || e?.parameter?.apiKey || e?.parameter?.api_secret || '').trim();
+  if (key !== API_SECRET) {
+    return json_({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
+  }
+  return null; // null = validación OK
+}
+
 /* ============================================================
    GUARDAR ASISTENCIA (POST)
    ============================================================ */
@@ -53,6 +65,9 @@ function json_(payload) {
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents || '{}');
+
+    const auth = validarApiKey_(data, e);
+    if (auth) return auth;
 
     // Modo justificación de ausencia
     if (data.modo === 'justificar') {
@@ -134,6 +149,9 @@ function doPost(e) {
 function doGet(e) {
   try {
     const modo = e?.parameter?.modo || 'registro';
+
+    const auth = validarApiKey_({}, e);
+    if (auth) return auth;
 
     if (modo === 'resumen') {
       return json_({ resumen: obtenerResumen_() });

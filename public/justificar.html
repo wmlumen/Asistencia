@@ -723,22 +723,26 @@
 
             // Intentar enviar a la API
             const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
+            const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
             if (apiUrl) {
                 status.className = 'status-msg info';
                 status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Enviando a la planilla...</span>';
 
+                const body = {
+                    modo: 'justificar',
+                    studentId: id,
+                    studentName: name,
+                    career: career,
+                    fechaAusencia: fecha,
+                    motivo: motivo,
+                    notes: obs
+                };
+                if (apiKey) body.apiKey = apiKey;
+
                 fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        modo: 'justificar',
-                        studentId: id,
-                        studentName: name,
-                        career: career,
-                        fechaAusencia: fecha,
-                        motivo: motivo,
-                        notes: obs
-                    })
+                    body: JSON.stringify(body)
                 })
                 .then(r => r.json())
                 .then(data => {
