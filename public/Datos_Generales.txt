@@ -62,7 +62,9 @@ asistencia.public.url=https://wmlumen.github.io/Asistencia/asistencia.html
 asistencia.csv.url=https://docs.google.com/spreadsheets/d/e/2PACX-1vTgnKZRiJrc6JTwgclB2qslXV5iqVBP5MiCif3HABqgUJxhYB95KgnvwaTHHkuKqxvLPXaVc1f8Pbkk/pub?gid=178512863&single=true&output=csv
 # Web App de Google Apps Script (para escritura POST directa)
 # Proyecto: https://script.google.com/home/projects/1hJhNk5IlDLqQuNa9Xoy3pmsm2nmVZjzoEJO9462n6ZpQMoc8GCAiSJp4/edit
-# Para obtener la URL: Abrir el proyecto > Implementar > Gestionar implementaciones > Copiar URL (debe terminar en /exec)
+# IMPORTANTE: Configurar esta URL para que el formulario propio (offline) tambien guarde en el Excel
+# Pasos: Abrir el proyecto > Implementar > Nueva implementacion > Web App > Copiar URL /exec
+# Si esta vacio, el formulario propio solo guarda en localStorage y se debe sincronizar manualmente
 asistencia.api.url=
 # Carreras disponibles para el registro, separadas por |
 asistencia.carreras=ADMINISTRACION DE EMPRESAS|ADMINISTRACION Y GESTION

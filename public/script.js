@@ -3097,10 +3097,8 @@ function getAttendanceApiUrl() {
 }
 
 function getAttendancePublicUrl() {
-    // Si hay un formulario de Google configurado, usarlo como URL publica principal
-    const formUrl = (CONFIG.link_google_forms || '').trim();
-    if (formUrl) return formUrl;
-
+    // El QR y el enlace publico apuntan a la PAGINA WEB (asistencia.html)
+    // El Google Form se abre solo desde el boton "Abrir Formulario"
     const configured = (CONFIG.asistencia_public_url || '').trim();
     if (configured) return configured;
 
