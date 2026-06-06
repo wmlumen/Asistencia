@@ -1574,13 +1574,24 @@
                 let fecha = '';
                 let hora = '';
                 const str = String(marcaTemporal).trim();
-                if (str.includes(' ')) {
+                
+                // Intentar parsear formato ISO: 2026-06-06T02:35 o 2026-06-06 02:35
+                const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
+                if (isoMatch) {
+                    fecha = isoMatch[1] + '-' + isoMatch[2] + '-' + isoMatch[3];
+                    hora = isoMatch[4] + ':' + isoMatch[5];
+                } else if (str.includes(' ')) {
+                    // formato: "06/06/2026 02:35" o "2026-06-06 14:30"
                     const partes = str.split(' ');
                     fecha = partes[0];
                     hora = partes[1] ? partes[1].substring(0, 5) : '';
                 } else if (str.includes('/')) {
+                    // formato: "06/06/2026"
                     fecha = str;
-                } else if (str.includes('-')) {
+                } else if (str.includes('-') && str.length <= 10) {
+                    // formato: "2026-06-06" (solo fecha)
+                    fecha = str;
+                } else {
                     fecha = str;
                 }
 
@@ -1603,13 +1614,15 @@
                     const dias = ['DOM','LUN','MAR','MIE','JUE','VIE','SAB'];
                     let d;
                     if (fechaStr.includes('/')) {
+                        // dd/mm/yyyy
                         const partes = fechaStr.split('/');
                         if (partes[2] && partes[2].length === 4) {
                             d = new Date(parseInt(partes[2]), parseInt(partes[1])-1, parseInt(partes[0]));
                         } else {
                             d = new Date(parseInt(partes[2])+2000, parseInt(partes[1])-1, parseInt(partes[0]));
                         }
-                    } else if (fechaStr.includes('-')) {
+                    } else if (fechaStr.includes('-') && fechaStr.length === 10) {
+                        // yyyy-mm-dd
                         const partes = fechaStr.split('-');
                         d = new Date(parseInt(partes[0]), parseInt(partes[1])-1, parseInt(partes[2]));
                     } else {
