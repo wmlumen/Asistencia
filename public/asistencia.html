@@ -246,63 +246,63 @@
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 24px;
+            padding: 16px;
             flex: 1;
             overflow-y: auto;
             box-shadow: var(--shadow-sm);
         }
 
         .form-card h2 {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
             border-bottom: 2px solid var(--border-light);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: var(--text);
         }
 
         .form-card h2 i {
             color: var(--primary);
             background: var(--primary-light);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         /* === Form Groups === */
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
 
         .form-group label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .form-group label i {
             color: var(--primary);
-            font-size: 12px;
+            font-size: 10px;
         }
 
         input, select, textarea {
             font-family: inherit;
-            padding: 12px 16px;
+            padding: 8px 12px;
             border: 2px solid var(--border);
             border-radius: var(--radius-sm);
-            font-size: 14px;
+            font-size: 13px;
             width: 100%;
             background: var(--card-bg);
             color: var(--text);
@@ -312,11 +312,12 @@
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px var(--primary-light);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
         input::placeholder, textarea::placeholder {
             color: var(--text-muted);
+            font-size: 12px;
         }
 
         select {
@@ -324,28 +325,28 @@
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23718096'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 40px;
+            background-position: right 10px center;
+            background-size: 14px;
+            padding-right: 32px;
         }
 
         textarea {
             resize: none;
-            min-height: 60px;
+            min-height: 40px;
         }
 
         /* === Career Buttons === */
         .career-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
         }
 
         .career-btn {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 14px 16px;
+            gap: 10px;
+            padding: 10px 12px;
             border: 2px solid var(--border);
             border-radius: var(--radius-sm);
             background: var(--card-bg);
@@ -354,7 +355,7 @@
             width: 100%;
             color: var(--text);
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             transition: var(--transition);
             position: relative;
         }
@@ -362,7 +363,7 @@
         .career-btn:hover {
             border-color: var(--primary);
             background: var(--primary-light);
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             box-shadow: var(--shadow-sm);
         }
 
@@ -373,15 +374,15 @@
         }
 
         .career-btn .icon-box {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             background: var(--border-light);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--text-muted);
-            font-size: 16px;
+            font-size: 14px;
             transition: var(--transition);
             flex-shrink: 0;
         }
@@ -389,13 +390,13 @@
         .career-btn:hover .icon-box {
             background: var(--primary);
             color: white;
-            transform: scale(1.1);
+            transform: scale(1.08);
         }
 
         .career-btn.selected .icon-box {
             background: var(--primary);
             color: white;
-            transform: scale(1.1);
+            transform: scale(1.08);
         }
 
         .career-btn .check {
@@ -404,9 +405,9 @@
             opacity: 0;
             transform: scale(0) rotate(-180deg);
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            font-size: 14px;
-            width: 24px;
-            height: 24px;
+            font-size: 12px;
+            width: 20px;
+            height: 20px;
             background: var(--primary);
             color: white;
             border-radius: 50%;
@@ -422,10 +423,10 @@
 
         .career-btn .sub {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
             font-weight: 400;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         /* === Submit Button === */
@@ -434,18 +435,18 @@
             color: white;
             border: none;
             border-radius: var(--radius-sm);
-            padding: 14px 24px;
-            font-size: 15px;
+            padding: 10px 20px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             transition: var(--transition);
             box-shadow: 0 4px 15px rgba(3,102,214,0.3);
-            margin-top: 8px;
+            margin-top: 6px;
             position: relative;
             overflow: hidden;
         }
@@ -475,18 +476,18 @@
         }
 
         .btn-submit i {
-            font-size: 18px;
+            font-size: 16px;
         }
 
         /* === Status Messages === */
         .status-msg {
-            padding: 14px 16px;
+            padding: 10px 12px;
             border-radius: var(--radius-sm);
-            font-size: 13px;
-            margin-top: 16px;
+            font-size: 12px;
+            margin-top: 10px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             font-weight: 500;
             transition: var(--transition);
         }
@@ -510,7 +511,7 @@
         }
 
         .status-msg i {
-            font-size: 16px;
+            font-size: 14px;
             flex-shrink: 0;
         }
 
@@ -840,12 +841,13 @@
 
         @media (max-width: 640px) {
             .main-wrapper { padding: 12px; gap: 12px; }
-            .header-card { padding: 18px 20px; }
-            .header-card h1 { font-size: 20px; }
-            .header-card h1 i { width: 36px; height: 36px; font-size: 16px; }
-            .form-card { padding: 18px; }
-            .career-btn { padding: 12px 14px; }
-            .career-btn .icon-box { width: 36px; height: 36px; }
+            .header-card { padding: 16px 18px; }
+            .header-card h1 { font-size: 18px; }
+            .header-card h1 i { width: 32px; height: 32px; font-size: 14px; }
+            .form-card { padding: 14px; }
+            .career-btn { padding: 10px 12px; font-size: 12px; }
+            .career-btn .icon-box { width: 28px; height: 28px; font-size: 12px; }
+            .btn-submit { padding: 10px 16px; font-size: 13px; }
         }
 
         /* === Loading State === */
@@ -952,7 +954,7 @@
 
                     <div class="form-group">
                         <label><i class="fas fa-sticky-note" style="color:var(--text-muted)"></i> Observación <span style="font-weight:normal;color:var(--text-muted)">(Opcional)</span></label>
-                        <textarea id="attendance-notes" rows="2" placeholder="Ej: Llegada tardía, clase virtual, etc."></textarea>
+                        <textarea id="attendance-notes" rows="1" placeholder="Ej: Llegada tardía, clase virtual, etc."></textarea>
                     </div>
 
                     <button type="submit" class="btn-submit">
