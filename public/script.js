@@ -3146,7 +3146,7 @@ function parseCSVToAttendance(csvText) {
     };
 
     const idxNombre = findHeader('nombre', 'name', 'studentname', 'alumno', 'nombreyapellido');
-    const idxCedula = findHeader('cedula', 'id', 'studentid', 'ci', 'documento', 'matricula');
+    const idxCedula = findHeader('cedula', 'id', 'studentid', 'ci', 'documento', 'matricula', 'ceduladeidentidad', 'ceduladeidentidad');
     const idxCarrera = findHeader('carrera', 'career', 'curso', 'carrerauniversitaria');
     const idxObs = findHeader('observacion', 'notes', 'observation', 'comentario', 'obs');
     const idxEstado = findHeader('estado', 'state', 'status', 'asistencia', 'condicion');
@@ -3221,7 +3221,7 @@ function normalizeAttendanceRecord(record) {
 }
 
 function parseAttendanceResponse(payload) {
-    const source = Array.isArray(payload) ? payload : (Array.isArray(payload?.records) ? payload.records : []);
+    const source = Array.isArray(payload) ? payload : (Array.isArray(payload?.records) ? payload.records : (Array.isArray(payload?.registros) ? payload.registros : []));
     return source.map(normalizeAttendanceRecord).filter(r => r.nombre || r.cedula);
 }
 

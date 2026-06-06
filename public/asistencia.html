@@ -1022,5 +1022,97 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Override renderPublicAttendancePreview para usar estilos personalizados de esta pagina
+        window.renderPublicAttendancePreview = function(records) {
+            const tbody = document.getElementById('public-attendance-body');
+            const counter = document.getElementById('public-attendance-count');
+            if (!tbody) return;
+
+            const safeRecords = Array.isArray(records) ? records : [];
+            if (counter) counter.textContent = String(safeRecords.length);
+
+            if (!safeRecords.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><div class="empty-state-text">Aún no hay registros</div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = safeRecords.slice(0, 50).map(r => {
+                const marcaTemporal = r.marcaTemporal || r['Marca Temporal'] || r['Timestamp'] || r.timestamp || r.Fecha || '';
+                const nombre = r.nombre || r['Nombre'] || r.studentName || r.Nombre || '';
+                const cedula = r.cedula || r['Cédula'] || r['Cedula'] || r.studentId || r.Cedula || '';
+                const carrera = r.carrera || r['Carrera'] || r.career || r.Carrera || '';
+                const hora = String(marcaTemporal).split(' ')[1] || String(marcaTemporal).slice(0, 16);
+                return `<tr>
+                    <td>${hora}</td>
+                    <td>${(nombre || '').toUpperCase().trim()}</td>
+                    <td>${cedula}</td>
+                    <td>${carrera}</td>
+                </tr>`;
+            }).join('');
+        };
+
+        // Asegurar que refreshAttendanceData consulte la API correctamente
+        const _origRefresh = window.refreshAttendanceData;
+        window.refreshAttendanceData = async function() {
+            try {
+                const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
+                const csvUrl = (typeof getAttendanceCsvUrl === 'function') ? getAttendanceCsvUrl() : '';
+                let records = [];
+
+                // 1. Intentar API primero (Registro sheet)
+                if (apiUrl) {
+                    try {
+                        const resp = await fetch(apiUrl, { method: 'GET' });
+                        if (resp.ok) {
+                            const payload = await resp.json();
+                            const source = Array.isArray(payload) ? payload : (Array.isArray(payload?.records) ? payload.records : (Array.isArray(payload?.registros) ? payload.registros : []));
+                            if (source && source.length) {
+                                records = source.map(function(r) {
+                                    return {
+                                        marcaTemporal: r.marcaTemporal || r.MarcaTemporal || r['Marca Temporal'] || r.Fecha || '',
+                                        nombre: r.nombre || r.Nombre || r.studentName || '',
+                                        cedula: (r.cedula || r.Cedula || r.studentId || '').toString().replace(/\./g, '').trim(),
+                                        carrera: r.carrera || r.Carrera || r.career || ''
+                                    };
+                                }).filter(function(r) { return r.nombre || r.cedula; });
+                            }
+                        }
+                    } catch(e) { console.warn('API error:', e); }
+                }
+
+                // 2. Si API vacia, intentar CSV
+                if (!records.length && csvUrl) {
+                    try {
+                        const resp = await fetch(csvUrl);
+                        if (resp.ok) {
+                            const text = await resp.text();
+                            if (typeof parseCSVToAttendance === 'function') {
+                                records = parseCSVToAttendance(text);
+                            }
+                        }
+                    } catch(e) { console.warn('CSV error:', e); }
+                }
+
+                // 3. Si aun vacia, fallback localStorage
+                if (!records.length && typeof loadAttendanceRecords === 'function') {
+                    records = loadAttendanceRecords();
+                }
+
+                renderPublicAttendancePreview(records);
+                if (typeof renderAttendance === 'function') renderAttendance();
+                return records;
+            } catch (err) {
+                console.error('refreshAttendanceData error:', err);
+                if (typeof loadAttendanceRecords === 'function') {
+                    const recs = loadAttendanceRecords();
+                    renderPublicAttendancePreview(recs);
+                    return recs;
+                }
+                return [];
+            }
+        };
+    </script>
 </body>
 </html>
