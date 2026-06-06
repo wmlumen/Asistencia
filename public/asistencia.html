@@ -1662,6 +1662,8 @@
             // Ordenar fechas (mas reciente primero)
             const fechasOrdenadas = Object.keys(porFecha).sort().reverse();
 
+            const showDetails = (typeof isTeacherSessionActive === 'function') ? isTeacherSessionActive() : false;
+
             let html = '';
             fechasOrdenadas.forEach(fecha => {
                 const lista = porFecha[fecha];
@@ -1679,15 +1681,22 @@
                     </td>
                 </tr>`;
 
-                // Filas de cada registro (hora + datos)
-                lista.forEach(r => {
-                    html += `<tr class="registro-row">
-                        <td class="hora-cell">${r.hora || '--:--'}</td>
-                        <td>${r.nombre}</td>
-                        <td>${r.cedula}</td>
-                        <td>${r.carrera}</td>
-                    </tr>`;
-                });
+                if (showDetails) {
+                    // Filas de cada registro (hora + datos) solo en modo docente
+                    lista.forEach(r => {
+                        html += `<tr class="registro-row">
+                            <td class="hora-cell">${r.hora || '--:--'}</td>
+                            <td>${r.nombre}</td>
+                            <td>${r.cedula}</td>
+                            <td>${r.carrera}</td>
+                        </tr>`;
+                    });
+                } else {
+                    // Modo publico: solo mensaje de privacidad
+                    html += `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);font-size:11px;padding:8px;">
+                        <i class="fas fa-shield-alt" style="margin-right:4px;"></i>Datos protegidos. Inicie sesión como docente para ver detalles.
+                    </td></tr>`;
+                }
             });
 
             tbody.innerHTML = html;

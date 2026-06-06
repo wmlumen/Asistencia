@@ -595,10 +595,7 @@
     </div>
 
     <script>
-        const CLAVE_ACCESO = 'Ck021694695*';
         let dataSource = localStorage.getItem('planilla_fuente') || '';
-
-        console.log('Planilla cargada. Contraseña esperada:', CLAVE_ACCESO, 'Longitud:', CLAVE_ACCESO.length);
 
         function escapeHtml(text) {
             if (text == null) return '';
@@ -613,9 +610,8 @@
             const input = document.getElementById('loginPassword');
             const error = document.getElementById('loginError');
             const valor = input.value.trim();
-            console.log('Intentando login. Valor ingresado:', valor, 'Longitud:', valor.length);
-            console.log('Esperado:', CLAVE_ACCESO, 'Longitud:', CLAVE_ACCESO.length);
-            if (valor === CLAVE_ACCESO) {
+            const result = loginTeacher(valor);
+            if (result.ok) {
                 document.getElementById('loginOverlay').classList.add('hidden');
                 document.getElementById('mainContent').classList.add('visible');
                 if (dataSource) {
@@ -907,6 +903,31 @@
             totalAlumnosEl.textContent = totalAlumnos;
             if (conteoPct > 0) promedioEl.textContent = Math.round(sumaPct / conteoPct) + '%';
         }
+
+        // Verificar sesión docente al cargar
+        (function() {
+            if (isTeacherSessionActive()) {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.add('visible');
+                // Botón cerrar sesión docente
+                const headerDiv = document.querySelector('.header > div[style*="display:flex"]');
+                if (headerDiv) {
+                    const logoutBtn = document.createElement('button');
+                    logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Cerrar sesión';
+                    logoutBtn.style.cssText = 'background:rgba(255,255,255,0.15);color:white;border:none;padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;margin-left:8px;';
+                    logoutBtn.onmouseover = function() { this.style.background='rgba(255,255,255,0.3)'; };
+                    logoutBtn.onmouseout = function() { this.style.background='rgba(255,255,255,0.15)'; };
+                    logoutBtn.onclick = function() {
+                        logoutTeacher();
+                        window.location.reload();
+                    };
+                    headerDiv.appendChild(logoutBtn);
+                }
+                if (dataSource) {
+                    setDataSource(dataSource);
+                }
+            }
+        })();
     </script>
 </body>
 </html>

@@ -4492,9 +4492,134 @@ function initAttendanceRegistrationPage() {
 
 
 
-// link.respuestas -> link_respuestas
-
-
+// link.respuestas -> link_respuestas
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============================================================
+   AUTENTICACIÓN DOCENTE (Modo Docente)
+   ============================================================ */
+
+const TEACHER_SESSION_KEY = 'teacher_session_active';
+const TEACHER_TIMESTAMP_KEY = 'teacher_session_timestamp';
+
+function isTeacherSessionActive() {
+    const active = sessionStorage.getItem(TEACHER_SESSION_KEY);
+    if (!active) return false;
+    // La sesión dura mientras la pestaña esté abierta (sessionStorage)
+    // pero también verificamos que no sea de otra pestaña cerrada y reabierta
+    return true;
+}
+
+function getTeacherPassword() {
+    // La contraseña se lee de la configuración cargada
+    // Si CONFIG no tiene teacherPassword, se usa un valor por defecto
+    // NOTA: En producción, la contraseña real debe venir de CONFIG
+    return (typeof CONFIG !== 'undefined' && CONFIG.teacherPassword) ? CONFIG.teacherPassword : 'Centuria2024!';
+}
+
+function loginTeacher(password) {
+    const expected = getTeacherPassword();
+    if (password === expected) {
+        sessionStorage.setItem(TEACHER_SESSION_KEY, '1');
+        sessionStorage.setItem(TEACHER_TIMESTAMP_KEY, Date.now().toString());
+        return { ok: true };
+    }
+    return { ok: false, error: 'Contraseña incorrecta' };
+}
+
+function logoutTeacher() {
+    sessionStorage.removeItem(TEACHER_SESSION_KEY);
+    sessionStorage.removeItem(TEACHER_TIMESTAMP_KEY);
+}
+
+function requireTeacherAuth(redirectUrl) {
+    if (!isTeacherSessionActive()) {
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
+        }
+        return false;
+    }
+    return true;
+}
+
+function renderTeacherLoginOverlay(containerId, onSuccess) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (isTeacherSessionActive()) {
+        if (typeof onSuccess === 'function') onSuccess();
+        return;
+    }
+
+    container.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;padding:20px;">
+            <div style="background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:16px;padding:32px;max-width:400px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+                <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:white;font-size:22px;">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;color:var(--text,#1a202c);">Acceso restringido</h2>
+                <p style="font-size:14px;color:var(--text-secondary,#4a5568);margin-bottom:20px;">Esta sección contiene datos personales de los alumnos. Ingrese la contraseña de docente para continuar.</p>
+                <div style="display:flex;gap:8px;">
+                    <input type="password" id="teacher-login-input" placeholder="Contraseña docente" style="flex:1;padding:10px 14px;border:2px solid var(--border,#e2e8f0);border-radius:8px;font-size:14px;outline:none;"
+                        onkeydown="if(event.key==='Enter')document.getElementById('teacher-login-btn').click()">
+                    <button id="teacher-login-btn" style="padding:10px 18px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;white-space:nowrap;">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                </div>
+                <div id="teacher-login-msg" style="margin-top:12px;font-size:13px;min-height:20px;color:#dc3545;font-weight:600;"></div>
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border,#e2e8f0);">
+                    <a href="index.html" style="color:var(--primary,#667eea);text-decoration:none;font-size:13px;font-weight:600;">
+                        <i class="fas fa-home"></i> Volver al inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const btn = document.getElementById('teacher-login-btn');
+    const input = document.getElementById('teacher-login-input');
+    const msg = document.getElementById('teacher-login-msg');
+
+    btn.addEventListener('click', function() {
+        const val = input.value.trim();
+        if (!val) {
+            msg.textContent = 'Ingrese la contraseña.';
+            return;
+        }
+        const result = loginTeacher(val);
+        if (result.ok) {
+            if (typeof onSuccess === 'function') onSuccess();
+        } else {
+            msg.textContent = result.error;
+            input.value = '';
+            input.focus();
+        }
+    });
+}
+
+function addTeacherLogoutButton(targetSelector) {
+    const target = document.querySelector(targetSelector);
+    if (!target) return;
+    const btn = document.createElement('button');
+    btn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Cerrar sesión docente';
+    btn.style.cssText = 'background:rgba(255,255,255,0.2);color:white;border:none;padding:4px 10px;border-radius:20px;font-size:11px;cursor:pointer;backdrop-filter:blur(10px);margin-left:auto;';
+    btn.addEventListener('click', function() {
+        logoutTeacher();
+        window.location.href = 'index.html';
+    });
+    target.appendChild(btn);
+}
 
 
 

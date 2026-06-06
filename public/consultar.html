@@ -197,5 +197,45 @@
         });
     </script>
 
+<script src="script.js?v=2"></script>
+<script>
+(function() {
+    function initAuth() {
+        if (typeof isTeacherSessionActive !== 'function') {
+            setTimeout(initAuth, 100);
+            return;
+        }
+        if (!isTeacherSessionActive()) {
+            document.body.innerHTML = '';
+            const div = document.createElement('div');
+            div.id = 'teacher-login-container';
+            document.body.appendChild(div);
+            renderTeacherLoginOverlay('teacher-login-container', function() {
+                window.location.reload();
+            });
+        } else {
+            const header = document.querySelector('.glass-panel-light > div:first-child > div.relative');
+            if (header) {
+                const btn = document.createElement('a');
+                btn.href = '#';
+                btn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Cerrar sesión';
+                btn.className = 'text-white text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5 no-underline';
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logoutTeacher();
+                    window.location.href = 'index.html';
+                });
+                header.querySelector('.flex').appendChild(btn);
+            }
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAuth);
+    } else {
+        initAuth();
+    }
+})();
+</script>
+
 </body>
 </html>

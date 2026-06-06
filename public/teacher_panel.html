@@ -418,7 +418,46 @@
    </div>
    </div>
  </div>
- </main>
+  </main>
+
+<script>
+(function() {
+    // Si el script.js aún no cargó, esperar un poco
+    function initAuth() {
+        if (typeof isTeacherSessionActive !== 'function') {
+            setTimeout(initAuth, 100);
+            return;
+        }
+        if (!isTeacherSessionActive()) {
+            document.body.innerHTML = '';
+            const div = document.createElement('div');
+            div.id = 'teacher-login-container';
+            document.body.appendChild(div);
+            renderTeacherLoginOverlay('teacher-login-container', function() {
+                window.location.reload();
+            });
+        } else {
+            // Botón cerrar sesión en el header
+            const header = document.querySelector('header');
+            if (header) {
+                const btn = document.createElement('button');
+                btn.innerHTML = '<i class="fas fa-sign-out-alt mr-1"></i> Cerrar sesión';
+                btn.className = 'text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors';
+                btn.addEventListener('click', function() {
+                    logoutTeacher();
+                    window.location.href = 'index.html';
+                });
+                header.querySelector('div').appendChild(btn);
+            }
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAuth);
+    } else {
+        initAuth();
+    }
+})();
+</script>
 
 </body>
 </html>

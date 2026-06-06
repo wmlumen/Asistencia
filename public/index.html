@@ -6,12 +6,21 @@
     <title>Sistema de Asistencia</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="script.js?v=2"></script>
 
 </head>
 <body class="animated-bg" style="align-items: center; justify-content: center;">
     <div class="background-blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
+    </div>
+
+    <!-- Indicador de sesión docente -->
+    <div id="teacher-session-indicator" style="position:fixed;top:16px;right:16px;z-index:100;display:none;">
+        <div style="background:rgba(16,185,129,0.9);color:white;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+            <i class="fas fa-user-shield"></i> Sesión docente activa
+            <button onclick="logoutTeacher();window.location.reload();" style="background:rgba(255,255,255,0.2);border:none;color:white;padding:2px 8px;border-radius:12px;font-size:11px;cursor:pointer;margin-left:4px;">Cerrar</button>
+        </div>
     </div>
 
     <div class="glass-panel" style="padding: 3rem; max-width: 1000px; width: 90%; text-align: center; animation: fadeIn 0.8s ease-out; z-index: 1;">
@@ -84,5 +93,22 @@
             </a>
         </div>
     </div>
+
+<script>
+(function() {
+    function checkIndicator() {
+        if (typeof isTeacherSessionActive === 'function' && isTeacherSessionActive()) {
+            const ind = document.getElementById('teacher-session-indicator');
+            if (ind) ind.style.display = 'block';
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkIndicator);
+    } else {
+        checkIndicator();
+    }
+})();
+</script>
+
 </body>
 </html>
