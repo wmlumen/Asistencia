@@ -1596,6 +1596,36 @@
                 return;
             }
 
+            // Funcion para formatear fecha corta
+            function formatearFechaCorta(fechaStr) {
+                if (!fechaStr || fechaStr === 'Sin fecha') return 'Sin fecha';
+                try {
+                    const dias = ['DOM','LUN','MAR','MIE','JUE','VIE','SAB'];
+                    let d;
+                    if (fechaStr.includes('/')) {
+                        const partes = fechaStr.split('/');
+                        if (partes[2] && partes[2].length === 4) {
+                            d = new Date(parseInt(partes[2]), parseInt(partes[1])-1, parseInt(partes[0]));
+                        } else {
+                            d = new Date(parseInt(partes[2])+2000, parseInt(partes[1])-1, parseInt(partes[0]));
+                        }
+                    } else if (fechaStr.includes('-')) {
+                        const partes = fechaStr.split('-');
+                        d = new Date(parseInt(partes[0]), parseInt(partes[1])-1, parseInt(partes[2]));
+                    } else {
+                        return fechaStr;
+                    }
+                    if (isNaN(d.getTime())) return fechaStr;
+                    const diaSemana = dias[d.getDay()];
+                    const dia = String(d.getDate()).padStart(2, '0');
+                    const mes = String(d.getMonth()+1).padStart(2, '0');
+                    const anio = d.getFullYear();
+                    return diaSemana + ' ' + dia + '/' + mes + '/' + anio;
+                } catch(e) {
+                    return fechaStr;
+                }
+            }
+
             // Agrupar por fecha
             const porFecha = {};
             registrosConFecha.forEach(r => {
@@ -1611,13 +1641,14 @@
             fechasOrdenadas.forEach(fecha => {
                 const lista = porFecha[fecha];
                 const unicosDia = new Set(lista.map(r => r.cedula).filter(Boolean)).size;
+                const fechaCorta = formatearFechaCorta(fecha);
 
                 // Fila de fecha (header del dia)
                 html += `<tr class="fecha-header">
                     <td colspan="4">
                         <div class="fecha-badge">
                             <i class="fas fa-calendar-day"></i>
-                            <span class="fecha-texto">${fecha}</span>
+                            <span class="fecha-texto">${fechaCorta}</span>
                             <span class="fecha-count">${unicosDia} asistentes</span>
                         </div>
                     </td>
