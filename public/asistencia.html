@@ -1580,13 +1580,20 @@
                 let hora = '';
                 const str = String(marcaTemporal).trim();
                 
-                // Intentar parsear formato ISO: 2026-06-06T02:35 o 2026-06-06 02:35
-                const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
-                if (isoMatch) {
-                    fecha = isoMatch[1] + '-' + isoMatch[2] + '-' + isoMatch[3];
-                    hora = isoMatch[4] + ':' + isoMatch[5];
+                // Intentar parsear como Date para convertir zona horaria correctamente
+                const d = new Date(str);
+                if (!isNaN(d.getTime())) {
+                    // Formatear fecha como dd/mm/yyyy
+                    const dia = String(d.getDate()).padStart(2, '0');
+                    const mes = String(d.getMonth() + 1).padStart(2, '0');
+                    const anio = d.getFullYear();
+                    fecha = dia + '/' + mes + '/' + anio;
+                    // Formatear hora local (Paraguay)
+                    const horas = String(d.getHours()).padStart(2, '0');
+                    const minutos = String(d.getMinutes()).padStart(2, '0');
+                    hora = horas + ':' + minutos;
                 } else if (str.includes(' ')) {
-                    // formato: "06/06/2026 02:35" o "2026-06-06 14:30"
+                    // formato: "06/06/2026 02:35"
                     const partes = str.split(' ');
                     fecha = partes[0];
                     hora = partes[1] ? partes[1].substring(0, 5) : '';
