@@ -953,17 +953,19 @@
                         <input type="hidden" id="attendance-career" required>
                     </div>
 
-                    <div class="form-group">
-                        <label><i class="fas fa-clock"></i> Estado</label>
-                        <select id="attendance-state" required>
-                            <option value="Presente">Presente</option>
-                            <option value="Tarde">Tarde</option>
-                        </select>
-                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-clock"></i> Estado</label>
+                            <select id="attendance-state" required>
+                                <option value="Presente">Presente</option>
+                                <option value="Tarde">Tarde</option>
+                            </select>
+                        </div>
 
-                    <div class="form-group">
-                        <label><i class="fas fa-sticky-note" style="color:var(--text-muted)"></i> Observación <span style="font-weight:normal;color:var(--text-muted)">(Opcional)</span></label>
-                        <textarea id="attendance-notes" rows="1" placeholder="Ej: Llegada tardía, clase virtual, etc."></textarea>
+                        <div class="form-group">
+                            <label><i class="fas fa-sticky-note" style="color:var(--text-muted)"></i> Observación <span style="font-weight:normal;color:var(--text-muted)">(Opcional)</span></label>
+                            <textarea id="attendance-notes" rows="1" placeholder="Ej: Llegada tardía, clase virtual, etc."></textarea>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn-submit">
