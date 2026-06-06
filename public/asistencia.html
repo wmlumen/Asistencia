@@ -526,6 +526,7 @@
             grid-template-columns: 1fr 110px;
             gap: 12px;
             align-items: stretch;
+            position: relative;
         }
 
         /* === QR Top Card === */
@@ -552,12 +553,12 @@
 
         .qr-top-card.active {
             position: absolute;
-            top: 16px;
-            right: 16px;
+            top: 0;
+            right: 0;
             width: 260px;
-            z-index: 200;
+            z-index: 10;
             border-radius: var(--radius-lg);
-            padding: 16px;
+            padding: 12px;
         }
 
         .qr-top-label {
