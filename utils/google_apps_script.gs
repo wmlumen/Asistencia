@@ -15,6 +15,7 @@
 
 const SPREADSHEET_ID = '1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk';
 const SHEET_REGISTRO = 'Registro';
+const SHEET_JUSTIFICACIONES = 'Justificaciones';
 const SHEET_RESUMEN = 'Resumen';
 
 /* ============================================================
@@ -24,10 +25,13 @@ const SHEET_RESUMEN = 'Resumen';
 function getSheet_(name) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(name);
-  if (!sheet) {
+    if (!sheet) {
     sheet = ss.insertSheet(name);
     if (name === SHEET_REGISTRO) {
       sheet.appendRow(['Fecha','Nombre','Cedula','Carrera','Observacion','Estado','MarcaTemporal']);
+      sheet.getRange('A:A').setNumberFormat('dd/MM/yyyy');
+    } else if (name === SHEET_JUSTIFICACIONES) {
+      sheet.appendRow(['FechaAusencia','Cedula','Nombre','Carrera','Motivo','Observacion','MarcaTemporal']);
       sheet.getRange('A:A').setNumberFormat('dd/MM/yyyy');
     } else if (name === SHEET_RESUMEN) {
       sheet.appendRow(['Cedula','Nombre','Carrera','TotalClases','Asistencias','Tardanzas','Ausencias','Porcentaje']);
@@ -49,8 +53,37 @@ function json_(payload) {
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents || '{}');
-    const sheet = getSheet_(SHEET_REGISTRO);
 
+    // Modo justificación de ausencia
+    if (data.modo === 'justificar') {
+      const sheet = getSheet_(SHEET_JUSTIFICACIONES);
+      const now = new Date();
+      const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
+
+      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
+      const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
+      const carrera = (data.career || data.carrera || '').trim();
+      const fechaAusencia = (data.fechaAusencia || data.fecha || '').trim();
+      const motivo = (data.motivo || '').trim();
+      const observacion = (data.notes || data.observacion || '').trim();
+
+      if (!nombre || !cedula || !carrera || !fechaAusencia) {
+        return json_({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o fecha de ausencia' });
+      }
+
+      const carrerasValidas = ['ADMINISTRACION DE EMPRESAS', 'ADMINISTRACION Y GESTION'];
+      const carreraNormalizada = carrera.toUpperCase();
+      const carreraValida = carrerasValidas.find(c => carreraNormalizada.includes(c));
+      if (!carreraValida) {
+        return json_({ ok: false, error: 'Carrera no válida: ' + carrera });
+      }
+
+      sheet.appendRow([fechaAusencia, cedula, nombre, carreraValida, motivo, observacion, marcaTemporal]);
+      return json_({ ok: true, mensaje: 'Justificación registrada correctamente' });
+    }
+
+    // Modo asistencia (default)
+    const sheet = getSheet_(SHEET_REGISTRO);
     const now = new Date();
     const fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
     const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
@@ -108,6 +141,20 @@ function doGet(e) {
 
     if (modo === 'csv') {
       return exportarCSV_();
+    }
+
+    if (modo === 'justificaciones') {
+      const sheet = getSheet_(SHEET_JUSTIFICACIONES);
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) return json_({ justificaciones: [] });
+      const headers = values[0];
+      const justificaciones = values.slice(1).reverse().map(row => {
+        return headers.reduce((acc, h, i) => { 
+          acc[h] = row[i]; 
+          return acc; 
+        }, {});
+      });
+      return json_({ justificaciones, total: justificaciones.length });
     }
 
     // modo = 'registro' por defecto

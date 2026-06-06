@@ -715,14 +715,50 @@
                 marcaTemporal: new Date().toISOString()
             };
 
+            // Guardar siempre en localStorage como respaldo
             const list = loadJustificaciones();
             list.push(record);
             saveJustificaciones(list);
-
             renderJustificaciones();
 
-            status.className = 'status-msg success';
-            status.innerHTML = '<i class="fas fa-check-circle"></i><span>Justificación enviada correctamente.</span>';
+            // Intentar enviar a la API
+            const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
+            if (apiUrl) {
+                status.className = 'status-msg info';
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Enviando a la planilla...</span>';
+
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        modo: 'justificar',
+                        studentId: id,
+                        studentName: name,
+                        career: career,
+                        fechaAusencia: fecha,
+                        motivo: motivo,
+                        notes: obs
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) {
+                        status.className = 'status-msg success';
+                        status.innerHTML = '<i class="fas fa-check-circle"></i><span>Justificación registrada en la planilla correctamente.</span>';
+                    } else {
+                        status.className = 'status-msg error';
+                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. Error en planilla: ' + (data.error || data.mensaje || 'Error desconocido') + '</span>';
+                    }
+                })
+                .catch(err => {
+                    status.className = 'status-msg error';
+                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. No se pudo conectar con la planilla: ' + err.message + '</span>';
+                });
+            } else {
+                status.className = 'status-msg success';
+                status.innerHTML = '<i class="fas fa-check-circle"></i><span>Justificación guardada localmente (sin conexión a planilla).</span>';
+            }
+
             this.reset();
             document.querySelectorAll('.career-btn').forEach(btn => btn.classList.remove('selected'));
         });

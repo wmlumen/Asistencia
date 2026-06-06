@@ -461,6 +461,12 @@
             font-size: 10px;
         }
 
+        .ausencia-justificada {
+            color: #d97706;
+            font-weight: 800;
+            font-size: 11px;
+        }
+
         .pct-cell {
             font-weight: 800;
             font-size: 12px;
@@ -653,11 +659,13 @@
             container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Cargando datos desde ' + (dataSource || '...') + '...</div>';
 
             let records = [];
+            let justificacionesAPI = [];
 
             try {
                 if (dataSource === 'api') {
                     const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
                     if (apiUrl) {
+                        // Cargar registros de asistencia
                         const resp = await fetch(apiUrl, { method: 'GET' });
                         if (resp.ok) {
                             const payload = await resp.json();
@@ -682,6 +690,27 @@
                                 }).filter(function(r) { return r.nombre || r.cedula; });
                             }
                         }
+
+                        // Cargar justificaciones desde API
+                        try {
+                            const respJ = await fetch(apiUrl + '?modo=justificaciones', { method: 'GET' });
+                            if (respJ.ok) {
+                                const payloadJ = await respJ.json();
+                                const sourceJ = Array.isArray(payloadJ) ? payloadJ : (Array.isArray(payloadJ?.justificaciones) ? payloadJ.justificaciones : []);
+                                if (sourceJ && sourceJ.length) {
+                                    justificacionesAPI = sourceJ.map(function(j) {
+                                        return {
+                                            cedula: (j.Cedula || j.cedula || '').toString().replace(/\./g, '').trim(),
+                                            nombre: (j.Nombre || j.nombre || '').toUpperCase().trim(),
+                                            carrera: (j.Carrera || j.carrera || '').toUpperCase().trim(),
+                                            fecha: (j.FechaAusencia || j.fechaAusencia || j.fecha || ''),
+                                            motivo: j.Motivo || j.motivo || '',
+                                            observacion: j.Observacion || j.observacion || ''
+                                        };
+                                    }).filter(function(j) { return j.cedula && j.fecha; });
+                                }
+                            }
+                        } catch(eJ) { console.error('Error cargando justificaciones API:', eJ); }
                     }
                     document.getElementById('sourceText').textContent = records.length ? 'API Remota (' + records.length + ' registros)' : 'API Remota (sin datos)';
                 }
@@ -720,7 +749,7 @@
                 return;
             }
 
-            // Extraer y normalizar fechas
+            // Extraer y normalizar fechas de asistencia
             records.forEach(function(r) {
                 const mt = r.marcaTemporal || r['Marca Temporal'] || r.timestamp || r.Fecha || r.fecha || '';
                 let fecha = '';
@@ -744,9 +773,42 @@
                 r._carrera = (r.carrera || r._carrera || '').toUpperCase().trim();
             });
 
-            // Fechas unicas ordenadas
+            // Cargar y normalizar justificaciones (API + localStorage)
+            let justificacionesRaw = [];
+            // Agregar primero las de la API (si las hay)
+            if (justificacionesAPI && justificacionesAPI.length) {
+                justificacionesRaw = justificacionesRaw.concat(justificacionesAPI);
+            }
+            try {
+                const jRaw = localStorage.getItem('justificaciones_ausencias');
+                if (jRaw) justificacionesRaw = justificacionesRaw.concat(JSON.parse(jRaw));
+            } catch(e) {}
+            if (!Array.isArray(justificacionesRaw)) justificacionesRaw = [];
+
+            const justificacionesPorCedula = {};
+            justificacionesRaw.forEach(function(j) {
+                const cedula = (j.cedula || j.Cedula || '').toString().replace(/\./g, '').trim();
+                if (!cedula) return;
+                const fechaRaw = j.fecha || j.Fecha || j.fechaAusencia || '';
+                let fechaJ = '';
+                const fj = String(fechaRaw).trim();
+                const isoJ = fj.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                if (isoJ) {
+                    fechaJ = isoJ[3] + '/' + isoJ[2] + '/' + isoJ[1];
+                } else if (fj.includes('/')) {
+                    fechaJ = fj;
+                }
+                if (!fechaJ) return;
+                if (!justificacionesPorCedula[cedula]) justificacionesPorCedula[cedula] = new Set();
+                justificacionesPorCedula[cedula].add(fechaJ);
+            });
+
+            // Fechas unicas ordenadas (asistencia + justificaciones)
             const fechasSet = new Set();
             records.forEach(function(r) { if (r._fecha) fechasSet.add(r._fecha); });
+            Object.keys(justificacionesPorCedula).forEach(function(ced) {
+                justificacionesPorCedula[ced].forEach(function(f) { fechasSet.add(f); });
+            });
             const fechasOrdenadas = Array.from(fechasSet).sort();
             diasClaseHeader.textContent = 'Días de clase: ' + fechasOrdenadas.length;
             totalDiasEl.textContent = fechasOrdenadas.length;
@@ -761,6 +823,19 @@
                     porCarrera[car][r._cedula] = { nombre: r._nombre || '', fechas: new Set() };
                 }
                 if (r._fecha) porCarrera[car][r._cedula].fechas.add(r._fecha);
+            });
+
+            // Incluir alumnos que solo aparecen en justificaciones (para que figuren en la planilla)
+            justificacionesRaw.forEach(function(j) {
+                const cedula = (j.cedula || j.Cedula || '').toString().replace(/\./g, '').trim();
+                if (!cedula) return;
+                const car = (j.carrera || j.Carrera || 'SIN CARRERA').toUpperCase().trim();
+                const nombre = (j.nombre || j.Nombre || '').toUpperCase().trim();
+                if (!porCarrera[car]) porCarrera[car] = {};
+                if (!porCarrera[car][cedula]) {
+                    porCarrera[car][cedula] = { nombre: nombre, fechas: new Set() };
+                }
+                if (nombre && !porCarrera[car][cedula].nombre) porCarrera[car][cedula].nombre = nombre;
             });
 
             let totalAlumnos = 0;
@@ -793,8 +868,16 @@
                 html += '<tbody>';
                 cedulas.forEach(function(cedula) {
                     const info = alumnos[cedula];
-                    const presentes = info.fechas.size;
-                    const pct = fechasOrdenadas.length > 0 ? Math.round((presentes / fechasOrdenadas.length) * 100) : 0;
+                    const justFechas = justificacionesPorCedula[cedula] || new Set();
+                    let puntos = 0;
+                    fechasOrdenadas.forEach(function(f) {
+                        if (info.fechas.has(f)) {
+                            puntos += 1;
+                        } else if (justFechas.has(f)) {
+                            puntos += 0.5;
+                        }
+                    });
+                    const pct = fechasOrdenadas.length > 0 ? Math.round((puntos / fechasOrdenadas.length) * 100) : 0;
                     sumaPct += pct;
                     conteoPct++;
 
@@ -808,8 +891,10 @@
                     fechasOrdenadas.forEach(function(f) {
                         if (info.fechas.has(f)) {
                             html += '<td class="presente">P</td>';
+                        } else if (justFechas.has(f)) {
+                            html += '<td class="ausencia-justificada">AJ</td>';
                         } else {
-                            html += '<td class="ausente">-</td>';
+                            html += '<td class="ausente">A</td>';
                         }
                     });
                     html += '<td class="pct-cell ' + pctClass + '">' + pct + '%</td>';
