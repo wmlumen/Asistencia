@@ -18,6 +18,7 @@ Sistema de evaluación virtual con panel docente, registro de asistencia, valida
 - [Utilidades](#utilidades)
 - [Despliegue](#despliegue)
 - [Requisitos](#requisitos)
+- [Pendiente / TODO](#pendiente--todo)
 
 ---
 
@@ -27,7 +28,7 @@ Sistema de evaluación virtual con panel docente, registro de asistencia, valida
 - **Panel docente analítico** con monitoreo en vivo, filtros, métricas y control de asistencia.
 - **Validación de alumnos** previa al examen mediante cédula y listado CSV.
 - **Consulta pública de resultados** por cédula (mejor nota e historial de intentos).
-- **Registro de asistencia** con QR de acceso, estado (Presente / Tarde) y sincronización a Google Sheets.
+- **Registro de asistencia** con formulario propio (vía API a Sheets), QR de acceso, estado (Presente / Tarde) y sincronización a Google Sheets.
 - **Seguimiento de % de asistencia** por alumno con barras de progreso, filtros y alertas de riesgo (< 75%).
 - **Solicitud de examen extraordinario** con código de autorización y justificación.
 - **Auditoría del examen** con panel lateral de intentos, puntaje válido y acta detallada.
@@ -43,7 +44,7 @@ Sistema de evaluación virtual con panel docente, registro de asistencia, valida
 Asistencia/
 ├── public/
 │   ├── index.html                    # Landing principal con acceso a módulos
-│   ├── asistencia.html               # Registro público de asistencia (QR)
+│   ├── asistencia.html               # Registro público de asistencia (formulario + QR + lista recientes)
 │   ├── seguimiento.html              # Seguimiento de % de asistencia por alumno
 │   ├── validar.html                  # Validación de alumno antes del examen
 │   ├── consultar.html                # Consulta pública de resultados del examen
@@ -82,11 +83,14 @@ Menú de acceso a todos los módulos del sistema:
 
 ### `asistencia.html` — Registro de Asistencia
 
-- **Botón principal** que abre el **Google Form oficial** de asistencia (`link.google.forms`).
-- **Código QR** apuntando al formulario oficial para acceso rápido desde celular.
-- **Modo offline** (colapsable): formulario local que guarda en `localStorage` cuando no hay internet.
-- Campos del modo offline: **Nombre**, **Cédula**, **Carrera** (dos botones grandes: ADMINISTRACIÓN DE EMPRESAS / ADMINISTRACIÓN Y GESTIÓN), **Estado** (Presente / Tarde), **Observación**.
-- Panel lateral con asistencias recientes (sincronizadas desde el CSV público o localStorage).
+- **Formulario propio** como opción principal: guarda directamente en Google Sheets vía Web App API.
+- **Código QR** arriba a la derecha del título, apuntando a la misma página (`asistencia.html`) para acceso rápido desde celular.
+  - El QR es compacto por defecto y se agranda al pasar el mouse o hacer click.
+- Campos: **Cédula**, **Nombre y apellido**, **Carrera** (dos botones grandes: ADMINISTRACIÓN DE EMPRESAS / ADMINISTRACIÓN Y GESTIÓN), **Estado** (Presente / Tarde), **Observación**.
+- **Lista de asistencias recientes** a la derecha, leída en tiempo real desde el CSV público de Google Sheets (solo esa columna hace scroll si hay muchos registros).
+- **Enlace de acceso** copiable debajo del header.
+- Enlace alternativo al **Google Form oficial** (respaldado).
+- Panel de sincronización con indicador de fuente de datos.
 
 ### `seguimiento.html` — Seguimiento de Asistencia
 
@@ -95,7 +99,7 @@ Menú de acceso a todos los módulos del sistema:
 - **KPIs superiores**: total de alumnos, clases dictadas, promedio %, alumnos en riesgo (< 75%).
 - Filtro por carrera y búsqueda por nombre/cédula.
 - Ordenamiento automático por porcentaje (mayor a menor).
-- Funciona con **Google Sheets** (vía API) o con datos locales si no hay conexión.
+- Funciona con **Google Sheets** (vía CSV público) o con datos locales si no hay conexión.
 - **Cálculo**: Tarde cuenta como **0.5** en el porcentaje final.
 
 ### `validar.html` — Validación de Alumno
@@ -143,12 +147,13 @@ Editar `public/Datos_Generales.txt` para personalizar el examen sin modificar c�
 | `intentos.maximos` | Intentos permitidos | `2` |
 | `puntaje.total` | Puntaje máximo | `30` |
 | `puntaje.aprobacion` | % mínimo para aprobar | `60` |
-| `link.google.forms` | **Formulario oficial de asistencia** (Google Forms) | `https://docs.google.com/forms/d/1a_SbpoS3KXzM9JuwwgDYubsKilUaW6WxqiWShFEMPh8/viewform` |
-| `link.asistencia` | Planilla de asistencia (Google Sheets) | `https://docs.google.com/spreadsheets/d/1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk/edit` |
-| `link.respuestas` | Planilla de respuestas del examen | `https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R3fm8H6pnPxcp_eOHb5s` |
-| `link.solicitudes.extraordinarias` | Formulario de solicitudes extraordinarias | `https://docs.google.com/forms/d/1ABC123XYZ/edit` |
-| `asistencia.csv.url` | **CSV público** de la hoja de asistencia (para lectura / seguimiento) | *(ver instrucciones abajo)* |
-| `asistencia.api.url` | URL del Web App (opcional, para escritura POST directa) | *(ver instrucciones abajo)* |
+| `link.google.forms` | **Formulario oficial de asistencia** (Google Forms) | `https://docs.google.com/forms/d/.../viewform` |
+| `link.asistencia` | Planilla de asistencia (Google Sheets) | `https://docs.google.com/spreadsheets/d/...` |
+| `link.respuestas` | Planilla de respuestas del examen | `https://docs.google.com/spreadsheets/d/...` |
+| `link.solicitudes.extraordinarias` | Formulario de solicitudes extraordinarias | `https://docs.google.com/forms/d/.../edit` |
+| `asistencia.public.url` | URL pública de la página de asistencia (GitHub Pages) | `https://wmlumen.github.io/Asistencia/asistencia.html` |
+| `asistencia.csv.url` | **CSV público** de la hoja de asistencia (para lectura / lista recientes / seguimiento) | *(ver instrucciones abajo)* |
+| `asistencia.api.url` | URL del Web App de Google Apps Script (para escritura POST directa) | *(ver instrucciones abajo)* |
 | `asistencia.carreras` | Carreras disponibles separadas por `\|` | `ADMINISTRACION DE EMPRESAS\|ADMINISTRACION Y GESTION` |
 
 > **Nota interna**: las claves con punto (`.`) se convierten automáticamente a guion bajo (`_`) en JavaScript (`tiempo.limite` → `CONFIG.tiempo_limite`).
@@ -157,30 +162,28 @@ Editar `public/Datos_Generales.txt` para personalizar el examen sin modificar c�
 
 ## Flujo de Asistencia y Seguimiento
 
-### 1. Configurar el Formulario de Asistencia (Google Forms) - Opción A
+### 1. Configurar el Formulario de Asistencia (Google Forms)
 
 **Paso obligatorio:** Vincular el formulario a la **planilla oficial**.
 
-1. Abrir el **Google Form** de asistencia: `https://docs.google.com/forms/d/1a_SbpoS3KXzM9JuwwgDYubsKilUaW6WxqiWShFEMPh8/edit`
+1. Abrir el **Google Form** de asistencia.
 2. Ir a la pestaña **Respuestas**.
 3. Hacer clic en el ícono de **Hoja de cálculo de Google** (verde).
 4. Seleccionar **Hoja de cálculo existente**.
-5. Pegar la URL de la planilla oficial:
-   `https://docs.google.com/spreadsheets/d/1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk/edit?gid=178512863#gid=178512863`
+5. Pegar la URL de la planilla oficial (`link.asistencia`).
 6. Aceptar. Ahora las respuestas del formulario irán a **esa planilla**.
 7. Copiar la URL del formulario y pegarla en `public/Datos_Generales.txt` bajo `link.google.forms`.
 
-**Obtener la URL CSV pública (para el seguimiento):**
+### Obtener la URL CSV pública (para lista recientes y seguimiento)
+
 1. Abrir la **planilla oficial** vinculada.
 2. **Archivo → Compartir → Publicar en la web**.
-3. Seleccionar la hoja de respuestas del formulario (`gid=178512863`), formato **CSV**.
-4. Copiar la URL generada y pegarla en `public/Datos_Generales.txt` bajo `asistencia.csv.url`.
+3. Seleccionar la hoja de respuestas del formulario, formato **CSV**.
+4. Copiar la URL generada (ej: `.../pub?output=csv`) y pegarla en `public/Datos_Generales.txt` bajo `asistencia.csv.url`.
 
-### 1b. Configurar Google Apps Script (Opción B - Avanzado)
+### 1b. Configurar Google Apps Script (Para escritura directa desde la web)
 
-Si desea que la página web guarde directamente en Sheets sin pasar por el formulario:
-
-1. Abrir el proyecto: https://script.google.com/home/projects/1hJhNk5IlDLqQuNa9Xoy3pmsm2nmVZjzoEJO9462n6ZpQMoc8GCAiSJp4/edit
+1. Abrir el proyecto: `https://script.google.com/home/projects/...`
 2. Copiar el código de `utils/google_apps_script.gs`
 3. **Implementar → Nuevo implementación → Web App**
 4. Acceso: **"Cualquiera"**
@@ -189,10 +192,10 @@ Si desea que la página web guarde directamente en Sheets sin pasar por el formu
 ### 2. Registrar Asistencia (Alumno)
 
 - El alumno accede a `asistencia.html` (escaneando el QR o por enlace directo).
-- **Opción A**: Hace clic en **"Abrir Formulario"** y completa el **Google Form oficial**.
-- **Opción B** (si configuró API): Completa el formulario directamente en la página y se guarda automáticamente.
-- Los datos se guardan en la planilla del docente.
-- Si no hay internet, puede usar el **modo offline** (registro local en `localStorage`).
+- Completa el **formulario propio** (cédula, nombre, carrera, estado, observación) y presiona **Registrar Asistencia**.
+- Los datos se envían vía POST al Web App y se guardan automáticamente en la planilla del docente.
+- Si el alumno prefiere, puede usar el **Google Form oficial** (enlace alternativo).
+- En tiempo real, la **lista de asistencias recientes** a la derecha se actualiza leyendo el CSV público.
 
 ### 3. Seguimiento (Docente)
 
@@ -268,7 +271,7 @@ Recorre todo el proyecto y convierte archivos a UTF-8 sin BOM.
 Script de Google Apps Script para guardar asistencia directamente en Sheets:
 
 **Instrucciones para implementar:**
-1. Abrir el proyecto: https://script.google.com/home/projects/1hJhNk5IlDLqQuNa9Xoy3pmsm2nmVZjzoEJO9462n6ZpQMoc8GCAiSJp4/edit
+1. Abrir el proyecto: `https://script.google.com/home/projects/...`
 2. Copiar el código de `utils/google_apps_script.gs`
 3. Guardar (`Ctrl+S`)
 4. **Implementar → Nuevo implementación → Web App**
@@ -323,6 +326,19 @@ npx serve public
 - Conexión a internet (CDN para Tailwind CSS, Font Awesome, Alpine.js, html2canvas, jsPDF, QRCode.js).
 - `localStorage` habilitado (los datos se almacenan en el navegador).
 - Python 3 (opcional, solo si se usa `fix_encoding.py`).
+
+---
+
+## Pendiente / TODO
+
+- [ ] **Verificar Google Form**: Confirmar que el formulario oficial tiene la pregunta **"Carrera"** con las opciones exactas `ADMINISTRACION DE EMPRESAS` y `ADMINISTRACION Y GESTION`.
+- [ ] **Prueba end-to-end**: Registrar una asistencia desde el formulario propio (`asistencia.html`) y verificar que llega correctamente a la planilla de Google Sheets.
+- [ ] **Verificar CSV en vivo**: Confirmar que `seguimiento.html` y la lista de recientes en `asistencia.html` leen correctamente el CSV público (`pub?output=csv`).
+- [ ] **Verificar QR**: Escanear el QR con un celular y confirmar que abre `https://wmlumen.github.io/Asistencia/asistencia.html`.
+- [ ] **Responsive avanzado**: Revisar visualización en pantallas entre 1100px y 1300px para evitar scroll horizontal.
+- [ ] **Notificaciones push**: Opcional — agregar notificación visual sonora cuando llega un nuevo registro de asistencia en la lista reciente.
+- [ ] **Autorefresh de lista reciente**: Implementar polling automático cada 30 segundos para actualizar la lista de asistencias recientes sin recargar la página.
+- [ ] **Exportar asistencia a PDF/CSV**: Botón en `seguimiento.html` para descargar el reporte de asistencia.
 
 ---
 
