@@ -98,6 +98,7 @@
             margin: 0 auto;
             height: 100vh;
             align-items: start;
+            position: relative;
         }
 
         /* === Panel Izquierdo === */
@@ -513,81 +514,88 @@
             flex-shrink: 0;
         }
 
-        /* === Right Top Panel (QR + Sync) === */
-        .right-top {
-            display: flex;
-            flex-direction: column;
+        /* === Top Row (Header + QR) === */
+        .top-row {
+            display: grid;
+            grid-template-columns: 1fr 130px;
             gap: 16px;
+            align-items: stretch;
         }
 
-        .qr-card {
+        /* === QR Top Card === */
+        .qr-top-card {
             background: var(--card-bg);
             border: 2px dashed var(--border);
             border-radius: var(--radius);
-            padding: 14px;
+            padding: 10px;
             text-align: center;
             transition: var(--transition);
-            position: relative;
-            z-index: 1;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
-        .qr-card:hover, .qr-card.active {
+        .qr-top-card:hover, .qr-top-card.active {
             border-color: var(--primary);
             background: linear-gradient(135deg, var(--card-bg) 0%, var(--primary-light) 100%);
-            z-index: 100;
-            transform: scale(1.08);
             box-shadow: var(--shadow-lg);
         }
 
-        .qr-card .qr-label {
-            font-size: 10px;
+        .qr-top-card.active {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 280px;
+            z-index: 200;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .qr-top-label {
+            font-size: 9px;
             font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
-        .qr-wrap {
-            height: 80px;
+        .qr-top-wrap {
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: white;
             border-radius: var(--radius-sm);
-            padding: 8px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 4px;
             overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
         }
 
-        .qr-card:hover .qr-wrap, .qr-card.active .qr-wrap {
-            height: 200px;
+        .qr-top-card.active .qr-top-wrap {
+            height: 220px;
         }
 
-        .qr-wrap img, .qr-wrap canvas {
-            max-height: 60px;
+        .qr-top-wrap img, .qr-top-wrap canvas {
+            max-height: 50px;
             max-width: 100%;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .qr-card:hover .qr-wrap img,
-        .qr-card:hover .qr-wrap canvas,
-        .qr-card.active .qr-wrap img,
-        .qr-card.active .qr-wrap canvas {
-            max-height: 180px;
+        .qr-top-card.active .qr-top-wrap img,
+        .qr-top-card.active .qr-top-wrap canvas {
+            max-height: 200px;
         }
 
-        .qr-hint {
-            font-size: 10px;
+        .qr-top-hint {
+            font-size: 9px;
             color: var(--text-muted);
-            margin-top: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--border-light);
-            padding: 4px 10px;
-            border-radius: 20px;
+            margin-top: 6px;
+            line-height: 1.3;
         }
 
         .sync-box {
@@ -872,12 +880,20 @@
     <div class="main-wrapper">
         <!-- Panel izquierdo: Header, Link, Formulario, QR, Sync -->
         <div class="left-panel">
-            <div class="header-card animate-in">
-                <div class="institution-badge">
-                    <i class="fas fa-university"></i> Instituto Superior Centuria
+            <div class="top-row">
+                <div class="header-card animate-in">
+                    <div class="institution-badge">
+                        <i class="fas fa-university"></i> Instituto Superior Centuria
+                    </div>
+                    <h1><i class="fas fa-graduation-cap"></i> Registro de Asistencia</h1>
+                    <p>Complete el formulario para registrar su asistencia. También puede escanear el QR para acceder desde su celular.</p>
                 </div>
-                <h1><i class="fas fa-graduation-cap"></i> Registro de Asistencia</h1>
-                <p>Complete el formulario para registrar su asistencia. También puede escanear el QR para acceder desde su celular.</p>
+
+                <div class="qr-top-card" onclick="this.classList.toggle('active')">
+                    <div class="qr-top-label">QR de acceso rápido</div>
+                    <div class="qr-top-wrap"><div id="attendance-qr"></div></div>
+                    <div class="qr-top-hint">Escanee para registrar desde el celular</div>
+                </div>
             </div>
 
             <div class="link-box animate-in animate-in-delay-1">
@@ -950,21 +966,11 @@
                 </form>
             </div>
 
-            <div class="right-top animate-in animate-in-delay-2">
-                <div class="qr-card" onclick="this.classList.toggle('active')">
-                    <div class="qr-label">QR de acceso rápido</div>
-                    <div class="qr-wrap"><div id="attendance-qr"></div></div>
-                    <div class="qr-hint">
-                        <i class="fas fa-mobile-alt"></i> Escanee para registrar desde el celular
-                    </div>
-                </div>
-
-                <div class="sync-box">
-                    <h3><i class="fas fa-sync-alt"></i> Sincronización</h3>
-                    <p>Las asistencias se guardan automáticamente en la planilla del docente y se reflejan en el panel de seguimiento.</p>
-                    <div class="sync-badge">
-                        <i class="fas fa-shield-alt"></i> Datos protegidos y respaldados
-                    </div>
+            <div class="sync-box animate-in animate-in-delay-2">
+                <h3><i class="fas fa-sync-alt"></i> Sincronización</h3>
+                <p>Las asistencias se guardan automáticamente en la planilla del docente y se reflejan en el panel de seguimiento.</p>
+                <div class="sync-badge">
+                    <i class="fas fa-shield-alt"></i> Datos protegidos y respaldados
                 </div>
             </div>
         </div>
