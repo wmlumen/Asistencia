@@ -31,14 +31,186 @@
             background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
             color: var(--text);
             line-height: 1.5;
-            padding: 20px;
             min-height: 100vh;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        /* === Login Screen === */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(30,58,95,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s, visibility 0.5s;
         }
+
+        .login-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .login-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 20px rgba(3,102,214,0.3);
+        }
+
+        .login-box h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .login-box p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 4px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(3,102,214,0.3);
+        }
+
+        .login-error {
+            color: #dc3545;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .login-error.show { display: block; }
+
+        /* === Data Source Selector === */
+        .source-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow);
+        }
+
+        .source-bar label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .source-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .source-btn {
+            padding: 8px 14px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: white;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .source-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+        .source-btn.active {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary-light) 0%, #dbeafe 100%);
+            color: #174ea6;
+        }
+
+        .source-btn i { font-size: 12px; }
+
+        .source-status {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* === Main Content === */
+        .main-content {
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .main-content.visible { display: block; }
 
         .header {
             background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
@@ -325,6 +497,7 @@
 
         @media print {
             body { background: white; padding: 0; }
+            .login-overlay, .source-bar { display: none !important; }
             .header { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .career-header { background: #e8f0fe !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .career-section { break-inside: avoid; margin-bottom: 10px; }
@@ -333,13 +506,48 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Login Screen -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <div class="login-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2>Planilla de Asistencia</h2>
+            <p>Instituto Superior Centuria<br>Ingrese la contraseña para acceder</p>
+            <input type="password" class="login-input" id="loginPassword" placeholder="••••" maxlength="10" onkeypress="if(event.key==='Enter')checkLogin()">
+            <button class="login-btn" onclick="checkLogin()">
+                <i class="fas fa-unlock"></i> Desbloquear
+            </button>
+            <div class="login-error" id="loginError">Contraseña incorrecta</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
         <div class="header">
             <h1><i class="fas fa-clipboard-list"></i> Planilla de Asistencia</h1>
             <div class="header-info">
                 <div class="inst">Instituto Superior Centuria</div>
                 <div id="total-dias-clase">Días de clase: --</div>
                 <div id="fecha-generacion"></div>
+            </div>
+        </div>
+
+        <div class="source-bar">
+            <label><i class="fas fa-database"></i> Fuente de datos</label>
+            <div class="source-options">
+                <button class="source-btn" data-source="api" onclick="setDataSource('api')">
+                    <i class="fas fa-cloud"></i> API Remota
+                </button>
+                <button class="source-btn" data-source="csv" onclick="setDataSource('csv')">
+                    <i class="fas fa-file-csv"></i> CSV Público
+                </button>
+                <button class="source-btn" data-source="local" onclick="setDataSource('local')">
+                    <i class="fas fa-hdd"></i> Almacenamiento Local
+                </button>
+            </div>
+            <div class="source-status" id="sourceStatus">
+                <i class="fas fa-check-circle"></i> <span id="sourceText">Seleccione una fuente</span>
             </div>
         </div>
 
@@ -368,11 +576,14 @@
         </div>
 
         <div id="planilla-container">
-            <div class="loading"><i class="fas fa-spinner"></i> Cargando datos de asistencia...</div>
+            <div class="loading"><i class="fas fa-spinner"></i> Seleccione una fuente de datos para generar la planilla</div>
         </div>
     </div>
 
     <script>
+        const CLAVE_ACCESO = '2026';
+        let dataSource = localStorage.getItem('planilla_fuente') || '';
+
         function escapeHtml(text) {
             if (text == null) return '';
             return String(text)
@@ -380,6 +591,41 @@
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;');
+        }
+
+        function checkLogin() {
+            const input = document.getElementById('loginPassword');
+            const error = document.getElementById('loginError');
+            if (input.value === CLAVE_ACCESO) {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.add('visible');
+                if (dataSource) {
+                    setDataSource(dataSource);
+                }
+            } else {
+                error.classList.add('show');
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function setDataSource(source) {
+            dataSource = source;
+            localStorage.setItem('planilla_fuente', source);
+
+            document.querySelectorAll('.source-btn').forEach(function(btn) {
+                btn.classList.toggle('active', btn.dataset.source === source);
+            });
+
+            const statusMap = {
+                api: 'Conectando a API Remota...',
+                csv: 'Leyendo CSV Público...',
+                local: 'Usando datos locales...'
+            };
+            document.getElementById('sourceText').textContent = statusMap[source] || 'Seleccione una fuente';
+            document.getElementById('sourceStatus').style.color = '#0366d6';
+
+            cargarPlanilla();
         }
 
         async function cargarPlanilla() {
@@ -391,16 +637,14 @@
             const fechaGen = document.getElementById('fecha-generacion');
 
             fechaGen.textContent = 'Generado: ' + new Date().toLocaleString('es-PY');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Cargando datos desde ' + (dataSource || '...') + '...</div>';
 
             let records = [];
 
             try {
-                const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
-                const csvUrl = (typeof getAttendanceCsvUrl === 'function') ? getAttendanceCsvUrl() : '';
-
-                // 1. Intentar API
-                if (apiUrl) {
-                    try {
+                if (dataSource === 'api') {
+                    const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
+                    if (apiUrl) {
                         const resp = await fetch(apiUrl, { method: 'GET' });
                         if (resp.ok) {
                             const payload = await resp.json();
@@ -425,12 +669,13 @@
                                 }).filter(function(r) { return r.nombre || r.cedula; });
                             }
                         }
-                    } catch(e) { console.warn('API error:', e); }
+                    }
+                    document.getElementById('sourceText').textContent = records.length ? 'API Remota (' + records.length + ' registros)' : 'API Remota (sin datos)';
                 }
 
-                // 2. Fallback CSV
-                if (!records.length && csvUrl) {
-                    try {
+                else if (dataSource === 'csv') {
+                    const csvUrl = (typeof getAttendanceCsvUrl === 'function') ? getAttendanceCsvUrl() : '';
+                    if (csvUrl) {
                         const resp = await fetch(csvUrl);
                         if (resp.ok) {
                             const text = await resp.text();
@@ -438,25 +683,33 @@
                                 records = parseCSVToAttendance(text);
                             }
                         }
-                    } catch(e) { console.warn('CSV error:', e); }
+                    }
+                    document.getElementById('sourceText').textContent = records.length ? 'CSV Público (' + records.length + ' registros)' : 'CSV Público (sin datos)';
                 }
 
-                // 3. Fallback localStorage
-                if (!records.length && typeof loadAttendanceRecords === 'function') {
-                    records = loadAttendanceRecords();
+                else if (dataSource === 'local') {
+                    if (typeof loadAttendanceRecords === 'function') {
+                        records = loadAttendanceRecords();
+                    }
+                    document.getElementById('sourceText').textContent = records.length ? 'Almacenamiento Local (' + records.length + ' registros)' : 'Local (sin datos)';
                 }
             } catch(err) {
                 console.error('Error cargando planilla:', err);
+                document.getElementById('sourceText').textContent = 'Error al cargar datos';
             }
 
             if (!records || !records.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox" style="font-size:32px;display:block;margin-bottom:12px;color:#d1d5da;"></i>No hay datos de asistencia disponibles.</div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox" style="font-size:32px;display:block;margin-bottom:12px;color:#d1d5da;"></i>No hay datos de asistencia disponibles para esta fuente.<br><br><button class="source-btn" onclick="setDataSource(\'api\')">Reintentar API</button> <button class="source-btn" onclick="setDataSource(\'csv\')">Reintentar CSV</button> <button class="source-btn" onclick="setDataSource(\'local\')">Reintentar Local</button></div>';
+                totalAlumnosEl.textContent = '0';
+                totalDiasEl.textContent = '0';
+                promedioEl.textContent = '0%';
+                diasClaseHeader.textContent = 'Días de clase: 0';
                 return;
             }
 
             // Extraer y normalizar fechas
             records.forEach(function(r) {
-                const mt = r.marcaTemporal || r['Marca Temporal'] || r.timestamp || r.Fecha || '';
+                const mt = r.marcaTemporal || r['Marca Temporal'] || r.timestamp || r.Fecha || r.fecha || '';
                 let fecha = '';
                 const str = String(mt).trim();
                 const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
@@ -466,12 +719,16 @@
                     fecha = str.split(' ')[0];
                 } else if (str.includes('-')) {
                     const p = str.split(' ')[0].split('-');
-                    fecha = p[2] + '/' + p[1] + '/' + p[0];
+                    if (p[0].length === 4) {
+                        fecha = p[2] + '/' + p[1] + '/' + p[0];
+                    } else {
+                        fecha = p[0] + '/' + p[1] + '/' + p[2];
+                    }
                 }
                 r._fecha = fecha;
-                r._cedula = (r.cedula || '').toString().replace(/\./g, '').trim();
-                r._nombre = (r.nombre || '').toUpperCase().trim();
-                r._carrera = (r.carrera || '').toUpperCase().trim();
+                r._cedula = (r.cedula || r._cedula || '').toString().replace(/\./g, '').trim();
+                r._nombre = (r.nombre || r._nombre || '').toUpperCase().trim();
+                r._carrera = (r.carrera || r._carrera || '').toUpperCase().trim();
             });
 
             // Fechas unicas ordenadas
@@ -493,12 +750,10 @@
                 if (r._fecha) porCarrera[car][r._cedula].fechas.add(r._fecha);
             });
 
-            // Contar totales
             let totalAlumnos = 0;
             let sumaPct = 0;
             let conteoPct = 0;
 
-            // Generar HTML
             let html = '';
             Object.keys(porCarrera).sort().forEach(function(carrera) {
                 const alumnos = porCarrera[carrera];
@@ -513,7 +768,6 @@
                 html += '<div class="table-wrap">';
                 html += '<table>';
 
-                // Header
                 html += '<thead><tr>';
                 html += '<th>Cédula</th>';
                 html += '<th>Nombre</th>';
@@ -523,7 +777,6 @@
                 html += '<th>%</th>';
                 html += '</tr></thead>';
 
-                // Body
                 html += '<tbody>';
                 cedulas.forEach(function(cedula) {
                     const info = alumnos[cedula];
@@ -555,13 +808,6 @@
             container.innerHTML = html;
             totalAlumnosEl.textContent = totalAlumnos;
             if (conteoPct > 0) promedioEl.textContent = Math.round(sumaPct / conteoPct) + '%';
-        }
-
-        // Cargar al iniciar
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', cargarPlanilla);
-        } else {
-            cargarPlanilla();
         }
     </script>
 </body>
