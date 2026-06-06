@@ -3346,6 +3346,7 @@ async function submitAttendanceRecord(payload) {
 
 async function refreshAttendanceData() {
     try {
+        // Intentar leer desde API (Apps Script Web App)
         const apiUrl = getAttendanceApiUrl();
         if (apiUrl) {
             const records = await syncAttendanceFromRemote();
@@ -3355,6 +3356,25 @@ async function refreshAttendanceData() {
             return records;
         }
 
+        // Intentar leer desde CSV publico del Google Form
+        const csvUrl = getAttendanceCsvUrl();
+        if (csvUrl) {
+            try {
+                const response = await fetch(csvUrl);
+                if (response.ok) {
+                    const text = await response.text();
+                    const records = parseCSVToAttendance(text);
+                    updateAttendanceSourceStatus('Fuente: Formulario Google (CSV)');
+                    renderAttendance();
+                    renderPublicAttendancePreview(records);
+                    return records;
+                }
+            } catch (csvError) {
+                console.warn('No se pudo leer CSV:', csvError);
+            }
+        }
+
+        // Fallback: localStorage
         const records = loadAttendanceRecords();
         updateAttendanceSourceStatus('Fuente: almacenamiento local');
         renderAttendance();
@@ -3908,14 +3928,21 @@ function renderPublicAttendancePreview(records = loadAttendanceRecords()) {
         return;
     }
 
-    tbody.innerHTML = safeRecords.slice(0, 12).map(r => `
+    tbody.innerHTML = safeRecords.slice(0, 12).map(r => {
+        // Normalizar campos (CSV de Google Form usa nombres diferentes)
+        const marcaTemporal = r.marcaTemporal || r['Marca Temporal'] || r['Timestamp'] || r.timestamp || r.Fecha || '';
+        const nombre = r.nombre || r['Nombre'] || r.studentName || r.Nombre || '';
+        const cedula = r.cedula || r['Cédula'] || r['Cedula'] || r.studentId || r.Cedula || '';
+        const carrera = r.carrera || r['Carrera'] || r.career || r.Carrera || '';
+        
+        return `
         <tr class="border-b border-slate-100">
-            <td class="px-4 py-3 text-slate-500">${escapeHtml(r.marcaTemporal || '')}</td>
-            <td class="px-4 py-3 font-medium text-slate-900">${escapeHtml(normalizarNombre(r.nombre || ''))}</td>
-            <td class="px-4 py-3 text-slate-600">${escapeHtml(r.cedula || '')}</td>
-            <td class="px-4 py-3 text-slate-500">${escapeHtml(r.carrera || '')}</td>
+            <td class="px-4 py-3 text-slate-500">${escapeHtml(marcaTemporal)}</td>
+            <td class="px-4 py-3 font-medium text-slate-900">${escapeHtml(normalizarNombre(nombre))}</td>
+            <td class="px-4 py-3 text-slate-600">${escapeHtml(cedula)}</td>
+            <td class="px-4 py-3 text-slate-500">${escapeHtml(carrera)}</td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 function corregirTexto(text) {
