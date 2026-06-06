@@ -3387,14 +3387,49 @@ async function refreshAttendanceData() {
         throw error;
     }
 }
-
-
-
-
-
-
-
-function updateSelectedAttendanceLabel() {
+
+function escapeHtml(text) {
+    if (text == null) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function renderAttendance(records) {
+    const tbody = document.getElementById('attendance-body');
+    const badge = document.getElementById('attendance-count-badge');
+    const sidebarBadge = document.getElementById('sidebar-attendance-badge');
+    if (!tbody) return;
+
+    const safeRecords = Array.isArray(records) ? records : loadAttendanceRecords();
+    const cedulasUnicas = new Set(safeRecords.map(r => (r.cedula || r.Cedula || r.studentId || '').toString().replace(/\./g, '').trim()).filter(Boolean)).size;
+    const countText = cedulasUnicas + ' asistentes';
+    if (badge) badge.textContent = countText;
+    if (sidebarBadge) sidebarBadge.textContent = cedulasUnicas;
+
+    if (!safeRecords.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-400"><i class="fas fa-clipboard text-2xl text-slate-300 mb-2 block"></i>Use el módulo de carga para importar los registros de asistencia.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = safeRecords.slice(0, 100).map(r => {
+        const marcaTemporal = r.marcaTemporal || r['Marca Temporal'] || r['Timestamp'] || r.timestamp || r.Fecha || '';
+        const nombre = r.nombre || r['Nombre'] || r.studentName || r.Nombre || '';
+        const cedula = r.cedula || r['Cédula'] || r['Cedula'] || r.studentId || r.Cedula || '';
+        const carrera = r.carrera || r['Carrera'] || r.career || r.Carrera || '';
+        return '<tr class="hover:bg-slate-50/80 transition-all border-b border-slate-100">' +
+            '<td class="py-3 px-5 text-slate-500">' + escapeHtml(marcaTemporal) + '</td>' +
+            '<td class="py-3 px-5 font-medium text-slate-900">' + escapeHtml(normalizarNombre(nombre)) + '</td>' +
+            '<td class="py-3 px-5 text-slate-600">' + escapeHtml(cedula) + '</td>' +
+            '<td class="py-3 px-5 text-slate-500">' + escapeHtml(carrera) + '</td>' +
+        '</tr>';
+    }).join('');
+}
+
+function updateSelectedAttendanceLabel() {
 
 
 
