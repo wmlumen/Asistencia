@@ -15,6 +15,30 @@
         .blob { position: absolute; filter: blur(80px); opacity: 0.6; border-radius: 50%; }
         .blob-1 { width: 400px; height: 400px; background: #059669; top: -100px; left: -100px; }
         .blob-2 { width: 400px; height: 400px; background: #a3e635; bottom: -100px; right: -100px; }
+        .career-btn {
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+            background: white;
+        }
+        .career-btn:hover {
+            border-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+        }
+        .career-btn.selected {
+            border-color: #059669;
+            background: #ecfdf5;
+            color: #059669;
+        }
+        .career-btn.selected .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .check-icon {
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-800 p-4 md:p-8">
@@ -29,7 +53,7 @@
                     <p class="text-xs uppercase tracking-[0.3em] text-emerald-100 mb-3">Institución</p>
                     <h1 class="text-3xl md:text-4xl font-black mb-3">Registro de Asistencia</h1>
                     <p class="text-sm md:text-base text-emerald-100 max-w-2xl">
-                        El alumno puede registrar su asistencia desde esta página o escanear el QR para abrirla en el celular.
+                        Complete el formulario oficial para registrar su asistencia. También puede escanear el QR para acceder desde su celular.
                     </p>
                 </div>
 
@@ -37,45 +61,89 @@
                     <div class="space-y-5">
                         <div class="rounded-2xl border border-slate-200/50 bg-white/50 p-4">
                             <div class="flex items-center justify-between mb-2">
-                                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">URL pública</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Formulario oficial</p>
                                 <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('attendance-page-link').href).then(() => alert('Enlace copiado!'))" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-100/50 hover:bg-emerald-200 px-2 py-1 rounded">
                                     <i class="fas fa-copy mr-1"></i>Copiar
                                 </button>
                             </div>
-                            <a id="attendance-page-link" href="asistencia.html" class="text-sm text-blue-700 break-all hover:underline"></a>
+                            <a id="attendance-page-link" href="#" target="_blank" class="text-sm text-blue-700 break-all hover:underline"></a>
+                            <p class="text-xs text-slate-400 mt-1">Las respuestas se guardan en la <a href="https://docs.google.com/spreadsheets/d/1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk/edit?gid=178512863#gid=178512863" target="_blank" class="underline hover:text-blue-600">planilla oficial</a>.</p>
                         </div>
 
-                        <form id="attendance-registration-form" class="space-y-4">
-                            <div>
-                                <label for="attendance-id" class="block text-sm font-semibold text-slate-700 mb-2">Cedula o matricula</label>
-                                <input id="attendance-id" type="text" required class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: 1234567">
+                        <!-- Formulario oficial -->
+                        <div class="bg-white/80 rounded-2xl border border-emerald-200 p-6 text-center shadow-sm">
+                            <div class="mb-4">
+                                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mb-3">
+                                    <i class="fas fa-clipboard-check text-xl"></i>
+                                </div>
+                                <h2 class="text-lg font-bold text-slate-800 mb-1">Formulario Oficial de Asistencia</h2>
+                                <p class="text-sm text-slate-500">Sus datos se guardarán directamente en la planilla del docente.</p>
                             </div>
+                            <a id="btn-formulario-oficial" href="#" target="_blank" class="inline-block w-full rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-bold px-4 py-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                                <i class="fas fa-external-link-alt mr-2"></i>Abrir Formulario
+                            </a>
+                        </div>
 
-                            <div>
-                                <label for="attendance-name" class="block text-sm font-semibold text-slate-700 mb-2">Nombre y apellido</label>
-                                <input id="attendance-name" type="text" required class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: Juan Perez">
-                            </div>
-
-                            <div>
-                                <label for="attendance-career" class="block text-sm font-semibold text-slate-700 mb-2">Carrera</label>
-                                <select id="attendance-career" required class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none">
-                                    <option value="">Cargando carreras...</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label for="attendance-notes" class="block text-sm font-semibold text-slate-700 mb-2">Observacion <span class="text-slate-400 font-normal">(Opcional)</span></label>
-                                <textarea id="attendance-notes" rows="3" class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: Llegada tardía, clase virtual, etc."></textarea>
-                            </div>
-
-                            <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-bold px-4 py-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-                                <i class="fas fa-check-circle mr-2"></i>Registrar asistencia
+                        <!-- Modo offline (colapsable) -->
+                        <div class="border border-slate-200/50 rounded-2xl overflow-hidden">
+                            <button type="button" onclick="document.getElementById('offline-form').classList.toggle('hidden')" class="w-full flex items-center justify-between px-4 py-3 bg-slate-50/80 hover:bg-slate-100/80 text-slate-600 text-sm font-semibold transition-all">
+                                <span><i class="fas fa-wifi-slash mr-2"></i>¿Sin internet? Usar registro local (modo offline)</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                        </form>
-
-                        <div id="attendance-form-status" class="rounded-xl border border-slate-200 bg-white/50 px-4 py-3 text-sm text-slate-600 backdrop-blur-sm">
-                            Complete los datos para registrar la asistencia.<br>
-                            <span class="text-xs font-semibold">Ingrese la cédula sin puntos ni guiones.</span>
+                            <div id="offline-form" class="hidden p-4 space-y-4 bg-white/50">
+                                <form id="attendance-registration-form" class="space-y-4">
+                                    <div>
+                                        <label for="attendance-id" class="block text-sm font-semibold text-slate-700 mb-2">Cedula o matricula</label>
+                                        <input id="attendance-id" type="text" required class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: 1234567">
+                                    </div>
+                                    <div>
+                                        <label for="attendance-name" class="block text-sm font-semibold text-slate-700 mb-2">Nombre y apellido</label>
+                                        <input id="attendance-name" type="text" required class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: Juan Perez">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-3">Seleccione su Carrera</label>
+                                        <div class="grid grid-cols-1 gap-3" id="career-buttons-container">
+                                            <button type="button" data-career="ADMINISTRACION DE EMPRESAS" onclick="selectCareer(this)" class="career-btn w-full rounded-xl px-4 py-4 text-left flex items-center gap-3 group">
+                                                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-200 transition-colors">
+                                                    <i class="fas fa-building"></i>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <span class="font-bold text-sm block">ADMINISTRACIÓN DE EMPRESAS</span>
+                                                </div>
+                                                <i class="fas fa-check-circle check-icon text-emerald-600 text-lg"></i>
+                                            </button>
+                                            <button type="button" data-career="ADMINISTRACION Y GESTION" onclick="selectCareer(this)" class="career-btn w-full rounded-xl px-4 py-4 text-left flex items-center gap-3 group">
+                                                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-200 transition-colors">
+                                                    <i class="fas fa-tasks"></i>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <span class="font-bold text-sm block">ADMINISTRACIÓN Y GESTIÓN</span>
+                                                </div>
+                                                <i class="fas fa-check-circle check-icon text-emerald-600 text-lg"></i>
+                                            </button>
+                                        </div>
+                                        <input type="hidden" id="attendance-career" required>
+                                    </div>
+                                    <div>
+                                        <label for="attendance-state" class="block text-sm font-semibold text-slate-700 mb-2">Estado</label>
+                                        <select id="attendance-state" required class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none">
+                                            <option value="Presente">Presente</option>
+                                            <option value="Tarde">Tarde</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="attendance-notes" class="block text-sm font-semibold text-slate-700 mb-2">Observacion <span class="text-slate-400 font-normal">(Opcional)</span></label>
+                                        <textarea id="attendance-notes" rows="2" class="w-full rounded-xl border-2 border-slate-200 bg-white/50 px-4 py-3 focus:border-emerald-600 focus:outline-none" placeholder="Ej: Llegada tardía, clase virtual, etc."></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2.5 shadow transition-all">
+                                        <i class="fas fa-save mr-2"></i>Guardar localmente
+                                    </button>
+                                </form>
+                                <div id="attendance-form-status" class="rounded-xl border border-slate-200 bg-white/50 px-4 py-3 text-sm text-slate-600">
+                                    El registro local se sincronizará cuando haya conexión.<br>
+                                    <span class="text-xs font-semibold">Preferible usar el formulario oficial arriba.</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -83,13 +151,13 @@
                         <div class="bg-white/50 backdrop-blur-md border border-slate-200/50 rounded-3xl p-5 text-center shadow-sm">
                             <p class="text-xs uppercase tracking-[0.24em] text-slate-500 mb-4">QR de acceso</p>
                             <div id="attendance-qr" class="flex justify-center items-center min-h-[220px]"></div>
-                            <p class="text-xs text-slate-500 mt-4">Apunte la cámara de su celular aquí para abrir esta página.</p>
+                            <p class="text-xs text-slate-500 mt-4">Apunte la cámara de su celular aquí para abrir el formulario oficial.</p>
                         </div>
 
-                        <div class="rounded-3xl border border-emerald-100 bg-emerald-50/50 p-5 hidden md:block">
-                            <h2 class="font-bold text-emerald-900 mb-2 text-sm uppercase tracking-wide">Sincronizacion (Admin)</h2>
+                        <div class="rounded-3xl border border-emerald-100 bg-emerald-50/50 p-5">
+                            <h2 class="font-bold text-emerald-900 mb-2 text-sm uppercase tracking-wide">Sincronización</h2>
                             <p class="text-xs text-emerald-800">
-                                Si <code>asistencia.api.url</code> está configurado, el registro se guardará directamente en la base de datos externa.
+                                El seguimiento de asistencia se actualiza automáticamente desde la planilla compartida en Google Sheets.
                             </p>
                         </div>
                     </div>

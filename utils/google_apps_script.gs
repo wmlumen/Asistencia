@@ -1,56 +1,38 @@
+/**
+ * ASISTENCIA CENTURIA - Google Apps Script
+ * ==========================================
+ * Proyecto: https://script.google.com/home/projects/1hJhNk5IlDLqQuNa9Xoy3pmsm2nmVZjzoEJO9462n6ZpQMoc8GCAiSJp4/edit
+ * Planilla: https://docs.google.com/spreadsheets/d/1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk/edit
+ * 
+ * INSTRUCCIONES:
+ * 1. Copiar este código en el editor de Apps Script
+ * 2. Guardar (Ctrl+S)
+ * 3. Implementar > Nuevo implementacion > Web App
+ * 4. Acceso: Cualquiera
+ * 5. Copiar la URL de la Web App y pegarla en asistencia.api.url
+ * ==========================================
+ */
+
 const SPREADSHEET_ID = '1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk';
-const SHEET_NAME = 'Asistencia';
+const SHEET_REGISTRO = 'Registro';
+const SHEET_RESUMEN = 'Resumen';
 
-function doGet() {
-  const sheet = getSheet_();
-  const values = sheet.getDataRange().getValues();
+/* ============================================================
+   CONFIGURACIÓN INICIAL DE HOJAS
+   ============================================================ */
 
-  if (values.length <= 1) {
-    return json_({ records: [] });
+function getSheet_(name) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    if (name === SHEET_REGISTRO) {
+      sheet.appendRow(['Fecha','Nombre','Cedula','Carrera','Observacion','Estado','MarcaTemporal']);
+      sheet.getRange('A:A').setNumberFormat('dd/MM/yyyy');
+    } else if (name === SHEET_RESUMEN) {
+      sheet.appendRow(['Cedula','Nombre','Carrera','TotalClases','Asistencias','Tardanzas','Ausencias','Porcentaje']);
+    }
   }
-
-  const headers = values[0];
-  const records = values.slice(1).reverse().map((row) => {
-    return headers.reduce((acc, header, index) => {
-      acc[header] = row[index];
-      return acc;
-    }, {});
-  });
-
-  return json_({ records });
-}
-
-function doPost(e) {
-  const data = JSON.parse(e.postData.contents || '{}');
-  const sheet = getSheet_();
-
-  sheet.appendRow([
-    data.studentName || '',
-    data.studentId || '',
-    data.career || '',
-    data.notes || '',
-    data.sourcePage || '',
-    data.timestamp || new Date().toISOString()
-  ]);
-
-  return json_({ ok: true });
-}
-
-function getSheet_() {
-  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
-
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow([
-      'studentName',
-      'studentId',
-      'career',
-      'notes',
-      'sourcePage',
-      'timestamp'
-    ]);
-  }
-
   return sheet;
 }
 
@@ -58,4 +40,235 @@ function json_(payload) {
   return ContentService
     .createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ============================================================
+   GUARDAR ASISTENCIA (POST)
+   ============================================================ */
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents || '{}');
+    const sheet = getSheet_(SHEET_REGISTRO);
+
+    const now = new Date();
+    const fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
+    const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
+
+    const estado = (data.estado || 'Presente').trim();
+    const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
+    const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
+    const carrera = (data.career || data.carrera || '').trim();
+    const observacion = (data.notes || data.observacion || '').trim();
+
+    if (!nombre || !cedula || !carrera) {
+      return json_({ ok: false, error: 'Faltan datos requeridos: nombre, cedula o carrera' });
+    }
+
+    // Validar carrera
+    const carrerasValidas = ['ADMINISTRACION DE EMPRESAS', 'ADMINISTRACION Y GESTION'];
+    const carreraNormalizada = carrera.toUpperCase();
+    const carreraValida = carrerasValidas.find(c => carreraNormalizada.includes(c));
+    
+    if (!carreraValida) {
+      return json_({ ok: false, error: 'Carrera no válida: ' + carrera });
+    }
+
+    // Evitar duplicados exactos en la misma fecha
+    const datos = sheet.getDataRange().getValues();
+    const yaExiste = datos.some(row => {
+      const rowCedula = (row[2] || '').toString().replace(/\./g, '').trim();
+      return rowCedula === cedula && row[0] === fechaStr;
+    });
+
+    if (yaExiste) {
+      return json_({ ok: false, duplicado: true, mensaje: 'Ya existe un registro para esta cedula en la fecha actual' });
+    }
+
+    sheet.appendRow([fechaStr, nombre, cedula, carreraValida, observacion, estado, marcaTemporal]);
+    recalcularResumen_();
+
+    return json_({ ok: true, mensaje: 'Asistencia registrada correctamente', duplicado: false });
+  } catch (error) {
+    return json_({ ok: false, error: error.message || 'Error desconocido' });
+  }
+}
+
+/* ============================================================
+   LEER ASISTENCIA (GET)
+   ============================================================ */
+
+function doGet(e) {
+  try {
+    const modo = e?.parameter?.modo || 'registro';
+
+    if (modo === 'resumen') {
+      return json_({ resumen: obtenerResumen_() });
+    }
+
+    if (modo === 'csv') {
+      return exportarCSV_();
+    }
+
+    // modo = 'registro' por defecto
+    const sheet = getSheet_(SHEET_REGISTRO);
+    const values = sheet.getDataRange().getValues();
+
+    if (values.length <= 1) return json_({ registros: [] });
+
+    const headers = values[0];
+    const registros = values.slice(1).reverse().map(row => {
+      return headers.reduce((acc, h, i) => { 
+        acc[h] = row[i]; 
+        return acc; 
+      }, {});
+    });
+
+    return json_({ registros, total: registros.length });
+  } catch (error) {
+    return json_({ ok: false, error: error.message });
+  }
+}
+
+/* ============================================================
+   RECALCULAR RESUMEN (% DE ASISTENCIA)
+   ============================================================ */
+
+function recalcularResumen_() {
+  try {
+    const regSheet = getSheet_(SHEET_REGISTRO);
+    const resSheet = getSheet_(SHEET_RESUMEN);
+
+    const datos = regSheet.getDataRange().getValues();
+    if (datos.length <= 1) {
+      // Limpiar resumen si no hay datos
+      if (resSheet.getLastRow() > 1) {
+        resSheet.getRange(2, 1, resSheet.getLastRow() - 1, 8).clearContent();
+      }
+      return;
+    }
+
+    // Mapa: cedula -> { nombre, carrera, total, presente, tarde }
+    const mapa = {};
+    const fechasUnicas = new Set();
+
+    for (let i = 1; i < datos.length; i++) {
+      const [fecha, nombre, cedula, carrera, obs, estado] = datos[i];
+      const cedulaLimpia = (cedula || '').toString().replace(/\./g, '').trim();
+      if (!cedulaLimpia) continue;
+      
+      fechasUnicas.add(fecha);
+
+      if (!mapa[cedulaLimpia]) {
+        mapa[cedulaLimpia] = { 
+          nombre: nombre || '', 
+          carrera: carrera || '', 
+          total: 0, 
+          presente: 0, 
+          tarde: 0 
+        };
+      }
+      mapa[cedulaLimpia].total++;
+      if (estado === 'Presente') mapa[cedulaLimpia].presente++;
+      else if (estado === 'Tarde') mapa[cedulaLimpia].tarde++;
+    }
+
+    const totalClases = fechasUnicas.size;
+    const filas = Object.keys(mapa).sort().map(cedula => {
+      const r = mapa[cedula];
+      const asistencias = r.presente + (r.tarde * 0.5); // Tarde = 0.5
+      const ausencias = Math.max(0, totalClases - r.presente - r.tarde);
+      const porcentaje = totalClases > 0 ? Math.round((asistencias / totalClases) * 100) : 0;
+      return [
+        cedula, 
+        r.nombre, 
+        r.carrera, 
+        totalClases, 
+        r.presente, 
+        r.tarde, 
+        ausencias, 
+        porcentaje
+      ];
+    });
+
+    // Limpiar y reescribir
+    if (resSheet.getLastRow() > 1) {
+      resSheet.getRange(2, 1, resSheet.getLastRow() - 1, 8).clearContent();
+    }
+    if (filas.length) {
+      resSheet.getRange(2, 1, filas.length, 8).setValues(filas);
+    }
+  } catch (error) {
+    console.error('Error en recalcularResumen_:', error);
+  }
+}
+
+function obtenerResumen_() {
+  try {
+    const sheet = getSheet_(SHEET_RESUMEN);
+    const values = sheet.getDataRange().getValues();
+    if (values.length <= 1) return [];
+
+    const headers = values[0];
+    return values.slice(1).map(row => {
+      return headers.reduce((acc, h, i) => { 
+        acc[h] = row[i]; 
+        return acc; 
+      }, {});
+    });
+  } catch (error) {
+    console.error('Error en obtenerResumen_:', error);
+    return [];
+  }
+}
+
+/* ============================================================
+   EXPORTAR CSV (para compatibilidad)
+   ============================================================ */
+
+function exportarCSV_() {
+  try {
+    const sheet = getSheet_(SHEET_REGISTRO);
+    const values = sheet.getDataRange().getValues();
+    
+    if (values.length <= 1) {
+      return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
+    }
+
+    const csv = values.map(row => 
+      row.map(cell => {
+        const str = String(cell || '').replace(/"/g, '""');
+        return '"' + str + '"';
+      }).join(',')
+    ).join('\n');
+
+    return ContentService.createTextOutput(csv).setMimeType(ContentService.MimeType.TEXT);
+  } catch (error) {
+    return ContentService.createTextOutput('Error: ' + error.message).setMimeType(ContentService.MimeType.TEXT);
+  }
+}
+
+/* ============================================================
+   FUNCIONES UTILITARIAS (ejecutar manualmente desde el editor)
+   ============================================================ */
+
+function recalcularManualmente() {
+  recalcularResumen_();
+  console.log('Resumen recalculado manualmente');
+}
+
+function limpiarDatosDePrueba() {
+  const sheet = getSheet_(SHEET_REGISTRO);
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    sheet.getRange(2, 1, lastRow - 1, 7).clearContent();
+  }
+  recalcularResumen_();
+  console.log('Datos de prueba eliminados');
+}
+
+function inicializarHojas() {
+  getSheet_(SHEET_REGISTRO);
+  getSheet_(SHEET_RESUMEN);
+  console.log('Hojas inicializadas correctamente');
 }

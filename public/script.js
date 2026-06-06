@@ -3097,6 +3097,10 @@ function getAttendanceApiUrl() {
 }
 
 function getAttendancePublicUrl() {
+    // Si hay un formulario de Google configurado, usarlo como URL publica principal
+    const formUrl = (CONFIG.link_google_forms || '').trim();
+    if (formUrl) return formUrl;
+
     const configured = (CONFIG.asistencia_public_url || '').trim();
     if (configured) return configured;
 
@@ -3105,6 +3109,66 @@ function getAttendancePublicUrl() {
     } catch (error) {
         return 'asistencia.html';
     }
+}
+
+function getAttendanceCsvUrl() {
+    return (CONFIG.asistencia_csv_url || '').trim();
+}
+
+function parseCSVToAttendance(csvText) {
+    const lines = csvText.split(/\r?\n/).filter(line => line.trim());
+    if (lines.length < 2) return [];
+
+    const parseRow = (line) => {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current.trim());
+        return result.map(v => v.replace(/^"|"$/g, ''));
+    };
+
+    const headers = parseRow(lines[0]).map(h => h.toLowerCase().replace(/\s/g, ''));
+    const findHeader = (...candidates) => {
+        for (const c of candidates) {
+            const idx = headers.indexOf(c.toLowerCase().replace(/\s/g, ''));
+            if (idx !== -1) return idx;
+        }
+        return -1;
+    };
+
+    const idxNombre = findHeader('nombre', 'name', 'studentname', 'alumno', 'nombreyapellido');
+    const idxCedula = findHeader('cedula', 'id', 'studentid', 'ci', 'documento', 'matricula');
+    const idxCarrera = findHeader('carrera', 'career', 'curso', 'carrerauniversitaria');
+    const idxObs = findHeader('observacion', 'notes', 'observation', 'comentario', 'obs');
+    const idxEstado = findHeader('estado', 'state', 'status', 'asistencia', 'condicion');
+    const idxFecha = findHeader('marcatemporal', 'timestamp', 'fecha', 'date', 'hora', 'fechahora');
+
+    const records = [];
+    for (let i = 1; i < lines.length; i++) {
+        const values = parseRow(lines[i]);
+        const nombre = values[idxNombre] || '';
+        const cedula = (values[idxCedula] || '').toString().replace(/\./g, '').trim();
+        const carrera = values[idxCarrera] || '';
+        const observacion = values[idxObs] || '';
+        const estado = (values[idxEstado] || 'Presente').trim();
+        const marcaTemporal = values[idxFecha] || '';
+
+        if (nombre || cedula) {
+            records.push({ nombre, cedula, carrera, observacion, estado, marcaTemporal });
+        }
+    }
+    return records;
 }
 
 async function getAttendanceCareers() {
@@ -3151,7 +3215,8 @@ function normalizeAttendanceRecord(record) {
         nombre: record.nombre || record.studentName || '',
         cedula: (record.cedula || record.studentId || '').toString().replace(/\./g, '').trim(),
         carrera: record.carrera || record.career || '',
-        observacion: record.observacion || record.notes || ''
+        observacion: record.observacion || record.notes || '',
+        estado: record.estado || 'Presente'
     };
 
     return corregirRecord(normalized);
@@ -3163,16 +3228,32 @@ function parseAttendanceResponse(payload) {
 }
 
 async function fetchAttendanceRemoteRecords() {
-    const apiUrl = getAttendanceApiUrl();
-    if (!apiUrl) return null;
-
-    const response = await fetch(apiUrl, { method: 'GET' });
-    if (!response.ok) {
-        throw new Error('No se pudo leer la asistencia desde Drive.');
+    // Intentar leer desde CSV publico primero
+    const csvUrl = getAttendanceCsvUrl();
+    if (csvUrl) {
+        try {
+            const response = await fetch(csvUrl);
+            if (response.ok) {
+                const text = await response.text();
+                const records = parseCSVToAttendance(text);
+                if (records && records.length) return records;
+            }
+        } catch (e) {
+            console.warn('No se pudo leer CSV publico:', e);
+        }
     }
 
-    const payload = await response.json();
-    return parseAttendanceResponse(payload);
+    const apiUrl = getAttendanceApiUrl();
+    if (apiUrl) {
+        const response = await fetch(apiUrl, { method: 'GET' });
+        if (!response.ok) {
+            throw new Error('No se pudo leer la asistencia desde Drive.');
+        }
+        const payload = await response.json();
+        return parseAttendanceResponse(payload);
+    }
+
+    return null;
 }
 
 async function syncAttendanceFromRemote() {
@@ -3246,6 +3327,7 @@ async function submitAttendanceRecord(payload) {
                 studentId: normalized.cedula,
                 career: normalized.carrera,
                 notes: normalized.observacion,
+                estado: normalized.estado,
                 timestamp: normalized.marcaTemporal,
                 sourcePage: getAttendancePublicUrl()
             })
@@ -4215,26 +4297,46 @@ function initTeacherPanel() {
 
 
 
+function selectCareer(button) {
+    const container = document.getElementById('career-buttons-container');
+    if (!container) return;
+    
+    // Quitar selección de todos los botones
+    container.querySelectorAll('.career-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // Seleccionar el botón clickeado
+    button.classList.add('selected');
+    
+    // Guardar valor en el input hidden
+    const hiddenInput = document.getElementById('attendance-career');
+    if (hiddenInput) {
+        hiddenInput.value = button.getAttribute('data-career');
+    }
+}
+
 function initAttendanceRegistrationPage() {
     const form = document.getElementById('attendance-registration-form');
     if (!form) return;
 
-    const careerSelect = document.getElementById('attendance-career');
+    const careerInput = document.getElementById('attendance-career');
     const qrTarget = document.getElementById('attendance-qr');
     const pageLink = document.getElementById('attendance-page-link');
     const status = document.getElementById('attendance-form-status');
-
-    if (careerSelect) {
-        getAttendanceCareers().then(careers => {
-            careerSelect.innerHTML = '<option value="">Seleccione una carrera</option>' +
-                careers.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-        });
-    }
 
     if (pageLink) {
         const publicUrl = getAttendancePublicUrl();
         pageLink.href = publicUrl;
         pageLink.textContent = publicUrl;
+    }
+
+    const btnOficial = document.getElementById('btn-formulario-oficial');
+    if (btnOficial) {
+        const formUrl = (CONFIG.link_google_forms || '').trim();
+        if (formUrl) {
+            btnOficial.href = formUrl;
+        }
     }
 
     if (qrTarget && typeof QRCode !== 'undefined') {
@@ -4265,9 +4367,16 @@ function initAttendanceRegistrationPage() {
                 if (!nameInput.value.trim()) {
                     nameInput.value = found.nombre;
                 }
-                if (careerSelect && !careerSelect.value && found.carrera) {
-                    const opt = Array.from(careerSelect.options).find(o => o.value === found.carrera);
-                    if (opt) careerSelect.value = found.carrera;
+                // Seleccionar carrera automáticamente si coincide
+                if (found.carrera) {
+                    const container = document.getElementById('career-buttons-container');
+                    if (container) {
+                        container.querySelectorAll('.career-btn').forEach(btn => {
+                            if (btn.getAttribute('data-career') === found.carrera) {
+                                selectCareer(btn);
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -4280,13 +4389,14 @@ function initAttendanceRegistrationPage() {
             nombre: document.getElementById('attendance-name')?.value.trim() || '',
             cedula: document.getElementById('attendance-id')?.value.trim() || '',
             carrera: document.getElementById('attendance-career')?.value || '',
+            estado: document.getElementById('attendance-state')?.value || 'Presente',
             observacion: document.getElementById('attendance-notes')?.value.trim() || '',
             marcaTemporal: new Date().toLocaleString('es-PY')
         };
 
         if (!payload.nombre || !payload.cedula || !payload.carrera) {
             if (status) {
-                status.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Complete nombre, cédula y carrera.';
+                status.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Complete nombre, cédula y seleccione una carrera.';
                 status.className = 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700';
             }
             return;
@@ -4295,6 +4405,11 @@ function initAttendanceRegistrationPage() {
         try {
             await submitAttendanceRecord(payload);
             form.reset();
+            // Resetear botones de carrera
+            const container = document.getElementById('career-buttons-container');
+            if (container) {
+                container.querySelectorAll('.career-btn').forEach(btn => btn.classList.remove('selected'));
+            }
             if (status) {
                 status.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Asistencia registrada correctamente.';
                 status.className = 'rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 font-semibold';
