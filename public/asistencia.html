@@ -92,8 +92,8 @@
         .main-wrapper {
             display: grid;
             grid-template-columns: 1fr 400px;
-            gap: 24px;
-            padding: 24px;
+            gap: 16px;
+            padding: 16px;
             max-width: 1440px;
             margin: 0 auto;
             height: 100vh;
@@ -105,8 +105,8 @@
         .left-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            height: calc(100vh - 48px);
+            gap: 12px;
+            height: calc(100vh - 32px);
             overflow: hidden;
         }
 
@@ -114,7 +114,7 @@
         .header-card {
             background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
             border-radius: var(--radius-lg);
-            padding: 24px 28px;
+            padding: 16px 20px;
             color: white;
             position: relative;
             overflow: hidden;
@@ -133,48 +133,49 @@
         }
 
         .header-card h1 {
-            font-size: 26px;
+            font-size: 22px;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             position: relative;
             z-index: 1;
         }
 
         .header-card h1 i {
             background: rgba(255,255,255,0.2);
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
             backdrop-filter: blur(10px);
         }
 
         .header-card p {
-            font-size: 14px;
+            font-size: 12px;
             opacity: 0.9;
             max-width: 600px;
             position: relative;
             z-index: 1;
+            line-height: 1.4;
         }
 
         .institution-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             background: rgba(255,255,255,0.15);
-            padding: 4px 12px;
+            padding: 3px 8px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             backdrop-filter: blur(10px);
         }
 
@@ -183,13 +184,480 @@
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 14px 18px;
+            padding: 10px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
             box-shadow: var(--shadow-sm);
             transition: var(--transition);
+        }
+
+        .link-box:hover {
+            box-shadow: var(--shadow);
+            border-color: var(--primary-light);
+        }
+
+        .link-box .link-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 2px;
+        }
+
+        .link-box a {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .link-box a:hover {
+            color: var(--primary-dark);
+        }
+
+        .link-box button {
+            margin: 0;
+            padding: 6px 10px;
+            font-size: 11px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--primary-light);
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .link-box button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(3,102,214,0.3);
+        }
+
+        /* === Form Card === */
+        .form-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 12px;
+            flex: 1;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-card h2 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text);
+        }
+
+        .form-card h2 i {
+            color: var(--primary);
+            background: var(--primary-light);
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        /* === Form Groups === */
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .career-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-group label i {
+            color: var(--primary);
+            font-size: 9px;
+        }
+
+        input, select, textarea {
+            font-family: inherit;
+            padding: 6px 10px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            width: 100%;
+            background: var(--card-bg);
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23718096'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 14px;
+            padding-right: 28px;
+        }
+
+        textarea {
+            resize: none;
+            min-height: 32px;
+        }
+
+        .career-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--card-bg);
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 11px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .career-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .career-btn.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary-light) 0%, #dbeafe 100%);
+            box-shadow: 0 0 0 3px rgba(3,102,214,0.15);
+        }
+
+        .career-btn .icon-box {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .career-btn:hover .icon-box {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .career-btn.selected .icon-box {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .career-btn .check {
+            margin-left: auto;
+            color: var(--primary);
+            opacity: 0;
+            transform: scale(0) rotate(-180deg);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .career-btn.selected .check {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+
+        .career-btn .sub {
+            display: block;
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-top: 0px;
+        }
+
+        /* === Submit Button === */
+        .btn-submit {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(3,102,214,0.3);
+            margin-top: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(3,102,214,0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit i {
+            font-size: 14px;
+        }
+
+        /* === Status Messages === */
+        .status-msg {
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .status-msg.info {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .status-msg.success {
+            background: linear-gradient(135deg, var(--success-light) 0%, #c3e6cb 100%);
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .status-msg.error {
+            background: linear-gradient(135deg, var(--danger-light) 0%, #f5c6cb 100%);
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .status-msg i {
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        /* === Top Row (Header + QR) === */
+        .top-row {
+            display: grid;
+            grid-template-columns: 1fr 110px;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        /* === QR Top Card === */
+        .qr-top-card {
+            background: var(--card-bg);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 8px;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .qr-top-card:hover, .qr-top-card.active {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--primary-light) 100%);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .qr-top-card.active {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 260px;
+            z-index: 200;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+        }
+
+        .qr-top-label {
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+
+        .qr-top-wrap {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+        }
+
+        .qr-top-card.active .qr-top-wrap {
+            height: 200px;
+        }
+
+        .qr-top-wrap img, .qr-top-wrap canvas {
+            max-height: 40px;
+            max-width: 100%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .qr-top-card.active .qr-top-wrap img,
+        .qr-top-card.active .qr-top-wrap canvas {
+            max-height: 180px;
+        }
+
+        .qr-top-hint {
+            font-size: 8px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.2;
+        }
+
+        .sync-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: var(--radius);
+            padding: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sync-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(3,102,214,0.05) 0%, transparent 70%);
+        }
+
+        .sync-box h3 {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        .sync-box h3 i {
+            color: var(--primary);
+            font-size: 12px;
+        }
+
+        .sync-box p {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin: 0;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+            font-size: 10px;
+            color: var(--primary);
+            font-weight: 600;
+            background: rgba(3,102,214,0.1);
+            padding: 3px 8px;
+            border-radius: 20px;
         }
 
         .link-box:hover {
@@ -997,7 +1465,7 @@
                 </div>
                 <div class="registros-count">
                     <span class="number" id="public-attendance-count">0</span>
-                    <span class="label">registros</span>
+                    <span class="label">asistentes</span>
                 </div>
             </div>
             <div class="table-wrap">
@@ -1031,7 +1499,8 @@
             if (!tbody) return;
 
             const safeRecords = Array.isArray(records) ? records : [];
-            if (counter) counter.textContent = String(safeRecords.length);
+            const cedulasUnicas = new Set(safeRecords.map(r => (r.cedula || r.Cedula || r.studentId || '').toString().replace(/\./g, '').trim()).filter(Boolean)).size;
+            if (counter) counter.textContent = String(cedulasUnicas);
 
             if (!safeRecords.length) {
                 tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><div class="empty-state-text">Aún no hay registros</div></td></tr>';
