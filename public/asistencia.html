@@ -1272,6 +1272,59 @@
             border-bottom: none;
         }
 
+        /* === Fecha header en tabla === */
+        .fecha-header {
+            background: linear-gradient(135deg, #e8f0fe 0%, #d1e3fc 100%) !important;
+        }
+
+        .fecha-header td {
+            padding: 6px 10px !important;
+            border-bottom: 2px solid #aecbfa;
+        }
+
+        .fecha-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #174ea6;
+        }
+
+        .fecha-badge i {
+            font-size: 12px;
+        }
+
+        .fecha-texto {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .fecha-count {
+            margin-left: auto;
+            background: #174ea6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+        }
+
+        .registro-row td {
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+
+        .registro-row:hover {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .hora-cell {
+            font-weight: 600;
+            color: var(--primary);
+            font-family: 'Segoe UI', monospace;
+            font-size: 11px;
+        }
+
         .empty-state {
             text-align: center;
             color: var(--text-muted);
@@ -1510,27 +1563,78 @@
             if (!tbody) return;
 
             const safeRecords = Array.isArray(records) ? records : [];
-            const cedulasUnicas = new Set(safeRecords.map(r => (r.cedula || r.Cedula || r.studentId || '').toString().replace(/\./g, '').trim()).filter(Boolean)).size;
+
+            // Extraer fecha y hora de cada registro
+            const registrosConFecha = safeRecords.map(r => {
+                const marcaTemporal = r.marcaTemporal || r['Marca Temporal'] || r['Timestamp'] || r.timestamp || r.Fecha || '';
+                const nombre = r.nombre || r['Nombre'] || r.studentName || r.Nombre || '';
+                const cedula = (r.cedula || r['Cédula'] || r['Cedula'] || r.studentId || r.Cedula || '').toString().replace(/\./g, '').trim();
+                const carrera = r.carrera || r['Carrera'] || r.career || r.Carrera || '';
+
+                let fecha = '';
+                let hora = '';
+                const str = String(marcaTemporal).trim();
+                if (str.includes(' ')) {
+                    const partes = str.split(' ');
+                    fecha = partes[0];
+                    hora = partes[1] ? partes[1].substring(0, 5) : '';
+                } else if (str.includes('/')) {
+                    fecha = str;
+                } else if (str.includes('-')) {
+                    fecha = str;
+                }
+
+                return { fecha, hora, nombre: (nombre || '').toUpperCase().trim(), cedula, carrera };
+            }).filter(r => r.nombre || r.cedula);
+
+            // Contar asistentes unicos totales
+            const cedulasUnicas = new Set(registrosConFecha.map(r => r.cedula).filter(Boolean)).size;
             if (counter) counter.textContent = String(cedulasUnicas);
 
-            if (!safeRecords.length) {
+            if (!registrosConFecha.length) {
                 tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><div class="empty-state-text">Aún no hay registros</div></td></tr>';
                 return;
             }
 
-            tbody.innerHTML = safeRecords.slice(0, 50).map(r => {
-                const marcaTemporal = r.marcaTemporal || r['Marca Temporal'] || r['Timestamp'] || r.timestamp || r.Fecha || '';
-                const nombre = r.nombre || r['Nombre'] || r.studentName || r.Nombre || '';
-                const cedula = r.cedula || r['Cédula'] || r['Cedula'] || r.studentId || r.Cedula || '';
-                const carrera = r.carrera || r['Carrera'] || r.career || r.Carrera || '';
-                const hora = String(marcaTemporal).split(' ')[1] || String(marcaTemporal).slice(0, 16);
-                return `<tr>
-                    <td>${hora}</td>
-                    <td>${(nombre || '').toUpperCase().trim()}</td>
-                    <td>${cedula}</td>
-                    <td>${carrera}</td>
+            // Agrupar por fecha
+            const porFecha = {};
+            registrosConFecha.forEach(r => {
+                const key = r.fecha || 'Sin fecha';
+                if (!porFecha[key]) porFecha[key] = [];
+                porFecha[key].push(r);
+            });
+
+            // Ordenar fechas (mas reciente primero)
+            const fechasOrdenadas = Object.keys(porFecha).sort().reverse();
+
+            let html = '';
+            fechasOrdenadas.forEach(fecha => {
+                const lista = porFecha[fecha];
+                const unicosDia = new Set(lista.map(r => r.cedula).filter(Boolean)).size;
+
+                // Fila de fecha (header del dia)
+                html += `<tr class="fecha-header">
+                    <td colspan="4">
+                        <div class="fecha-badge">
+                            <i class="fas fa-calendar-day"></i>
+                            <span class="fecha-texto">${fecha}</span>
+                            <span class="fecha-count">${unicosDia} asistentes</span>
+                        </div>
+                    </td>
                 </tr>`;
-            }).join('');
+
+                // Filas de cada registro (hora + datos)
+                lista.forEach(r => {
+                    html += `<tr class="registro-row">
+                        <td class="hora-cell">${r.hora || '--:--'}</td>
+                        <td>${r.nombre}</td>
+                        <td>${r.cedula}</td>
+                        <td>${r.carrera}</td>
+                    </tr>`;
+                });
+            });
+
+            tbody.innerHTML = html;
         };
 
         // Asegurar que refreshAttendanceData consulte la API correctamente
