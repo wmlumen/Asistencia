@@ -4371,25 +4371,6 @@ function initTeacherPanel() {
 
 
 
-function selectCareer(button) {
-    const container = document.getElementById('career-buttons-container');
-    if (!container) return;
-    
-    // Quitar selección de todos los botones
-    container.querySelectorAll('.career-btn').forEach(btn => {
-        btn.classList.remove('selected');
-    });
-    
-    // Seleccionar el botón clickeado
-    button.classList.add('selected');
-    
-    // Guardar valor en el input hidden
-    const hiddenInput = document.getElementById('attendance-career');
-    if (hiddenInput) {
-        hiddenInput.value = button.getAttribute('data-career');
-    }
-}
-
 function initAttendanceRegistrationPage() {
     const form = document.getElementById('attendance-registration-form');
     if (!form) return;
