@@ -141,11 +141,11 @@ async function cargarConfiguracion() {
 
 
 
-            link_google_forms: 'https://docs.google.com/forms/d/1vChM_H3-KlrlvSOJPKdSpv4W-80Uv-ObKQKGv99aQUw/viewform',
+            link_google_forms: 'https://docs.google.com/forms/d/1izDXat8oW4uAebtZ5mXVh5Mt327-srK4CVRnHtyTals/edit',
 
 
 
-            link_asistencia: 'https://docs.google.com/spreadsheets/d/1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk/edit?resourcekey=&gid=178512863#gid=178512863',
+            link_asistencia: 'https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA/edit?resourcekey=&gid=1228582985#gid=1228582985',
 
 
 

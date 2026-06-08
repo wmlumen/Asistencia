@@ -2,7 +2,7 @@
  * ASISTENCIA CENTURIA - Google Apps Script
  * ==========================================
  * Proyecto: https://script.google.com/home/projects/1hJhNk5IlDLqQuNa9Xoy3pmsm2nmVZjzoEJO9462n6ZpQMoc8GCAiSJp4/edit
- * Planilla: https://docs.google.com/spreadsheets/d/1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk/edit
+ * Planilla: https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA/edit
  * 
  * INSTRUCCIONES:
  * 1. Copiar este código en el editor de Apps Script
@@ -13,7 +13,7 @@
  * ==========================================
  */
 
-const SPREADSHEET_ID = '1gdGxpa3-z61A7O06smRSv_055KIzH4SBaRYNb-RVYJk';
+const SPREADSHEET_ID = '1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA';
 const SHEET_REGISTRO = 'Registro';
 const SHEET_JUSTIFICACIONES = 'Justificaciones';
 const SHEET_RESUMEN = 'Resumen';
