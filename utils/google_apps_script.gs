@@ -86,8 +86,16 @@ function doPost(e) {
         return json_({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o fecha de ausencia' });
       }
 
-      const carrerasValidas = ['ADMINISTRACION DE EMPRESAS', 'ADMINISTRACION Y GESTION'];
-      const carreraNormalizada = carrera.toUpperCase();
+      const carrerasValidas = [
+        'LICENCIATURA EN ADMINISTRACION DE EMPRESAS',
+        'LICENCIATURA EN CONTABILIDAD',
+        'LICENCIATURA EN ADMINISTRACION ADUANERA',
+        'LICENCIATURA EN ADMINISTRACION Y GESTION PUBLICA',
+        'INGENIERIA COMERCIAL',
+        'MAESTRIA EN ADMINISTRACION Y GESTION PUBLICA',
+        'OTRO'
+      ];
+      const carreraNormalizada = carrera.toUpperCase().trim();
       const carreraValida = carrerasValidas.find(c => carreraNormalizada.includes(c));
       if (!carreraValida) {
         return json_({ ok: false, error: 'Carrera no válida: ' + carrera });
