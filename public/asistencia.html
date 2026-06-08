@@ -1522,17 +1522,35 @@
             const hoy = new Date();
             const hoyStr = String(hoy.getDate()).padStart(2, '0') + '/' + String(hoy.getMonth() + 1).padStart(2, '0') + '/' + hoy.getFullYear();
 
-            // Filtrar SOLO registros de hoy
-            const registrosHoy = registrosConFecha.filter(r => r.fecha === hoyStr);
-            const cedulasUnicas = new Set(registrosHoy.map(r => r.cedula).filter(Boolean)).size;
+            // Agrupar por fecha
+            const porFecha = {};
+            registrosConFecha.forEach(r => {
+                const key = r.fecha || 'Sin fecha';
+                if (!porFecha[key]) porFecha[key] = [];
+                porFecha[key].push(r);
+            });
+
+            // Ordenar fechas (mas reciente primero)
+            const fechasOrdenadas = Object.keys(porFecha).sort().reverse();
+
+            // Determinar que dia mostrar: hoy si tiene registros, si no el dia mas reciente con datos
+            let fechaMostrar = hoyStr;
+            if (!porFecha[hoyStr] || porFecha[hoyStr].length === 0) {
+                // Hoy no tiene registros, usar el dia mas reciente que tenga
+                fechaMostrar = fechasOrdenadas[0] || hoyStr;
+            }
+
+            const registrosMostrar = porFecha[fechaMostrar] || [];
+            const cedulasUnicas = new Set(registrosMostrar.map(r => r.cedula).filter(Boolean)).size;
             if (counter) counter.textContent = String(cedulasUnicas);
 
-            if (!registrosHoy.length) {
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><div class="empty-state-text">Aún no hay registros hoy</div></td></tr>';
+            if (!registrosMostrar.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><div class="empty-state-text">Aún no hay registros</div></td></tr>';
                 return;
             }
 
-            const fechaCorta = formatearFechaCorta(hoyStr);
+            const fechaCorta = formatearFechaCorta(fechaMostrar);
+            const esHoy = fechaMostrar === hoyStr;
             const showDetails = (typeof isTeacherSessionActive === 'function') ? isTeacherSessionActive() : false;
 
             let html = '';
@@ -1541,7 +1559,7 @@
                 <td colspan="4">
                     <div class="fecha-badge">
                         <i class="fas fa-calendar-day"></i>
-                        <span class="fecha-texto">${fechaCorta}</span>
+                        <span class="fecha-texto">${fechaCorta}${esHoy ? '' : ' (más reciente)'}</span>
                         <span class="fecha-count">${cedulasUnicas} asistentes</span>
                     </div>
                 </td>
@@ -1549,7 +1567,7 @@
 
             if (showDetails) {
                 // Filas de cada registro (hora + datos) solo en modo docente
-                registrosHoy.forEach(r => {
+                registrosMostrar.forEach(r => {
                     html += `<tr class="registro-row">
                         <td class="hora-cell">${r.hora || '--:--'}</td>
                         <td>${r.nombre}</td>
