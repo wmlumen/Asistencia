@@ -64,7 +64,25 @@ function validarApiKey_(data, e) {
 
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents || '{}');
+    let data = {};
+    
+    // Intentar leer body JSON
+    if (e.postData && e.postData.contents) {
+      try {
+        data = JSON.parse(e.postData.contents);
+      } catch(parseErr) {
+        console.warn('Error parseando JSON:', parseErr);
+      }
+    }
+    
+    // Mergear query params como fallback
+    if (e.parameter) {
+      Object.keys(e.parameter).forEach(function(key) {
+        data[key] = e.parameter[key];
+      });
+    }
+    
+    console.log('doPost recibido. Keys:', Object.keys(data).join(', '));
 
     const auth = validarApiKey_(data, e);
     if (auth) return auth;
