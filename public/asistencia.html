@@ -1486,15 +1486,6 @@
                 return { fecha, hora, nombre: (nombre || '').toUpperCase().trim(), cedula, carrera };
             }).filter(r => r.nombre || r.cedula);
 
-            // Contar asistentes unicos totales
-            const cedulasUnicas = new Set(registrosConFecha.map(r => r.cedula).filter(Boolean)).size;
-            if (counter) counter.textContent = String(cedulasUnicas);
-
-            if (!registrosConFecha.length) {
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><div class="empty-state-text">Aún no hay registros</div></td></tr>';
-                return;
-            }
-
             // Funcion para formatear fecha corta
             function formatearFechaCorta(fechaStr) {
                 if (!fechaStr || fechaStr === 'Sin fecha') return 'Sin fecha';
@@ -1527,53 +1518,51 @@
                 }
             }
 
-            // Agrupar por fecha
-            const porFecha = {};
-            registrosConFecha.forEach(r => {
-                const key = r.fecha || 'Sin fecha';
-                if (!porFecha[key]) porFecha[key] = [];
-                porFecha[key].push(r);
-            });
+            // Obtener fecha de hoy en formato dd/mm/yyyy
+            const hoy = new Date();
+            const hoyStr = String(hoy.getDate()).padStart(2, '0') + '/' + String(hoy.getMonth() + 1).padStart(2, '0') + '/' + hoy.getFullYear();
 
-            // Ordenar fechas (mas reciente primero)
-            const fechasOrdenadas = Object.keys(porFecha).sort().reverse();
+            // Filtrar SOLO registros de hoy
+            const registrosHoy = registrosConFecha.filter(r => r.fecha === hoyStr);
+            const cedulasUnicas = new Set(registrosHoy.map(r => r.cedula).filter(Boolean)).size;
+            if (counter) counter.textContent = String(cedulasUnicas);
 
+            if (!registrosHoy.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><div class="empty-state-text">Aún no hay registros hoy</div></td></tr>';
+                return;
+            }
+
+            const fechaCorta = formatearFechaCorta(hoyStr);
             const showDetails = (typeof isTeacherSessionActive === 'function') ? isTeacherSessionActive() : false;
 
             let html = '';
-            fechasOrdenadas.forEach(fecha => {
-                const lista = porFecha[fecha];
-                const unicosDia = new Set(lista.map(r => r.cedula).filter(Boolean)).size;
-                const fechaCorta = formatearFechaCorta(fecha);
+            // Header del dia
+            html += `<tr class="fecha-header">
+                <td colspan="4">
+                    <div class="fecha-badge">
+                        <i class="fas fa-calendar-day"></i>
+                        <span class="fecha-texto">${fechaCorta}</span>
+                        <span class="fecha-count">${cedulasUnicas} asistentes</span>
+                    </div>
+                </td>
+            </tr>`;
 
-                // Fila de fecha (header del dia)
-                html += `<tr class="fecha-header">
-                    <td colspan="4">
-                        <div class="fecha-badge">
-                            <i class="fas fa-calendar-day"></i>
-                            <span class="fecha-texto">${fechaCorta}</span>
-                            <span class="fecha-count">${unicosDia} asistentes</span>
-                        </div>
-                    </td>
-                </tr>`;
-
-                if (showDetails) {
-                    // Filas de cada registro (hora + datos) solo en modo docente
-                    lista.forEach(r => {
-                        html += `<tr class="registro-row">
-                            <td class="hora-cell">${r.hora || '--:--'}</td>
-                            <td>${r.nombre}</td>
-                            <td>${r.cedula}</td>
-                            <td>${r.carrera}</td>
-                        </tr>`;
-                    });
-                } else {
-                    // Modo publico: solo mensaje de privacidad
-                    html += `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);font-size:11px;padding:8px;">
-                        <i class="fas fa-shield-alt" style="margin-right:4px;"></i>Datos protegidos. Inicie sesión como docente para ver detalles.
-                    </td></tr>`;
-                }
-            });
+            if (showDetails) {
+                // Filas de cada registro (hora + datos) solo en modo docente
+                registrosHoy.forEach(r => {
+                    html += `<tr class="registro-row">
+                        <td class="hora-cell">${r.hora || '--:--'}</td>
+                        <td>${r.nombre}</td>
+                        <td>${r.cedula}</td>
+                        <td>${r.carrera}</td>
+                    </tr>`;
+                });
+            } else {
+                // Modo publico: solo mensaje de privacidad
+                html += `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);font-size:11px;padding:8px;">
+                    <i class="fas fa-shield-alt" style="margin-right:4px;"></i>Datos protegidos. Inicie sesión como docente para ver detalles.
+                </td></tr>`;
+            }
 
             tbody.innerHTML = html;
         };
