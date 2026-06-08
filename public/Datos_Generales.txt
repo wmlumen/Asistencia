@@ -52,12 +52,9 @@ motivo.otro=Otros
 api.secret=CenturiaApi2024!
 
 # === LINKS ===
-# Link de Google Forms para registro de asistencia
-# IMPORTANTE: Este formulario DEBE estar vinculado a la planilla de abajo (link.asistencia)
-# Para vincular: Abrir el formulario > Respuestas > Hoja de calculo existente > Seleccionar link.asistencia
-link.google.forms=https://docs.google.com/forms/d/1izDXat8oW4uAebtZ5mXVh5Mt327-srK4CVRnHtyTals/edit
+# Enlace de acceso publico (GitHub Pages) - los alumnos escanean el QR o abren este enlace
+link.google.forms=https://wmlumen.github.io/Asistencia/asistencia.html
 # Link de Google Sheets asistencia (ESTA ES LA PLANILLA OFICIAL)
-# Aqui llegan las respuestas del formulario y se lee el CSV para seguimiento
 link.asistencia=https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA/edit?resourcekey=&gid=1228582985#gid=1228582985
 # URL publica de la pagina de asistencia (GitHub Pages desplegado)
 asistencia.public.url=https://wmlumen.github.io/Asistencia/asistencia.html
@@ -71,7 +68,9 @@ asistencia.csv.url=https://docs.google.com/spreadsheets/d/e/2PACX-1vTgnKZRiJrc6J
 # La URL de la Web App deberia mantenerse igual si usas el mismo proyecto
 asistencia.api.url=https://script.google.com/macros/s/AKfycbzm0a3AoJboFIS293wRviP2APM-MWgTd5gd0Hq2CO8OjCiGWpijqwcSyjtCFd3nNfPR/exec
 # Carreras disponibles para el registro, separadas por |
-asistencia.carreras=ADMINISTRACION DE EMPRESAS|ADMINISTRACION Y GESTION
+asistencia.carreras=LICENCIATURA EN ADMINISTRACION DE EMPRESAS|LICENCIATURA EN CONTABILIDAD|LICENCIATURA EN ADMINISTRACION ADUANERA|LICENCIATURA EN ADMINISTRACION Y GESTION PUBLICA|INGENIERIA COMERCIAL|MAESTRIA EN ADMINISTRACION Y GESTION PUBLICA|OTRO
+# Secciones disponibles para el registro, separadas por |
+asistencia.secciones=VL 026|S026|OTRO
 # Link de Google Sheets respuestas
 link.respuestas=https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R3fm8H6pnPxcp_eOHb5s
 # Link para solicitudes extraordinarias (Google Forms)

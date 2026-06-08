@@ -141,7 +141,7 @@ async function cargarConfiguracion() {
 
 
 
-            link_google_forms: 'https://docs.google.com/forms/d/1izDXat8oW4uAebtZ5mXVh5Mt327-srK4CVRnHtyTals/edit',
+            link_google_forms: 'https://wmlumen.github.io/Asistencia/asistencia.html',
 
 
 
@@ -149,11 +149,14 @@ async function cargarConfiguracion() {
 
 
 
-            link_respuestas: 'https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R3fm8H6pnPxcp_eOHb5s'
-
-
-
-        };
+            link_respuestas: 'https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R3fm8H6pnPxcp_eOHb5s',
+            asistencia_public_url: 'https://wmlumen.github.io/Asistencia/asistencia.html',
+            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbzm0a3AoJboFIS293wRviP2APM-MWgTd5gd0Hq2CO8OjCiGWpijqwcSyjtCFd3nNfPR/exec',
+            asistencia_csv_url: '',
+            asistencia_carreras: 'LICENCIATURA EN ADMINISTRACION DE EMPRESAS|LICENCIATURA EN CONTABILIDAD|LICENCIATURA EN ADMINISTRACION ADUANERA|LICENCIATURA EN ADMINISTRACION Y GESTION PUBLICA|INGENIERIA COMERCIAL|MAESTRIA EN ADMINISTRACION Y GESTION PUBLICA|OTRO',
+            api_secret: 'CenturiaApi2024!',
+            teacherPassword: 'Centuria2024!'
+        };
 
 
 
@@ -3329,6 +3332,7 @@ async function submitAttendanceRecord(payload) {
             studentName: normalized.nombre,
             studentId: normalized.cedula,
             career: normalized.carrera,
+            seccion: normalized.seccion || '',
             notes: normalized.observacion,
             estado: normalized.estado,
             timestamp: normalized.marcaTemporal,
@@ -4439,14 +4443,13 @@ function initAttendanceRegistrationPage() {
                 }
                 // Seleccionar carrera automáticamente si coincide
                 if (found.carrera) {
-                    const container = document.getElementById('career-buttons-container');
-                    if (container) {
-                        container.querySelectorAll('.career-btn').forEach(btn => {
-                            if (btn.getAttribute('data-career') === found.carrera) {
-                                selectCareer(btn);
-                            }
-                        });
-                    }
+                    const careerSelect = document.getElementById('attendance-career');
+                    if (careerSelect) careerSelect.value = found.carrera;
+                }
+                // Seleccionar sección automáticamente si coincide
+                if (found.seccion) {
+                    const sectionSelect = document.getElementById('attendance-section');
+                    if (sectionSelect) sectionSelect.value = found.seccion;
                 }
             }
         });
@@ -4459,14 +4462,14 @@ function initAttendanceRegistrationPage() {
             nombre: document.getElementById('attendance-name')?.value.trim() || '',
             cedula: document.getElementById('attendance-id')?.value.trim() || '',
             carrera: document.getElementById('attendance-career')?.value || '',
-            estado: document.getElementById('attendance-state')?.value || 'Presente',
+            seccion: document.getElementById('attendance-section')?.value || '',
             observacion: document.getElementById('attendance-notes')?.value.trim() || '',
             marcaTemporal: new Date().toLocaleString('es-PY')
         };
 
-        if (!payload.nombre || !payload.cedula || !payload.carrera) {
+        if (!payload.nombre || !payload.cedula || !payload.carrera || !payload.seccion) {
             if (status) {
-                status.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Complete nombre, cédula y seleccione una carrera.';
+                status.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Complete nombre, cédula, carrera y sección.';
                 status.className = 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700';
             }
             return;
@@ -4475,11 +4478,6 @@ function initAttendanceRegistrationPage() {
         try {
             await submitAttendanceRecord(payload);
             form.reset();
-            // Resetear botones de carrera
-            const container = document.getElementById('career-buttons-container');
-            if (container) {
-                container.querySelectorAll('.career-btn').forEach(btn => btn.classList.remove('selected'));
-            }
             if (status) {
                 status.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Asistencia registrada correctamente.';
                 status.className = 'rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 font-semibold';

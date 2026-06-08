@@ -31,7 +31,7 @@ function getSheet_(name) {
     if (!sheet) {
     sheet = ss.insertSheet(name);
     if (name === SHEET_REGISTRO) {
-      sheet.appendRow(['Fecha','Nombre','Cedula','Carrera','Observacion','Estado','MarcaTemporal']);
+      sheet.appendRow(['Fecha','Nombre','Cedula','Carrera','Seccion','Observacion','Estado','MarcaTemporal']);
       sheet.getRange('A:A').setNumberFormat('dd/MM/yyyy');
     } else if (name === SHEET_JUSTIFICACIONES) {
       sheet.appendRow(['FechaAusencia','Cedula','Nombre','Carrera','Motivo','Observacion','MarcaTemporal']);
@@ -103,23 +103,14 @@ function doPost(e) {
     const fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
     const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
 
-    const estado = (data.estado || 'Presente').trim();
     const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
     const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
     const carrera = (data.career || data.carrera || '').trim();
+    const seccion = (data.seccion || data.section || '').trim();
     const observacion = (data.notes || data.observacion || '').trim();
 
-    if (!nombre || !cedula || !carrera) {
-      return json_({ ok: false, error: 'Faltan datos requeridos: nombre, cedula o carrera' });
-    }
-
-    // Validar carrera
-    const carrerasValidas = ['ADMINISTRACION DE EMPRESAS', 'ADMINISTRACION Y GESTION'];
-    const carreraNormalizada = carrera.toUpperCase();
-    const carreraValida = carrerasValidas.find(c => carreraNormalizada.includes(c));
-    
-    if (!carreraValida) {
-      return json_({ ok: false, error: 'Carrera no válida: ' + carrera });
+    if (!nombre || !cedula || !carrera || !seccion) {
+      return json_({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o seccion' });
     }
 
     // Evitar duplicados exactos en la misma fecha
@@ -133,7 +124,7 @@ function doPost(e) {
       return json_({ ok: false, duplicado: true, mensaje: 'Ya existe un registro para esta cedula en la fecha actual' });
     }
 
-    sheet.appendRow([fechaStr, nombre, cedula, carreraValida, observacion, estado, marcaTemporal]);
+    sheet.appendRow([fechaStr, nombre, cedula, carrera, seccion, observacion, 'Presente', marcaTemporal]);
     recalcularResumen_();
 
     return json_({ ok: true, mensaje: 'Asistencia registrada correctamente', duplicado: false });
@@ -218,7 +209,7 @@ function recalcularResumen_() {
     const fechasUnicas = new Set();
 
     for (let i = 1; i < datos.length; i++) {
-      const [fecha, nombre, cedula, carrera, obs, estado] = datos[i];
+      const [fecha, nombre, cedula, carrera, seccion, observacion, estado] = datos[i];
       const cedulaLimpia = (cedula || '').toString().replace(/\./g, '').trim();
       if (!cedulaLimpia) continue;
       
