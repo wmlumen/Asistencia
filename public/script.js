@@ -3342,11 +3342,13 @@ async function submitAttendanceRecord(payload) {
 
         const response = await fetch(apiUrl, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
 
-        if (!response.ok) {
-            throw new Error('No se pudo guardar la asistencia en Drive.');
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.ok === false) {
+            throw new Error(result.error || result.mensaje || 'No se pudo guardar la asistencia en Drive.');
         }
 
         return normalized;
