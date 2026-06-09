@@ -947,17 +947,21 @@
             let fileData = '';
             let fileName = '';
             if (file) {
-                if (file.size > 5 * 1024 * 1024) {
+                if (file.size > 1 * 1024 * 1024) {
                     status.className = 'status-msg error';
-                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>El archivo es muy grande. Máximo 5MB.</span>';
+                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>El archivo es muy grande. Máximo 1MB para envío seguro.</span>';
                     return;
                 }
                 try {
+                    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Convirtiendo archivo...</span>';
                     fileData = await fileToBase64(file);
                     fileName = file.name;
-                    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Subiendo archivo...</span>';
+                    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Archivo listo. Enviando...</span>';
                 } catch (err) {
                     console.error('Error al leer archivo:', err);
+                    status.className = 'status-msg error';
+                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Error al leer el archivo. Intente con otro.</span>';
+                    return;
                 }
             }
 
@@ -1002,9 +1006,20 @@
 
                 // Usar un timeout más largo para archivos grandes
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+                const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 segundos
                 
-                fetch(apiUrl + '?' + params.toString(), {
+                // Verificar tamaño de URL antes de enviar
+                const urlCompleta = apiUrl + '?' + params.toString();
+                if (urlCompleta.length > 8000) {
+                    clearTimeout(timeoutId);
+                    status.className = 'status-msg error';
+                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>El archivo es demasiado grande para enviar. Máximo 1MB.</span>';
+                    return;
+                }
+                
+                console.log('Enviando justificación. URL length:', urlCompleta.length);
+                
+                fetch(urlCompleta, {
                     method: 'POST',
                     signal: controller.signal
                 })
@@ -1017,7 +1032,7 @@
                     if (data.ok) {
                         let msg = 'Justificación registrada en la planilla correctamente.';
                         if (data.fileUrl) {
-                            msg += ' <a href="' + data.fileUrl + '" target="_blank" style="color:#155724;text-decoration:underline;"><i class="fas fa-external-link-alt"></i> Ver documento</a>';
+                            msg += ' <a href="' + data.fileUrl + '" target="_blank" style="color:#155724;text-decoration:underline;"><i class="fas fa-external-link-alt"></i> Ver documento en Drive</a>';
                         }
                         status.className = 'status-msg success';
                         status.innerHTML = '<i class="fas fa-check-circle"></i><span>' + msg + '</span>';
@@ -1033,9 +1048,9 @@
                     console.error('Error de conexión:', err);
                     status.className = 'status-msg error';
                     if (err.name === 'AbortError') {
-                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. La conexión tardó demasiado. Intente nuevamente.</span>';
+                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. La conexión tardó demasiado (45s). Intente sin archivo o con uno más pequeño.</span>';
                     } else {
-                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. Error de conexión: ' + err.message + '</span>';
+                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. Error de conexión: ' + err.message + '. Verifique su conexión a internet.</span>';
                     }
                 });
             } else {

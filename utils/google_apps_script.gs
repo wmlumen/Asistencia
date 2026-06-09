@@ -6,15 +6,18 @@
  * INSTRUCCIONES:
  * 1. Copiar este código en el editor de Apps Script
  * 2. Guardar (Ctrl+S)
- * 3. Implementar > Nuevo implementacion > Web App
- * 4. Acceso: Cualquiera
- * 5. Copiar la URL de la Web App y pegarla en asistencia.api.url
+ * 3. EJECUTAR UNA VEZ la función autorizarDrive() para dar permisos
+ * 4. Implementar > Nuevo implementacion > Web App
+ * 5. Acceso: Cualquiera
+ * 6. Copiar la URL de la Web App y pegarla en asistencia.api.url
+ * 
+ * IMPORTANTE: La primera vez que se usa Drive, Google pedirá autorización.
+ * Asegúrese de aceptar todos los permisos.
  * ==========================================
  */
 
 const SPREADSHEET_ID = '1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA';
 const SHEET_REGISTRO = 'Registro';
-const SHEET_JUSTIFICACIONES = 'Justificaciones';
 const SHEET_RESUMEN = 'Resumen';
 
 // CAMBIAR ESTA CLAVE Y MANTENERLA EN SECRETO
@@ -176,16 +179,27 @@ function doPost(e) {
 
       // Subir archivo a Drive si se proporcionó
       let fileUrl = '';
+      let fileId = '';
       if (fileData && fileName) {
         try {
           const folderId = '1mpEs3pytsFEWsb1esJRRay9fiktBh8e0';
+          console.log('Subiendo archivo a Drive. Folder ID:', folderId);
+          console.log('Nombre archivo:', fileName);
+          console.log('Tamaño datos:', fileData.length);
+          
           const folder = DriveApp.getFolderById(folderId);
-          const blob = Utilities.newBlob(Utilities.base64Decode(fileData), getMimeType_(fileName), fileName);
+          const decoded = Utilities.base64Decode(fileData);
+          console.log('Bytes decodificados:', decoded.length);
+          
+          const blob = Utilities.newBlob(decoded, getMimeType_(fileName), fileName);
           const file = folder.createFile(blob);
           file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
           fileUrl = file.getUrl();
+          fileId = file.getId();
+          console.log('Archivo subido exitosamente. URL:', fileUrl);
         } catch (driveError) {
           console.error('Error al subir a Drive:', driveError);
+          console.error('Stack:', driveError.stack);
         }
       }
 
@@ -434,4 +448,31 @@ function getMimeType_(fileName) {
     'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   };
   return mimeTypes[ext] || 'application/octet-stream';
+}
+
+/* ============================================================
+   AUTORIZAR DRIVE - Ejecutar manualmente antes de usar archivos
+   ============================================================ */
+
+function autorizarDrive() {
+  try {
+    const folderId = '1mpEs3pytsFEWsb1esJRRay9fiktBh8e0';
+    const folder = DriveApp.getFolderById(folderId);
+    console.log('Drive autorizado correctamente. Carpeta:', folder.getName());
+    
+    // Crear un archivo de prueba
+    const testBlob = Utilities.newBlob('Test', 'text/plain', 'test.txt');
+    const testFile = folder.createFile(testBlob);
+    testFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    console.log('Archivo de prueba creado:', testFile.getUrl());
+    
+    // Eliminar archivo de prueba
+    testFile.setTrashed(true);
+    console.log('Autorización completada exitosamente');
+    
+    return 'Autorización exitosa. Ya puede subir archivos.';
+  } catch (error) {
+    console.error('Error de autorización:', error);
+    throw new Error('Debe autorizar los permisos de Drive. Vaya a Implementar > Ver implementaciones > Autorizar.');
+  }
 }
