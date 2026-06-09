@@ -316,7 +316,15 @@
             <button class="btn" onclick="sincronizarConAsistencia()">
                 <i class="fas fa-sync"></i> Vincular con Asistencia
             </button>
+            <button class="btn" onclick="cargarPlanificaciones()" title="Recargar desde Google Sheets">
+                <i class="fas fa-cloud-download-alt"></i> Recargar Sheets
+            </button>
             <span id="statusPlanif" style="font-size:12px;color:#666;"></span>
+        </div>
+        
+        <!-- Mensaje informativo -->
+        <div id="info-conexion" style="background:#e8f4f8;border:1px solid #bee5eb;border-radius:4px;padding:10px 15px;margin-bottom:15px;font-size:12px;color:#0c5460;">
+            <i class="fas fa-info-circle"></i> <strong>Modo de funcionamiento:</strong> Los datos se guardan primero en el navegador (localStorage) y luego se intenta sincronizar con Google Sheets. Si la sincronización falla, puede exportar a CSV e importar manualmente en la planilla.
         </div>
         
         <!-- Formulario -->
@@ -438,29 +446,46 @@
         // Cargar desde API al iniciar
         async function cargarPlanificaciones() {
             const status = document.getElementById('statusPlanif');
-            status.textContent = 'Cargando desde Google Sheets...';
+            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando con Google Sheets...';
             
             try {
                 const url = apiUrl + '?modo=planificaciones&apiKey=' + encodeURIComponent(apiKey);
+                console.log('Cargando desde:', url);
                 const resp = await fetch(url);
-                if (resp.ok) {
-                    const data = await resp.json();
-                    planificaciones = data.planificaciones || [];
-                    // También guardar en localStorage como respaldo
+                
+                if (!resp.ok) {
+                    throw new Error('HTTP ' + resp.status + ': ' + resp.statusText);
+                }
+                
+                const text = await resp.text();
+                console.log('Respuesta raw:', text.substring(0, 200));
+                
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (parseErr) {
+                    console.error('Error parseando JSON:', parseErr);
+                    console.log('Respuesta no es JSON:', text.substring(0, 500));
+                    throw new Error('La API no devolvió JSON válido. ¿Actualizaste el código en Apps Script?');
+                }
+                
+                if (data.planificaciones) {
+                    planificaciones = data.planificaciones;
                     localStorage.setItem('planificaciones_centuria', JSON.stringify(planificaciones));
                     status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> ' + planificaciones.length + ' planificaciones cargadas desde Sheets';
-                    setTimeout(() => status.textContent = '', 3000);
+                } else if (data.error) {
+                    throw new Error(data.error);
                 } else {
-                    throw new Error('Error HTTP: ' + resp.status);
+                    throw new Error('Respuesta inesperada de la API');
                 }
             } catch (err) {
                 console.error('Error cargando desde API:', err);
                 // Fallback a localStorage
                 planificaciones = JSON.parse(localStorage.getItem('planificaciones_centuria') || '[]');
-                status.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Usando datos locales (' + planificaciones.length + ')';
-                setTimeout(() => status.textContent = '', 3000);
+                status.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Modo local: ' + planificaciones.length + ' planificaciones (API no disponible)';
             }
             
+            setTimeout(() => status.textContent = '', 5000);
             renderizarTabla();
         }
         
@@ -541,11 +566,32 @@
                 codigo = cedula + '-' + codAsig + '-' + codSec + '-' + correlativo;
             }
             
-            const status = document.getElementById('statusPlanif');
-            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando en Google Sheets...';
+            // Guardar primero en localStorage (siempre funciona)
+            const planif = {
+                codigo: codigo,
+                cedula: cedula,
+                nombre: nombre,
+                codAsignatura: asignatura,
+                codSeccion: seccion,
+                codCarrera: carrera,
+                fechaInicio: fechaInicio,
+                fechaCierre: fechaCierre
+            };
             
+            if (editandoIndex >= 0) {
+                planificaciones[editandoIndex] = planif;
+            } else {
+                planificaciones.push(planif);
+            }
+            localStorage.setItem('planificaciones_centuria', JSON.stringify(planificaciones));
+            renderizarTabla();
+            toggleFormulario();
+            
+            const status = document.getElementById('statusPlanif');
+            status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> Guardado localmente. Intentando sincronizar con Sheets...';
+            
+            // Intentar sincronizar con API
             try {
-                // Enviar a Google Apps Script via GET (más compatible)
                 const params = new URLSearchParams();
                 params.append('modo', 'planificacion');
                 params.append('apiKey', apiKey);
@@ -559,42 +605,28 @@
                 params.append('fechaCierre', fechaCierre);
                 
                 const url = apiUrl + '?' + params.toString();
+                console.log('Enviando a API:', url);
                 const resp = await fetch(url);
                 
-                const result = await resp.json();
+                const text = await resp.text();
+                console.log('Respuesta guardado:', text.substring(0, 200));
+                
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (e) {
+                    throw new Error('La API no devolvió JSON válido');
+                }
                 
                 if (result.ok) {
                     status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> Guardado en Google Sheets correctamente';
-                    // Recargar desde API
                     await cargarPlanificaciones();
-                    toggleFormulario();
                 } else {
-                    throw new Error(result.error || 'Error desconocido');
+                    throw new Error(result.error || 'Error de la API');
                 }
             } catch (err) {
-                console.error('Error guardando:', err);
-                status.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#dc3545;"></i> Error: ' + err.message;
-                
-                // Fallback: guardar solo en localStorage
-                const planif = {
-                    codigo: codigo,
-                    cedula: cedula,
-                    nombre: nombre,
-                    codAsignatura: asignatura,
-                    codSeccion: seccion,
-                    codCarrera: carrera,
-                    fechaInicio: fechaInicio,
-                    fechaCierre: fechaCierre
-                };
-                
-                if (editandoIndex >= 0) {
-                    planificaciones[editandoIndex] = planif;
-                } else {
-                    planificaciones.push(planif);
-                }
-                localStorage.setItem('planificaciones_centuria', JSON.stringify(planificaciones));
-                renderizarTabla();
-                toggleFormulario();
+                console.error('Error sincronizando con API:', err);
+                status.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Guardado localmente. Error Sheets: ' + err.message;
             }
             
             setTimeout(() => status.textContent = '', 5000);
@@ -692,18 +724,42 @@
         
         function sincronizarConAsistencia() {
             if (planificaciones.length === 0) {
-                alert('No hay planificaciones para vincular');
+                alert('No hay planificaciones para vincular. Cree al menos una planificación primero.');
                 return;
             }
             
+            // Guardar en formato compatible para otras páginas
             localStorage.setItem('planificaciones_activas', JSON.stringify(planificaciones));
             
-            document.getElementById('statusPlanif').innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> ' + planificaciones.length + ' planificaciones vinculadas con Asistencia';
+            document.getElementById('statusPlanif').innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> ' + planificaciones.length + ' planificaciones vinculadas. Otras páginas pueden usar el código para autocompletar datos.';
             setTimeout(() => document.getElementById('statusPlanif').textContent = '', 5000);
         }
         
+        function actualizarInfoConexion(conectado) {
+            const info = document.getElementById('info-conexion');
+            if (conectado) {
+                info.style.background = '#d4edda';
+                info.style.borderColor = '#c3e6cb';
+                info.style.color = '#155724';
+                info.innerHTML = '<i class="fas fa-check-circle"></i> <strong>Conectado a Google Sheets.</strong> Los datos se sincronizan automáticamente.';
+            } else {
+                info.style.background = '#fff3cd';
+                info.style.borderColor = '#ffeeba';
+                info.style.color = '#856404';
+                info.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>Modo local.</strong> Los datos se guardan en el navegador. Use "Exportar CSV" para importar manualmente en Google Sheets.';
+            }
+        }
+        
         // Inicializar
-        cargarPlanificaciones();
+        cargarPlanificaciones().then(() => {
+            // Verificar si hay datos de la API o solo local
+            const status = document.getElementById('statusPlanif');
+            if (status.textContent.includes('local')) {
+                actualizarInfoConexion(false);
+            } else {
+                actualizarInfoConexion(true);
+            }
+        });
     </script>
 </body>
 </html>
