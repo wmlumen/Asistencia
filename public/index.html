@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Asistencia</title>
+    <title>Sistema de Asistencia - Instituto Superior Centuria</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="institutional.css">
     <script src="script.js?v=2"></script>
-
 </head>
 <body class="animated-bg" style="align-items: center; justify-content: center;">
     <div class="background-blobs">
@@ -24,99 +23,144 @@
         </div>
     </div>
 
-    <div class="glass-panel" style="padding: 3rem; max-width: 1000px; width: 90%; text-align: center; animation: fadeIn 0.8s ease-out; z-index: 1;">
+    <div class="glass-panel" style="padding: 3rem; max-width: 900px; width: 90%; text-align: center; animation: fadeIn 0.8s ease-out; z-index: 1;">
+        
+        <!-- Header -->
         <div style="margin-bottom: 3rem;">
             <img src="logo_centuria_blanco.png" alt="Logo Centuria" style="height:80px;margin-bottom:1rem;">
             <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(to right, #ffffff, var(--color-institucional-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.02em;">Sistema de Asistencia</h1>
-            <p style="color: rgba(255, 255, 255, 0.8); font-size: 1.1rem;">Seleccione el módulo al que desea acceder</p>
+            <p style="color: rgba(255, 255, 255, 0.8); font-size: 1.1rem;">Instituto Superior Centuria</p>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
-            <a href="asistencia.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 14v8H4a8 8 0 0 1 8-8zm0-1c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm9 4h1v5h-8v-5h1v-1a3 3 0 0 1 6 0v1zm-2 0v-1a1 1 0 0 0-2 0v1h2z"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Registrar Asistencia</h2>
-                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Registro de ingreso para alumnos</p>
-            </a>
+        <!-- PANTALLA 1: Selección de Rol -->
+        <div id="pantalla-roles">
+            <p style="color: rgba(255, 255, 255, 0.7); font-size: 1rem; margin-bottom: 2rem;">Seleccione su perfil para continuar</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 700px; margin: 0 auto;">
+                
+                <!-- Botón Estudiantes -->
+                <button onclick="mostrarMenu('estudiantes')" class="glass-input" style="border-radius: 20px; padding: 3rem 2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1.2rem; cursor: pointer; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                    <div style="background: rgba(59, 130, 246, 0.2); padding: 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 48px; height: 48px; fill: currentColor; color: #60a5fa;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
+                        </svg>
+                    </div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: white;">Estudiantes</h2>
+                    <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Registrar asistencia, consultar estado y validar justificaciones</p>
+                </button>
 
-            <a href="consultar.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"/>
-                        <path d="M11.412 8.586c.379.38.588.882.588 1.414h2a3.977 3.977 0 0 0-1.174-2.828c-1.514-1.512-4.139-1.512-5.652 0l1.412 1.416c.76-.758 2.07-.756 2.826 0z"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Consultar</h2>
-                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Verifique su estado de asistencia</p>
-            </a>
+                <!-- Botón Docentes -->
+                <button onclick="mostrarMenu('docentes')" class="glass-input" style="border-radius: 20px; padding: 3rem 2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1.2rem; cursor: pointer; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                    <div style="background: rgba(16, 185, 129, 0.2); padding: 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 48px; height: 48px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM4 19V5h16l.002 14H4z"/>
+                            <path d="M6 7h12v2H6zm0 4h12v2H6zm0 4h6v2H6z"/>
+                        </svg>
+                    </div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: white;">Docentes</h2>
+                    <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Planillas, planificación, panel de gestión y administración</p>
+                </button>
+            </div>
+        </div>
 
-            <a href="validar.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm-1.999 14.413-3.713-3.705L7.7 11.292l2.299 2.295 5.294-5.294 1.414 1.414-6.706 6.706z"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Validar</h2>
-                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Validación de justificaciones y faltas</p>
-            </a>
+        <!-- PANTALLA 2: Menú Estudiantes -->
+        <div id="menu-estudiantes" style="display: none;">
+            <button onclick="mostrarMenu('roles')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-bottom: 2rem; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
+                <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                Volver
+            </button>
+            
+            <h2 style="font-size: 1.8rem; font-weight: 600; color: white; margin-bottom: 0.5rem;">Estudiantes</h2>
+            <p style="color: rgba(255, 255, 255, 0.6); margin-bottom: 2rem;">Seleccione una opción</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;">
+                <a href="asistencia.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div style="background: rgba(59, 130, 246, 0.2); padding: 0.8rem; border-radius: 50%;">
+                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #60a5fa;" viewBox="0 0 24 24"><path d="M12 14v8H4a8 8 0 0 1 8-8zm0-1c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm9 4h1v5h-8v-5h1v-1a3 3 0 0 1 6 0v1zm-2 0v-1a1 1 0 0 0-2 0v1h2z"/></svg>
+                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Registrar Asistencia</h3>
+                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Ingreso y justificación de ausencias</p>
+                </a>
 
-            <a href="planilla.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Planilla</h2>
-                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Asistencia tradicional (P/A/AJ)</p>
-            </a>
+                <a href="consultar.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div style="background: rgba(59, 130, 246, 0.2); padding: 0.8rem; border-radius: 50%;">
+                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #60a5fa;" viewBox="0 0 24 24"><path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"/></svg>
+                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Consultar</h3>
+                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Ver estado de asistencia</p>
+                </a>
 
-            <a href="asistencia.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Justificar Ausencia</h2>
-                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Incluido en Registrar Asistencia</p>
-            </a>
+                <a href="validar.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div style="background: rgba(59, 130, 246, 0.2); padding: 0.8rem; border-radius: 50%;">
+                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #60a5fa;" viewBox="0 0 24 24"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm-1.999 14.413-3.713-3.705L7.7 11.292l2.299 2.295 5.294-5.294 1.414 1.414-6.706 6.706z"/></svg>
+                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Validar</h3>
+                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Validación de justificaciones</p>
+                </a>
+            </div>
+        </div>
 
-            <a href="planificacion.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Planificación</h2>
-                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Generar códigos de vinculación</p>
-            </a>
+        <!-- PANTALLA 3: Menú Docentes -->
+        <div id="menu-docentes" style="display: none;">
+            <button onclick="mostrarMenu('roles')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-bottom: 2rem; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
+                <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                Volver
+            </button>
+            
+            <h2 style="font-size: 1.8rem; font-weight: 600; color: white; margin-bottom: 0.5rem;">Docentes</h2>
+            <p style="color: rgba(255, 255, 255, 0.6); margin-bottom: 2rem;">Seleccione una opción</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;">
+                <a href="planilla.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div style="background: rgba(16, 185, 129, 0.2); padding: 0.8rem; border-radius: 50%;">
+                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Planilla</h3>
+                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Asistencia tradicional P/A/AJ</p>
+                </a>
 
-            <a href="teacher_panel.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM4 19V5h16l.002 14H4z"/>
-                        <path d="M6 7h12v2H6zm0 4h12v2H6zm0 4h6v2H6z"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Panel Docente</h2>
-                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Gestión completa para profesores</p>
-            </a>
+                <a href="planificacion.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div style="background: rgba(16, 185, 129, 0.2); padding: 0.8rem; border-radius: 50%;">
+                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
+                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Planificación</h3>
+                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Códigos de vinculación</p>
+                </a>
 
-            <a href="admin.html" class="glass-input" style="border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 32px; height: 32px; fill: currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Administración</h2>
-                <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Gestionar asignaturas, secciones y carreras</p>
-            </a>
+                <a href="teacher_panel.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div style="background: rgba(16, 185, 129, 0.2); padding: 0.8rem; border-radius: 50%;">
+                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24"><path d="M20 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM4 19V5h16l.002 14H4z"/><path d="M6 7h12v2H6zm0 4h12v2H6zm0 4h6v2H6z"/></svg>
+                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Panel Docente</h3>
+                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Gestión y estadísticas</p>
+                </a>
+
+                <a href="admin.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div style="background: rgba(16, 185, 129, 0.2); padding: 0.8rem; border-radius: 50%;">
+                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Administración</h3>
+                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Asignaturas, secciones, carreras</p>
+                </a>
+            </div>
         </div>
     </div>
 
 <script>
+function mostrarMenu(menu) {
+    document.getElementById('pantalla-roles').style.display = 'none';
+    document.getElementById('menu-estudiantes').style.display = 'none';
+    document.getElementById('menu-docentes').style.display = 'none';
+    
+    if (menu === 'roles') {
+        document.getElementById('pantalla-roles').style.display = 'block';
+    } else if (menu === 'estudiantes') {
+        document.getElementById('menu-estudiantes').style.display = 'block';
+    } else if (menu === 'docentes') {
+        document.getElementById('menu-docentes').style.display = 'block';
+    }
+}
+
 (function() {
     function checkIndicator() {
         if (typeof isTeacherSessionActive === 'function' && isTeacherSessionActive()) {
