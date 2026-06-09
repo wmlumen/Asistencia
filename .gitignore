@@ -2,3 +2,10 @@ node_modules/
 .DS_Store
 *.log
 .env
+
+# Datos sensibles - NO subir a GitHub
+database/data/
+database/*.json
+database/*.csv
+*.sql.dump
+*.backup
