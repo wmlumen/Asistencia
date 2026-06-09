@@ -289,17 +289,32 @@
     </style>
 </head>
 <body>
-    <div class="planificacion-wrapper">
-        <!-- Header -->
-        <div class="header-planif">
-            <img src="logo_centuria_blanco.png" alt="Logo Centuria">
-            <div>
-                <h1><i class="fas fa-calendar-alt"></i> PLANILLA DE PLANIFICACIÓN</h1>
-                <p>Instituto Superior Centuria - Generación de códigos de vinculación</p>
+    <!-- Header Institucional -->
+    <div class="institutional-header" style="padding: 15px 30px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; max-width: 1400px; margin: 0 auto;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="logo_centuria_blanco.png" alt="Logo Centuria" style="height: 45px;">
+                <div>
+                    <h1 style="font-size: 18px; margin: 0;">Instituto Superior Centuria</h1>
+                    <p style="font-size: 12px; margin: 0; opacity: 0.9;">Planilla de Planificación Docente</p>
+                </div>
             </div>
-            <a href="index.html" class="btn" style="margin-left:auto;background:rgba(255,255,255,0.2);color:white;border:none;">
-                <i class="fas fa-home"></i> Inicio
+            <a href="index.html" style="color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                <i class="fas fa-home"></i> Volver al inicio
             </a>
+        </div>
+    </div>
+
+    <div class="planificacion-wrapper">
+        <!-- Header Planificación -->
+        <div style="background: linear-gradient(135deg, var(--primary-green, #0a4d2a) 0%, var(--accent-color, #0d6335) 100%); color: white; padding: 20px 30px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
+            <div style="font-size: 32px;">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div>
+                <h1 style="font-size: 22px; font-weight: 700; margin: 0;">PLANILLA DE PLANIFICACIÓN</h1>
+                <p style="font-size: 13px; opacity: 0.9; margin: 0;">Generación de códigos de vinculación docente-asignatura-sección</p>
+            </div>
         </div>
         
         <!-- Controles -->
