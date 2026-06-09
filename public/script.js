@@ -48,6 +48,22 @@
 
 let CONFIG = {};
 
+// ============================================
+// CSS PERSONALIZADO - Aplicar en todas las páginas
+// ============================================
+(function aplicarCSSPersonalizadoGlobal() {
+    const css = localStorage.getItem('css_personalizado_centuria');
+    if (css && css.trim()) {
+        let styleTag = document.getElementById('css-personalizado');
+        if (!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = 'css-personalizado';
+            document.head.appendChild(styleTag);
+        }
+        styleTag.textContent = css;
+    }
+})();
+
 
 
 

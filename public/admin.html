@@ -252,6 +252,39 @@
                     <div class="empty-msg">No hay carreras registradas</div>
                 </div>
             </div>
+            
+            <!-- Editor CSS -->
+            <div class="card-admin" style="grid-column: 1 / -1;">
+                <h3><i class="fas fa-paint-brush"></i> Editor CSS Personalizado</h3>
+                <p style="font-size:12px;color:#666;margin-bottom:10px;">Los estilos se aplican a todas las páginas del sistema. Use con precaución.</p>
+                
+                <div style="display:flex;gap:10px;margin-bottom:10px;">
+                    <button class="btn-add" onclick="guardarCSSPersonalizado()" style="background:#0a4d2a;">
+                        <i class="fas fa-save"></i> Guardar CSS
+                    </button>
+                    <button class="btn-add" onclick="aplicarCSSPersonalizado()" style="background:#2196F3;">
+                        <i class="fas fa-eye"></i> Aplicar Vista Previa
+                    </button>
+                    <button class="btn-add" onclick="exportarCSS()" style="background:#ff9800;">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                    <button class="btn-add" onclick="importarCSS()" style="background:#9c27b0;">
+                        <i class="fas fa-upload"></i> Importar
+                    </button>
+                    <button class="btn-reset" onclick="resetearCSS()">
+                        <i class="fas fa-undo"></i> Resetear
+                    </button>
+                </div>
+                
+                <textarea id="editor-css" placeholder="/* Escriba su CSS personalizado aquí */
+/* Ejemplo: */
+/* body { background: #f0f0f0; } */
+/* h1 { color: #0a4d2a; } */" style="width:100%;height:300px;font-family:'Courier New',monospace;font-size:13px;padding:15px;border:2px solid #e0e0e0;border-radius:4px;resize:vertical;background:#1e1e1e;color:#d4d4d4;line-height:1.5;"></textarea>
+                
+                <div id="css-status" style="margin-top:8px;font-size:12px;color:#666;">
+                    <i class="fas fa-info-circle"></i> El CSS se guarda automáticamente en el navegador y se aplica en todas las páginas.
+                </div>
+            </div>
         </div>
         
         <div class="status-bar" id="statusAdmin">
@@ -560,6 +593,113 @@
             mostrarStatus('Configuración exportada', 'success');
         }
         
+        /* ============================================================
+           EDITOR CSS PERSONALIZADO
+           ============================================================ */
+        
+        const CSS_STORAGE_KEY = 'css_personalizado_centuria';
+        
+        function cargarCSSPersonalizado() {
+            const css = localStorage.getItem(CSS_STORAGE_KEY) || '';
+            document.getElementById('editor-css').value = css;
+        }
+        
+        function guardarCSSPersonalizado() {
+            const css = document.getElementById('editor-css').value;
+            localStorage.setItem(CSS_STORAGE_KEY, css);
+            mostrarStatus('CSS guardado correctamente', 'success');
+            aplicarCSSPersonalizado();
+        }
+        
+        function aplicarCSSPersonalizado() {
+            const css = document.getElementById('editor-css').value;
+            
+            // Remover estilo anterior si existe
+            let styleTag = document.getElementById('css-personalizado');
+            if (styleTag) {
+                styleTag.remove();
+            }
+            
+            // Crear nuevo style tag
+            if (css.trim()) {
+                styleTag = document.createElement('style');
+                styleTag.id = 'css-personalizado';
+                styleTag.textContent = css;
+                document.head.appendChild(styleTag);
+            }
+            
+            const status = document.getElementById('css-status');
+            status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> CSS aplicado en esta página. Se aplicará en todas las páginas al cargar.';
+            setTimeout(() => {
+                status.innerHTML = '<i class="fas fa-info-circle"></i> El CSS se guarda automáticamente en el navegador y se aplica en todas las páginas.';
+            }, 3000);
+        }
+        
+        function exportarCSS() {
+            const css = localStorage.getItem(CSS_STORAGE_KEY) || '';
+            if (!css.trim()) {
+                alert('No hay CSS personalizado para exportar.');
+                return;
+            }
+            
+            const blob = new Blob([css], { type: 'text/css' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'centuria_custom_' + new Date().toISOString().split('T')[0] + '.css';
+            link.click();
+            
+            mostrarStatus('CSS exportado', 'success');
+        }
+        
+        function importarCSS() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.css';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const css = event.target.result;
+                    document.getElementById('editor-css').value = css;
+                    localStorage.setItem(CSS_STORAGE_KEY, css);
+                    aplicarCSSPersonalizado();
+                    mostrarStatus('CSS importado correctamente', 'success');
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        function resetearCSS() {
+            if (!confirm('¿Eliminar todo el CSS personalizado? Esta acción no se puede deshacer.')) return;
+            
+            document.getElementById('editor-css').value = '';
+            localStorage.removeItem(CSS_STORAGE_KEY);
+            
+            let styleTag = document.getElementById('css-personalizado');
+            if (styleTag) {
+                styleTag.remove();
+            }
+            
+            mostrarStatus('CSS personalizado eliminado', 'success');
+        }
+        
+        // Aplicar CSS guardado al cargar la página
+        function aplicarCSSGuardado() {
+            const css = localStorage.getItem(CSS_STORAGE_KEY);
+            if (css && css.trim()) {
+                let styleTag = document.getElementById('css-personalizado');
+                if (!styleTag) {
+                    styleTag = document.createElement('style');
+                    styleTag.id = 'css-personalizado';
+                    document.head.appendChild(styleTag);
+                }
+                styleTag.textContent = css;
+            }
+        }
+        
         function mostrarStatus(mensaje, tipo) {
             const status = document.getElementById('statusAdmin');
             const icon = tipo === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-info-circle"></i>';
@@ -577,6 +717,8 @@
         }
         
         // Inicializar
+        aplicarCSSGuardado();
+        cargarCSSPersonalizado();
         cargarCatalogos().catch(err => {
             console.error('Error inicializando:', err);
             cargarDefaults();
