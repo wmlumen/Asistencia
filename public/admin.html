@@ -255,34 +255,79 @@
             
             <!-- Editor CSS -->
             <div class="card-admin" style="grid-column: 1 / -1;">
-                <h3><i class="fas fa-paint-brush"></i> Editor CSS Personalizado</h3>
-                <p style="font-size:12px;color:#666;margin-bottom:10px;">Los estilos se aplican a todas las páginas del sistema. Use con precaución.</p>
+                <h3><i class="fas fa-paint-brush"></i> Editor de Estilos Institucionales</h3>
+                <p style="font-size:12px;color:#666;margin-bottom:10px;">Modifique las variables CSS para cambiar colores, fuentes y espaciado. La vista previa se actualiza automáticamente.</p>
                 
-                <div style="display:flex;gap:10px;margin-bottom:10px;">
-                    <button class="btn-add" onclick="guardarCSSPersonalizado()" style="background:#0a4d2a;">
-                        <i class="fas fa-save"></i> Guardar CSS
-                    </button>
-                    <button class="btn-add" onclick="aplicarCSSPersonalizado()" style="background:#2196F3;">
-                        <i class="fas fa-eye"></i> Aplicar Vista Previa
-                    </button>
-                    <button class="btn-add" onclick="exportarCSS()" style="background:#ff9800;">
-                        <i class="fas fa-download"></i> Exportar
-                    </button>
-                    <button class="btn-add" onclick="importarCSS()" style="background:#9c27b0;">
-                        <i class="fas fa-upload"></i> Importar
-                    </button>
-                    <button class="btn-reset" onclick="resetearCSS()">
-                        <i class="fas fa-undo"></i> Resetear
-                    </button>
-                </div>
-                
-                <textarea id="editor-css" placeholder="/* Escriba su CSS personalizado aquí */
-/* Ejemplo: */
-/* body { background: #f0f0f0; } */
-/* h1 { color: #0a4d2a; } */" style="width:100%;height:300px;font-family:'Courier New',monospace;font-size:13px;padding:15px;border:2px solid #e0e0e0;border-radius:4px;resize:vertical;background:#1e1e1e;color:#d4d4d4;line-height:1.5;"></textarea>
-                
-                <div id="css-status" style="margin-top:8px;font-size:12px;color:#666;">
-                    <i class="fas fa-info-circle"></i> El CSS se guarda automáticamente en el navegador y se aplica en todas las páginas.
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                    <!-- Editor -->
+                    <div>
+                        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                            <button class="btn-add" onclick="guardarCSSPersonalizado()" style="background:#0a4d2a;">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <button class="btn-add" onclick="exportarCSS()" style="background:#ff9800;">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                            <button class="btn-add" onclick="importarCSS()" style="background:#9c27b0;">
+                                <i class="fas fa-upload"></i> Importar
+                            </button>
+                            <button class="btn-reset" onclick="resetearCSS()">
+                                <i class="fas fa-undo"></i> Resetear
+                            </button>
+                        </div>
+                        
+                        <textarea id="editor-css" oninput="previewCSSEnTiempoReal()" placeholder="/* Modifique las variables para cambiar la apariencia */
+:root {
+    --primary-green: #0a4d2a;
+    --light-bg: #f4f4f4;
+    --text-color: #333;
+    --accent-color: #0d6335;
+}" style="width:100%;height:350px;font-family:'Courier New',monospace;font-size:13px;padding:15px;border:2px solid #e0e0e0;border-radius:4px;resize:vertical;background:#1e1e1e;color:#d4d4d4;line-height:1.5;"></textarea>
+                        
+                        <div id="css-status" style="margin-top:8px;font-size:12px;color:#666;">
+                            <i class="fas fa-info-circle"></i> Escriba para ver cambios en tiempo real. Guarde para aplicar en todas las páginas.
+                        </div>
+                    </div>
+                    
+                    <!-- Vista Previa -->
+                    <div>
+                        <h4 style="margin-bottom:10px;color:var(--primary-green);"><i class="fas fa-eye"></i> Vista Previa</h4>
+                        <div id="preview-container" style="border:2px solid #ddd;border-radius:8px;padding:20px;background:white;min-height:350px;overflow:auto;">
+                            <!-- Preview Header -->
+                            <div id="preview-header" style="background: linear-gradient(135deg, var(--primary-green, #0a4d2a) 0%, var(--accent-color, #0d6335) 100%); color: white; padding: 15px; text-align: center; border-radius: 4px; margin-bottom: 15px;">
+                                <h5 style="margin:0;font-size:14px;">Instituto Superior Centuria</h5>
+                            </div>
+                            
+                            <!-- Preview Card -->
+                            <div id="preview-card" style="background: white; padding: 15px; border-radius: 8px; border-top: 4px solid var(--primary-green, #0a4d2a); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                                <h6 style="color: var(--primary-green, #0a4d2a); margin: 0 0 8px 0; font-size: 13px;">Ejemplo de Tarjeta</h6>
+                                <p style="font-size: 12px; color: #666; margin: 0;">Este es un ejemplo de cómo se verán las tarjetas en el sistema.</p>
+                            </div>
+                            
+                            <!-- Preview Button -->
+                            <div style="text-align: center;">
+                                <button id="preview-button" style="background-color: var(--primary-green, #0a4d2a); color: white; padding: 8px 16px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                                    Botón de Ejemplo
+                                </button>
+                            </div>
+                            
+                            <!-- Preview Table -->
+                            <table id="preview-table" style="width: 100%; margin-top: 15px; border-collapse: collapse; font-size: 11px;">
+                                <thead style="background: var(--primary-green, #0a4d2a); color: white;">
+                                    <tr>
+                                        <th style="padding: 6px; text-align: left;">Columna 1</th>
+                                        <th style="padding: 6px; text-align: left;">Columna 2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #eee;">
+                                        <td style="padding: 6px;">Dato 1</td>
+                                        <td style="padding: 6px;">Dato 2</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -602,13 +647,44 @@
         function cargarCSSPersonalizado() {
             const css = localStorage.getItem(CSS_STORAGE_KEY) || '';
             document.getElementById('editor-css').value = css;
+            previewCSSEnTiempoReal();
+        }
+        
+        // Vista previa en tiempo real
+        function previewCSSEnTiempoReal() {
+            const css = document.getElementById('editor-css').value;
+            
+            // Crear style tag temporal para el preview
+            let previewStyle = document.getElementById('css-preview-temporal');
+            if (!previewStyle) {
+                previewStyle = document.createElement('style');
+                previewStyle.id = 'css-preview-temporal';
+                document.head.appendChild(previewStyle);
+            }
+            previewStyle.textContent = css;
+            
+            // Actualizar mensaje de estado
+            const status = document.getElementById('css-status');
+            status.innerHTML = '<i class="fas fa-sync fa-spin" style="color:#2196F3;"></i> Vista previa actualizando...';
+            
+            clearTimeout(window.previewTimeout);
+            window.previewTimeout = setTimeout(() => {
+                status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> Vista previa lista. Haga clic en Guardar para aplicar permanentemente.';
+            }, 500);
         }
         
         function guardarCSSPersonalizado() {
             const css = document.getElementById('editor-css').value;
             localStorage.setItem(CSS_STORAGE_KEY, css);
-            mostrarStatus('CSS guardado correctamente', 'success');
+            
+            // Limpiar preview temporal
+            let previewStyle = document.getElementById('css-preview-temporal');
+            if (previewStyle) {
+                previewStyle.remove();
+            }
+            
             aplicarCSSPersonalizado();
+            mostrarStatus('CSS guardado y aplicado en todas las páginas', 'success');
         }
         
         function aplicarCSSPersonalizado() {
@@ -683,6 +759,13 @@
                 styleTag.remove();
             }
             
+            // Limpiar preview temporal
+            let previewStyle = document.getElementById('css-preview-temporal');
+            if (previewStyle) {
+                previewStyle.remove();
+            }
+            
+            previewCSSEnTiempoReal();
             mostrarStatus('CSS personalizado eliminado', 'success');
         }
         

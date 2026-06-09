@@ -5,167 +5,228 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Asistencia - Instituto Superior Centuria</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="institutional.css">
     <script src="script.js?v=2"></script>
 </head>
-<body class="animated-bg" style="align-items: center; justify-content: center;">
-    <div class="background-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
+<body>
+
+    <!-- Header Institucional -->
+    <div class="institutional-header">
+        <img src="logo_centuria_blanco.png" alt="Logo Centuria">
+        <h1>Instituto Superior Centuria</h1>
+        <p>Sistema de Control de Asistencia y Planificación Académica</p>
     </div>
 
-    <!-- Indicador de sesión docente -->
-    <div id="teacher-session-indicator" style="position:fixed;top:16px;right:16px;z-index:100;display:none;">
-        <div style="background:rgba(16,185,129,0.9);color:white;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,0.15);">
-            <i class="fas fa-user-shield"></i> Sesión docente activa
-            <button onclick="logoutTeacher();window.location.reload();" style="background:rgba(255,255,255,0.2);border:none;color:white;padding:2px 8px;border-radius:12px;font-size:11px;cursor:pointer;margin-left:4px;">Cerrar</button>
-        </div>
-    </div>
-
-    <div class="glass-panel" style="padding: 3rem; max-width: 900px; width: 90%; text-align: center; animation: fadeIn 0.8s ease-out; z-index: 1;">
+    <!-- Contenedor Principal -->
+    <div class="institutional-container">
         
-        <!-- Header -->
-        <div style="margin-bottom: 3rem;">
-            <img src="logo_centuria_blanco.png" alt="Logo Centuria" style="height:80px;margin-bottom:1rem;">
-            <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(to right, #ffffff, var(--color-institucional-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.02em;">Sistema de Asistencia</h1>
-            <p style="color: rgba(255, 255, 255, 0.8); font-size: 1.1rem;">Instituto Superior Centuria</p>
-        </div>
-
-        <!-- PANTALLA 1: Selección de Rol -->
-        <div id="pantalla-roles">
-            <p style="color: rgba(255, 255, 255, 0.7); font-size: 1rem; margin-bottom: 2rem;">Seleccione su perfil para continuar</p>
+        <!-- Sidebar / Navegación -->
+        <aside class="logo-sidebar">
+            <img src="logo_centuria.png" alt="Logo Centuria" style="margin-bottom: 30px;">
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 700px; margin: 0 auto;">
+            <nav class="nav-menu">
+                <button onclick="mostrarSeccion('estudiantes')" class="nav-button" id="btn-estudiantes">
+                    <i class="fas fa-user-graduate"></i> Estudiantes
+                </button>
+                <button onclick="mostrarSeccion('docentes')" class="nav-button" id="btn-docentes">
+                    <i class="fas fa-chalkboard-teacher"></i> Docentes
+                </button>
+            </nav>
+            
+            <div style="margin-top: 40px; padding: 20px; background: rgba(10, 77, 42, 0.05); border-radius: 8px; text-align: center;">
+                <p style="font-size: 12px; color: #666; margin: 0;">
+                    <i class="fas fa-info-circle"></i><br>
+                    Seleccione su perfil para acceder a las funcionalidades del sistema.
+                </p>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="content-section">
+            
+            <!-- SECCIÓN ESTUDIANTES -->
+            <div id="seccion-estudiantes" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2 style="color: var(--primary-green); font-size: 24px; margin: 0;">
+                        <i class="fas fa-user-graduate"></i> Portal de Estudiantes
+                    </h2>
+                    <button onclick="mostrarSeccion('inicio')" style="background: none; border: 1px solid var(--primary-green); color: var(--primary-green); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                </div>
                 
-                <!-- Botón Estudiantes -->
-                <button onclick="mostrarMenu('estudiantes')" class="glass-input" style="border-radius: 20px; padding: 3rem 2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1.2rem; cursor: pointer; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
-                    <div style="background: rgba(59, 130, 246, 0.2); padding: 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <svg style="width: 48px; height: 48px; fill: currentColor; color: #60a5fa;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
-                        </svg>
-                    </div>
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: white;">Estudiantes</h2>
-                    <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Registrar asistencia, consultar estado y validar justificaciones</p>
-                </button>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    
+                    <a href="asistencia.html" class="institutional-card" style="text-decoration: none; color: inherit;">
+                        <div style="background: rgba(59, 130, 246, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                            <i class="fas fa-clipboard-check" style="font-size: 20px; color: #3b82f6;"></i>
+                        </div>
+                        <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Registrar Asistencia</h3>
+                        <p style="font-size: 13px; color: #666; line-height: 1.5;">Registre su ingreso o justifique una ausencia de forma rápida y sencilla.</p>
+                    </a>
 
-                <!-- Botón Docentes -->
-                <button onclick="mostrarMenu('docentes')" class="glass-input" style="border-radius: 20px; padding: 3rem 2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 1.2rem; cursor: pointer; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
-                    <div style="background: rgba(16, 185, 129, 0.2); padding: 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <svg style="width: 48px; height: 48px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM4 19V5h16l.002 14H4z"/>
-                            <path d="M6 7h12v2H6zm0 4h12v2H6zm0 4h6v2H6z"/>
-                        </svg>
-                    </div>
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: white;">Docentes</h2>
-                    <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.4;">Planillas, planificación, panel de gestión y administración</p>
-                </button>
+                    <a href="consultar.html" class="institutional-card" style="text-decoration: none; color: inherit;">
+                        <div style="background: rgba(16, 185, 129, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                            <i class="fas fa-search" style="font-size: 20px; color: #10b981;"></i>
+                        </div>
+                        <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Consultar Estado</h3>
+                        <p style="font-size: 13px; color: #666; line-height: 1.5;">Verifique su estado de asistencia, presentes, ausencias y justificaciones.</p>
+                    </a>
+
+                    <a href="validar.html" class="institutional-card" style="text-decoration: none; color: inherit;">
+                        <div style="background: rgba(245, 158, 11, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                            <i class="fas fa-check-double" style="font-size: 20px; color: #f59e0b;"></i>
+                        </div>
+                        <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Validar Justificación</h3>
+                        <p style="font-size: 13px; color: #666; line-height: 1.5;">Valide el estado de sus justificaciones y solicitudes.</p>
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <!-- PANTALLA 2: Menú Estudiantes -->
-        <div id="menu-estudiantes" style="display: none;">
-            <button onclick="mostrarMenu('roles')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-bottom: 2rem; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
-                <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-                Volver
-            </button>
-            
-            <h2 style="font-size: 1.8rem; font-weight: 600; color: white; margin-bottom: 0.5rem;">Estudiantes</h2>
-            <p style="color: rgba(255, 255, 255, 0.6); margin-bottom: 2rem;">Seleccione una opción</p>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;">
-                <a href="asistencia.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
-                    <div style="background: rgba(59, 130, 246, 0.2); padding: 0.8rem; border-radius: 50%;">
-                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #60a5fa;" viewBox="0 0 24 24"><path d="M12 14v8H4a8 8 0 0 1 8-8zm0-1c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm9 4h1v5h-8v-5h1v-1a3 3 0 0 1 6 0v1zm-2 0v-1a1 1 0 0 0-2 0v1h2z"/></svg>
-                    </div>
-                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Registrar Asistencia</h3>
-                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Ingreso y justificación de ausencias</p>
-                </a>
+            <!-- SECCIÓN DOCENTES -->
+            <div id="seccion-docentes" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2 style="color: var(--primary-green); font-size: 24px; margin: 0;">
+                        <i class="fas fa-chalkboard-teacher"></i> Portal de Docentes
+                    </h2>
+                    <button onclick="mostrarSeccion('inicio')" style="background: none; border: 1px solid var(--primary-green); color: var(--primary-green); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    
+                    <a href="planilla.html" class="institutional-card" style="text-decoration: none; color: inherit;">
+                        <div style="background: rgba(10, 77, 42, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                            <i class="fas fa-table" style="font-size: 20px; color: var(--primary-green);"></i>
+                        </div>
+                        <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Planilla de Asistencia</h3>
+                        <p style="font-size: 13px; color: #666; line-height: 1.5;">Planilla tradicional con formato P/A/AJ para control de clases.</p>
+                    </a>
 
-                <a href="consultar.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
-                    <div style="background: rgba(59, 130, 246, 0.2); padding: 0.8rem; border-radius: 50%;">
-                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #60a5fa;" viewBox="0 0 24 24"><path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"/></svg>
-                    </div>
-                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Consultar</h3>
-                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Ver estado de asistencia</p>
-                </a>
+                    <a href="planificacion.html" class="institutional-card" style="text-decoration: none; color: inherit;">
+                        <div style="background: rgba(10, 77, 42, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                            <i class="fas fa-calendar-alt" style="font-size: 20px; color: var(--primary-green);"></i>
+                        </div>
+                        <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Planificación Docente</h3>
+                        <p style="font-size: 13px; color: #666; line-height: 1.5;">Genere códigos de vinculación docente-asignatura-sección.</p>
+                    </a>
 
-                <a href="validar.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
-                    <div style="background: rgba(59, 130, 246, 0.2); padding: 0.8rem; border-radius: 50%;">
-                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #60a5fa;" viewBox="0 0 24 24"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm-1.999 14.413-3.713-3.705L7.7 11.292l2.299 2.295 5.294-5.294 1.414 1.414-6.706 6.706z"/></svg>
-                    </div>
-                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Validar</h3>
-                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Validación de justificaciones</p>
-                </a>
+                    <a href="teacher_panel.html" class="institutional-card" style="text-decoration: none; color: inherit;">
+                        <div style="background: rgba(10, 77, 42, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                            <i class="fas fa-chart-line" style="font-size: 20px; color: var(--primary-green);"></i>
+                        </div>
+                        <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Panel de Gestión</h3>
+                        <p style="font-size: 13px; color: #666; line-height: 1.5;">Estadísticas, gráficos, exportación de datos y monitoreo en vivo.</p>
+                    </a>
+
+                    <a href="admin.html" class="institutional-card" style="text-decoration: none; color: inherit;">
+                        <div style="background: rgba(10, 77, 42, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                            <i class="fas fa-cogs" style="font-size: 20px; color: var(--primary-green);"></i>
+                        </div>
+                        <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Administración</h3>
+                        <p style="font-size: 13px; color: #666; line-height: 1.5;">Gestione asignaturas, secciones, carreras y estilos CSS personalizados.</p>
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <!-- PANTALLA 3: Menú Docentes -->
-        <div id="menu-docentes" style="display: none;">
-            <button onclick="mostrarMenu('roles')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-bottom: 2rem; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
-                <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-                Volver
-            </button>
-            
-            <h2 style="font-size: 1.8rem; font-weight: 600; color: white; margin-bottom: 0.5rem;">Docentes</h2>
-            <p style="color: rgba(255, 255, 255, 0.6); margin-bottom: 2rem;">Seleccione una opción</p>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;">
-                <a href="planilla.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
-                    <div style="background: rgba(16, 185, 129, 0.2); padding: 0.8rem; border-radius: 50%;">
-                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+            <!-- SECCIÓN INICIO (por defecto) -->
+            <div id="seccion-inicio">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <img src="logo_centuria.png" alt="Logo Centuria" style="max-width: 200px; margin-bottom: 30px;">
+                    <h2 style="color: var(--primary-green); font-size: 28px; margin-bottom: 15px;">Bienvenido al Sistema de Asistencia</h2>
+                    <p style="font-size: 16px; color: #666; max-width: 600px; margin: 0 auto 30px; line-height: 1.6;">
+                        Sistema integral para el control de asistencia, planificación académica y gestión docente del Instituto Superior Centuria.
+                    </p>
+                    
+                    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="mostrarSeccion('estudiantes')" class="nav-button" style="font-size: 16px; padding: 15px 30px;">
+                            <i class="fas fa-user-graduate"></i> Soy Estudiante
+                        </button>
+                        <button onclick="mostrarSeccion('docentes')" class="nav-button" style="font-size: 16px; padding: 15px 30px;">
+                            <i class="fas fa-chalkboard-teacher"></i> Soy Docente
+                        </button>
                     </div>
-                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Planilla</h3>
-                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Asistencia tradicional P/A/AJ</p>
-                </a>
-
-                <a href="planificacion.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
-                    <div style="background: rgba(16, 185, 129, 0.2); padding: 0.8rem; border-radius: 50%;">
-                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
+                </div>
+                
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #eee;">
+                    <h3 style="color: var(--primary-green); font-size: 18px; margin-bottom: 20px; text-align: center;">
+                        <i class="fas fa-info-circle"></i> Información del Sistema
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="text-align: center; padding: 15px;">
+                            <i class="fas fa-shield-alt" style="font-size: 24px; color: var(--primary-green); margin-bottom: 8px;"></i>
+                            <p style="font-size: 13px; color: #666; margin: 0;">Datos seguros en Google Sheets</p>
+                        </div>
+                        <div style="text-align: center; padding: 15px;">
+                            <i class="fas fa-mobile-alt" style="font-size: 24px; color: var(--primary-green); margin-bottom: 8px;"></i>
+                            <p style="font-size: 13px; color: #666; margin: 0;">Acceso desde cualquier dispositivo</p>
+                        </div>
+                        <div style="text-align: center; padding: 15px;">
+                            <i class="fas fa-file-export" style="font-size: 24px; color: var(--primary-green); margin-bottom: 8px;"></i>
+                            <p style="font-size: 13px; color: #666; margin: 0;">Exportación a PDF y CSV</p>
+                        </div>
+                        <div style="text-align: center; padding: 15px;">
+                            <i class="fas fa-sync" style="font-size: 24px; color: var(--primary-green); margin-bottom: 8px;"></i>
+                            <p style="font-size: 13px; color: #666; margin: 0;">Sincronización automática</p>
+                        </div>
                     </div>
-                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Planificación</h3>
-                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Códigos de vinculación</p>
-                </a>
-
-                <a href="teacher_panel.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
-                    <div style="background: rgba(16, 185, 129, 0.2); padding: 0.8rem; border-radius: 50%;">
-                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24"><path d="M20 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM4 19V5h16l.002 14H4z"/><path d="M6 7h12v2H6zm0 4h12v2H6zm0 4h6v2H6z"/></svg>
-                    </div>
-                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Panel Docente</h3>
-                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Gestión y estadísticas</p>
-                </a>
-
-                <a href="admin.html" class="glass-input" style="border-radius: 16px; padding: 1.8rem 1.2rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
-                    <div style="background: rgba(16, 185, 129, 0.2); padding: 0.8rem; border-radius: 50%;">
-                        <svg style="width: 28px; height: 28px; fill: currentColor; color: #34d399;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                    </div>
-                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0; color: white;">Administración</h3>
-                    <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin: 0;">Asignaturas, secciones, carreras</p>
-                </a>
+                </div>
             </div>
-        </div>
+
+        </main>
     </div>
+
+    <!-- Footer -->
+    <footer style="background: var(--primary-green); color: white; text-align: center; padding: 20px; margin-top: 40px;">
+        <p style="margin: 0; font-size: 13px; opacity: 0.9;">
+            <i class="fas fa-copyright"></i> 2026 Instituto Superior Centuria. Todos los derechos reservados.
+        </p>
+        <p style="margin: 5px 0 0; font-size: 11px; opacity: 0.7;">
+            Sistema de Asistencia v2.0 | Desarrollado para la gestión académica
+        </p>
+    </footer>
 
 <script>
-function mostrarMenu(menu) {
-    document.getElementById('pantalla-roles').style.display = 'none';
-    document.getElementById('menu-estudiantes').style.display = 'none';
-    document.getElementById('menu-docentes').style.display = 'none';
+function mostrarSeccion(seccion) {
+    // Ocultar todas
+    document.getElementById('seccion-inicio').style.display = 'none';
+    document.getElementById('seccion-estudiantes').style.display = 'none';
+    document.getElementById('seccion-docentes').style.display = 'none';
     
-    if (menu === 'roles') {
-        document.getElementById('pantalla-roles').style.display = 'block';
-    } else if (menu === 'estudiantes') {
-        document.getElementById('menu-estudiantes').style.display = 'block';
-    } else if (menu === 'docentes') {
-        document.getElementById('menu-docentes').style.display = 'block';
+    // Mostrar la seleccionada
+    if (seccion === 'inicio') {
+        document.getElementById('seccion-inicio').style.display = 'block';
+        // Resetear botones
+        document.getElementById('btn-estudiantes').style.background = '';
+        document.getElementById('btn-docentes').style.background = '';
+    } else if (seccion === 'estudiantes') {
+        document.getElementById('seccion-estudiantes').style.display = 'block';
+        document.getElementById('btn-estudiantes').style.background = '#073a20';
+        document.getElementById('btn-docentes').style.background = '';
+    } else if (seccion === 'docentes') {
+        document.getElementById('seccion-docentes').style.display = 'block';
+        document.getElementById('btn-docentes').style.background = '#073a20';
+        document.getElementById('btn-estudiantes').style.background = '';
     }
 }
 
+// Verificar sesion docente
 (function() {
     function checkIndicator() {
         if (typeof isTeacherSessionActive === 'function' && isTeacherSessionActive()) {
-            const ind = document.getElementById('teacher-session-indicator');
-            if (ind) ind.style.display = 'block';
+            // Si hay sesion docente, mostrar indicador visual
+            const header = document.querySelector('.institutional-header');
+            if (header) {
+                const badge = document.createElement('div');
+                badge.innerHTML = '<span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px; font-size: 12px;"><i class="fas fa-user-shield"></i> Sesión docente activa</span>';
+                badge.style.position = 'absolute';
+                badge.style.top = '20px';
+                badge.style.right = '20px';
+                header.style.position = 'relative';
+                header.appendChild(badge);
+            }
         }
     }
     if (document.readyState === 'loading') {
