@@ -262,6 +262,9 @@
             <button class="btn-export" onclick="exportarConfiguracion()">
                 <i class="fas fa-download"></i> Exportar Configuración
             </button>
+            <button class="btn-export" onclick="cargarCatalogosDesdeSheets()" style="background:#2196F3;">
+                <i class="fas fa-cloud-download-alt"></i> Recargar desde Sheets
+            </button>
             <button class="btn-reset" onclick="cargarDefaults()">
                 <i class="fas fa-undo"></i> Restaurar Valores por Defecto
             </button>
@@ -278,8 +281,8 @@
             carreras: []
         };
         
-        // Cargar desde localStorage (ambos formatos)
-        function cargarCatalogos() {
+        // Cargar desde localStorage (ambos formatos) o desde Google Sheets
+        async function cargarCatalogos() {
             // Intentar 1: Formato admin (estructurado)
             const guardado = localStorage.getItem(STORAGE_KEY);
             if (guardado) {
@@ -309,8 +312,92 @@
                 return;
             }
             
-            // Si no hay nada, cargar defaults
-            cargarDefaults();
+            // Intentar 3: Cargar desde Google Sheets
+            mostrarStatus('Cargando catálogos desde Google Sheets...', 'info');
+            await cargarCatalogosDesdeSheets();
+        }
+        
+        // Extraer catálogos únicos desde Google Sheets
+        async function cargarCatalogosDesdeSheets() {
+            try {
+                const apiUrl = getApiUrl();
+                const apiKey = getApiKeyLocal();
+                
+                if (!apiUrl || !apiKey) {
+                    throw new Error('API no configurada');
+                }
+                
+                // Obtener registros de asistencia para extraer carreras y secciones
+                const urlRegistro = apiUrl + '?modo=registro&apiKey=' + encodeURIComponent(apiKey);
+                const respRegistro = await fetch(urlRegistro);
+                const dataRegistro = await respRegistro.json();
+                
+                // Obtener planificaciones para extraer asignaturas, secciones y carreras
+                const urlPlanif = apiUrl + '?modo=planificaciones&apiKey=' + encodeURIComponent(apiKey);
+                const respPlanif = await fetch(urlPlanif);
+                const dataPlanif = await respPlanif.json();
+                
+                const carrerasSet = new Set();
+                const seccionesSet = new Set();
+                const asignaturasSet = new Set();
+                
+                // Extraer desde Registro
+                if (dataRegistro.registros) {
+                    dataRegistro.registros.forEach(r => {
+                        if (r.Carrera || r.carrera) carrerasSet.add(r.Carrera || r.carrera);
+                        if (r.Seccion || r.seccion) seccionesSet.add(r.Seccion || r.seccion);
+                    });
+                }
+                
+                // Extraer desde Planificacion
+                if (dataPlanif.planificaciones) {
+                    dataPlanif.planificaciones.forEach(p => {
+                        if (p.COD_ASIGNATURA || p.codAsignatura) asignaturasSet.add(p.COD_ASIGNATURA || p.codAsignatura);
+                        if (p.COD_SECCION || p.codSeccion) seccionesSet.add(p.COD_SECCION || p.codSeccion);
+                        if (p.COD_CARRERA || p.codCarrera) carrerasSet.add(p.COD_CARRERA || p.codCarrera);
+                    });
+                }
+                
+                // Convertir a formato catalogos
+                let cod = 1;
+                catalogos.carreras = Array.from(carrerasSet).map(c => {
+                    const partes = c.split('-');
+                    if (partes.length >= 2 && !isNaN(partes[0])) {
+                        return { codigo: partes[0], nombre: partes.slice(1).join('-') };
+                    }
+                    return { codigo: String(cod++).padStart(2, '0'), nombre: c };
+                });
+                
+                cod = 1;
+                catalogos.secciones = Array.from(seccionesSet).map(s => {
+                    const partes = s.split('-');
+                    if (partes.length >= 2 && !isNaN(partes[0])) {
+                        return { codigo: partes[0], nombre: partes.slice(1).join('-') };
+                    }
+                    return { codigo: String(cod++).padStart(2, '0'), nombre: s };
+                });
+                
+                cod = 1;
+                catalogos.asignaturas = Array.from(asignaturasSet).map(a => {
+                    const partes = a.split('-');
+                    if (partes.length >= 2 && !isNaN(partes[0])) {
+                        return { codigo: partes[0], nombre: partes.slice(1).join('-') };
+                    }
+                    return { codigo: String(cod++).padStart(2, '0'), nombre: a };
+                });
+                
+                // Guardar y renderizar
+                guardarCatalogos();
+                renderizarTodo();
+                
+                const total = catalogos.asignaturas.length + catalogos.secciones.length + catalogos.carreras.length;
+                mostrarStatus('Catálogos cargados desde Google Sheets: ' + total + ' items', 'success');
+                
+            } catch (err) {
+                console.error('Error cargando desde Sheets:', err);
+                mostrarStatus('No se pudieron cargar catálogos desde Sheets. Usando valores por defecto.', 'error');
+                cargarDefaults();
+            }
         }
         
         // Convertir formato "01-Sociología" a {codigo: "01", nombre: "Sociología"}
@@ -490,7 +577,10 @@
         }
         
         // Inicializar
-        cargarCatalogos();
+        cargarCatalogos().catch(err => {
+            console.error('Error inicializando:', err);
+            cargarDefaults();
+        });
     </script>
 </body>
 </html>
