@@ -3340,13 +3340,18 @@ async function submitAttendanceRecord(payload) {
         };
         if (apiKey) body.apiKey = apiKey;
 
-        console.log('Enviando POST a:', apiUrl);
-        console.log('Body:', JSON.stringify(body));
-
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            body: JSON.stringify(body)
+        // Enviar datos como query params (mas confiable con Apps Script)
+        const params = new URLSearchParams();
+        Object.keys(body).forEach(key => {
+            if (body[key] !== undefined && body[key] !== null) {
+                params.append(key, body[key]);
+            }
         });
+        
+        const postUrl = apiUrl + '?' + params.toString();
+        console.log('Enviando POST a:', postUrl);
+
+        const response = await fetch(postUrl, { method: 'POST' });
 
         console.log('Response status:', response.status);
         const responseText = await response.text();

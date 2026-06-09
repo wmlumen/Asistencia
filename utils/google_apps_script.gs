@@ -120,31 +120,18 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    let data = {};
-    
     // Si se ejecuta manualmente desde el editor, e es undefined
     if (!e) {
       console.log('doPost ejecutado manualmente sin evento HTTP');
       return jsonResponse({ ok: false, error: 'Ejecutar via Web App, no manualmente' });
     }
     
-    // Intentar leer body JSON
-    if (e.postData && e.postData.contents) {
-      try {
-        data = JSON.parse(e.postData.contents);
-      } catch(parseErr) {
-        console.warn('Error parseando JSON:', parseErr);
-      }
-    }
-    
-    // Mergear query params como fallback
-    if (e.parameter) {
-      Object.keys(e.parameter).forEach(function(key) {
-        data[key] = e.parameter[key];
-      });
-    }
+    // Leer datos de query params (el frontend envia todo como URL params)
+    const data = e.parameter || {};
     
     console.log('doPost recibido. Keys:', Object.keys(data).join(', '));
+    console.log('studentName:', data.studentName);
+    console.log('studentId:', data.studentId);
 
     // Validar API key
     const key = (data.apiKey || data.api_secret || '').trim();

@@ -706,20 +706,18 @@
                 status.className = 'status-msg info';
                 status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Enviando a la planilla...</span>';
 
-                const body = {
-                    modo: 'justificar',
-                    studentId: id,
-                    studentName: name,
-                    career: career,
-                    fechaAusencia: fecha,
-                    motivo: motivo,
-                    notes: obs
-                };
-                if (apiKey) body.apiKey = apiKey;
+                const params = new URLSearchParams();
+                params.append('modo', 'justificar');
+                params.append('studentId', id);
+                params.append('studentName', name);
+                params.append('career', career);
+                params.append('fechaAusencia', fecha);
+                params.append('motivo', motivo);
+                params.append('notes', obs);
+                if (apiKey) params.append('apiKey', apiKey);
 
-                fetch(apiUrl, {
-                    method: 'POST',
-                    body: JSON.stringify(body)
+                fetch(apiUrl + '?' + params.toString(), {
+                    method: 'POST'
                 })
                 .then(r => r.json())
                 .then(data => {
