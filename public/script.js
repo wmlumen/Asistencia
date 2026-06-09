@@ -4465,7 +4465,12 @@ function initAttendanceRegistrationPage() {
 
         if (!payload.nombre || !payload.cedula || !payload.carrera || !payload.seccion) {
             if (status) {
-                status.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Complete nombre, cédula, carrera y sección.';
+                let faltantes = [];
+                if (!payload.nombre) faltantes.push('Nombre');
+                if (!payload.cedula) faltantes.push('Cédula');
+                if (!payload.carrera) faltantes.push('Carrera');
+                if (!payload.seccion) faltantes.push('Sección');
+                status.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Complete: ' + faltantes.join(', ');
                 status.className = 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700';
             }
             return;
