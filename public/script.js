@@ -174,7 +174,7 @@ async function cargarConfiguracion() {
 
 
 
-            name_docente: 'Christhian Keim',
+            name_docente: 'Docente',
 
 
 
@@ -182,7 +182,8 @@ async function cargarConfiguracion() {
 
 
 
-            cedula_docente: '1340130',
+
+            cedula_docente: '',
 
 
 
@@ -190,7 +191,9 @@ async function cargarConfiguracion() {
 
 
 
-            cedula_prueba: '99',
+
+            cedula_prueba: '',
+
 
 
 
@@ -206,7 +209,9 @@ async function cargarConfiguracion() {
 
 
 
+
             materia: 'Sociologia',
+
 
 
 
@@ -222,7 +227,9 @@ async function cargarConfiguracion() {
 
 
 
+
             fecha_examen: '19/05/2026',
+
 
 
 
@@ -238,7 +245,9 @@ async function cargarConfiguracion() {
 
 
 
+
             intentos_maximos: 2,
+
 
 
 
@@ -254,7 +263,9 @@ async function cargarConfiguracion() {
 
 
 
+
             preguntas_verdadero_falso: 15,
+
 
 
 
@@ -270,6 +281,7 @@ async function cargarConfiguracion() {
 
 
 
+
             puntaje_aprobacion: 60,
 
 
@@ -278,7 +290,8 @@ async function cargarConfiguracion() {
 
 
 
-            link_google_forms: 'https://wmlumen.github.io/Asistencia/asistencia.html',
+
+            link_google_forms: 'https://TU_USUARIO.github.io/Asistencia/asistencia.html',
 
 
 
@@ -286,20 +299,25 @@ async function cargarConfiguracion() {
 
 
 
-            link_asistencia: 'https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA/edit?resourcekey=&gid=1228582985#gid=1228582985',
+
+
+            link_asistencia: 'https://docs.google.com/spreadsheets/d/TU_SHEET_ID/edit',
 
 
 
 
 
 
-            link_respuestas: 'https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R3fm8H6pnPxcp_eOHb5s',
-            asistencia_public_url: 'https://wmlumen.github.io/Asistencia/asistencia.html',
-            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbz5MUkxeYtwzDt3x-mMSImyQl7EjAUCzgvxTwCZbjmIkzszRQsSDaFfjgcXzheZ9XXdGw/exec',
+
+
+
+            link_respuestas: 'https://docs.google.com/spreadsheets/d/TU_SHEET_ID',
+            asistencia_public_url: 'https://TU_USUARIO.github.io/Asistencia/asistencia.html',
+            asistencia_api_url: 'https://script.google.com/macros/s/TU_ID_DE_WEB_APP/exec',
             asistencia_csv_url: '',
-            asistencia_carreras: 'LICENCIATURA EN ADMINISTRACION DE EMPRESAS|LICENCIATURA EN CONTABILIDAD|LICENCIATURA EN ADMINISTRACION ADUANERA|LICENCIATURA EN ADMINISTRACION Y GESTION PUBLICA|INGENIERIA COMERCIAL|MAESTRIA EN ADMINISTRACION Y GESTION PUBLICA|OTRO',
-            api_secret: 'CenturiaApi2024!',
-            teacherPassword: 'Centuria2024!'
+            asistencia_carreras: 'CARRERA 1|CARRERA 2|CARRERA 3',
+            api_secret: 'TU_API_SECRET_AQUI',
+            teacherPassword: 'TU_CONTRASENA_AQUI'
         };
 
 
