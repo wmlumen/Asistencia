@@ -339,6 +339,105 @@
             </div>
         </div>
         
+        <!-- Gestión de Seguridad y Usuarios -->
+        <div class="css-editor-section" style="border-top-color: #dc3545;">
+            <h3 style="color: #dc3545;"><i class="fas fa-shield-alt"></i> Gestión de Seguridad y Usuarios</h3>
+            <p>Administre las contraseñas de acceso al sistema. Actualmente todos los usuarios del mismo rol comparten la misma contraseña. En el futuro podrá asignar contraseñas individuales.</p>
+            
+            <div class="grid-admin" style="margin-top: 16px; margin-bottom: 0;">
+                <!-- Contraseñas Globales -->
+                <div class="card-admin" style="border-top-color: #dc3545;">
+                    <h3 style="color: #dc3545;"><i class="fas fa-key"></i> Contraseñas Globales</h3>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px;">
+                            <i class="fas fa-chalkboard-teacher"></i> Contraseña Docente
+                        </label>
+                        <div class="input-group" style="margin-bottom: 8px;">
+                            <input type="password" id="admin-pwd-teacher" placeholder="Nueva contraseña docente" style="flex:1;">
+                            <button class="btn btn-danger" onclick="cambiarPasswordGlobal('teacher')">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                        </div>
+                        <p style="font-size: 11px; color: #999; margin: 0;">Actual: <span id="current-pwd-teacher" style="font-family: monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">---</span></p>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px;">
+                            <i class="fas fa-user-graduate"></i> Contraseña Estudiante
+                        </label>
+                        <div class="input-group" style="margin-bottom: 8px;">
+                            <input type="password" id="admin-pwd-student" placeholder="Nueva contraseña estudiante" style="flex:1;">
+                            <button class="btn btn-danger" onclick="cambiarPasswordGlobal('student')">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                        </div>
+                        <p style="font-size: 11px; color: #999; margin: 0;">Actual: <span id="current-pwd-student" style="font-family: monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">---</span></p>
+                    </div>
+                </div>
+                
+                <!-- Gestión de Usuarios (Preparado para futuro) -->
+                <div class="card-admin" style="border-top-color: #6c757d;">
+                    <h3 style="color: #6c757d;"><i class="fas fa-users-cog"></i> Usuarios del Sistema</h3>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 12px;">
+                        <i class="fas fa-info-circle"></i> Modo actual: <strong>Contraseña global</strong>. Todos los usuarios del mismo rol comparten la misma contraseña.
+                    </p>
+                    
+                    <div style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                        <p style="font-size: 11px; color: #666; margin: 0 0 8px 0;">
+                            <strong>Preparado para futuro:</strong> Aquí podrá gestionar usuarios individuales con sus propias credenciales.
+                        </p>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <span style="font-size: 11px; background: #e9ecef; padding: 4px 8px; border-radius: 4px; color: #495057;">
+                                <i class="fas fa-user"></i> Docentes individuales
+                            </span>
+                            <span style="font-size: 11px; background: #e9ecef; padding: 4px 8px; border-radius: 4px; color: #495057;">
+                                <i class="fas fa-user-graduate"></i> Estudiantes individuales
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="text" id="user-cedula" placeholder="Cédula" style="width: 100px;">
+                        <input type="text" id="user-nombre" placeholder="Nombre completo" style="flex:1;">
+                        <select id="user-rol" style="width: 100px; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 13px;">
+                            <option value="student">Estudiante</option>
+                            <option value="teacher">Docente</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="agregarUsuarioAdmin()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="lista-items" id="lista-usuarios" style="max-height: 200px;">
+                        <div class="empty-msg">No hay usuarios registrados individualmente</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control de Módulos / Páginas HTML Habilitadas -->
+        <div class="css-editor-section" style="border-top-color: #2563eb;">
+            <h3 style="color: #2563eb;"><i class="fas fa-toggle-on"></i> Control de Módulos del Sistema</h3>
+            <p>Habilite o deshabilite las páginas y funcionalidades del sistema. Los cambios se aplican inmediatamente en todo el sistema.</p>
+            
+            <div class="action-bar" style="margin-bottom: 16px;">
+                <button class="btn btn-success" onclick="habilitarTodosLosModulos()">
+                    <i class="fas fa-check-double"></i> Habilitar Todo
+                </button>
+                <button class="btn btn-danger" onclick="deshabilitarTodosLosModulos()">
+                    <i class="fas fa-ban"></i> Deshabilitar Todo
+                </button>
+                <button class="btn btn-info" onclick="restaurarModulosDefault()">
+                    <i class="fas fa-undo"></i> Restaurar Defaults
+                </button>
+            </div>
+            
+            <div id="modulos-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                <!-- Se renderiza dinámicamente desde JS -->
+            </div>
+        </div>
+
         <!-- Editor CSS -->
         <div class="css-editor-section">
             <h3><i class="fas fa-paint-brush"></i> Editor de Estilos</h3>
@@ -828,9 +927,193 @@
             }, 3000);
         }
         
+        /* ============================================================
+           GESTIÓN DE SEGURIDAD
+           ============================================================ */
+        
+        function cargarConfiguracionSeguridad() {
+            const config = getSecurityConfig();
+            document.getElementById('current-pwd-teacher').textContent = config.teacherPassword || 'Docente2026';
+            document.getElementById('current-pwd-student').textContent = config.studentPassword || 'Alumno2026';
+            renderizarUsuariosAdmin();
+        }
+        
+        function cambiarPasswordGlobal(role) {
+            const inputId = role === 'teacher' ? 'admin-pwd-teacher' : 'admin-pwd-student';
+            const newPassword = document.getElementById(inputId).value.trim();
+            
+            if (!newPassword) {
+                alert('Ingrese una contraseña.');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                alert('La contraseña debe tener al menos 4 caracteres.');
+                return;
+            }
+            
+            const result = updateGlobalPassword(role, newPassword);
+            if (result.ok) {
+                document.getElementById(inputId).value = '';
+                cargarConfiguracionSeguridad();
+                mostrarStatus('Contraseña ' + (role === 'teacher' ? 'docente' : 'estudiante') + ' actualizada correctamente', 'success');
+            } else {
+                alert(result.error);
+            }
+        }
+        
+        function agregarUsuarioAdmin() {
+            const cedula = document.getElementById('user-cedula').value.trim();
+            const nombre = document.getElementById('user-nombre').value.trim();
+            const rol = document.getElementById('user-rol').value;
+            
+            if (!cedula || !nombre) {
+                alert('Complete cédula y nombre.');
+                return;
+            }
+            
+            const result = addUser({ cedula, nombre, rol });
+            if (result.ok) {
+                document.getElementById('user-cedula').value = '';
+                document.getElementById('user-nombre').value = '';
+                renderizarUsuariosAdmin();
+                mostrarStatus('Usuario agregado correctamente', 'success');
+            } else {
+                alert(result.error);
+            }
+        }
+        
+        function eliminarUsuarioAdmin(userId) {
+            if (!confirm('¿Eliminar este usuario?')) return;
+            const result = deleteUser(userId);
+            if (result.ok) {
+                renderizarUsuariosAdmin();
+                mostrarStatus('Usuario eliminado', 'info');
+            }
+        }
+        
+        function renderizarUsuariosAdmin() {
+            const container = document.getElementById('lista-usuarios');
+            const users = getUsersList();
+            
+            if (users.length === 0) {
+                container.innerHTML = '<div class="empty-msg">No hay usuarios registrados individualmente</div>';
+                return;
+            }
+            
+            let html = '';
+            users.forEach(u => {
+                const rolIcon = u.rol === 'teacher' ? 'fa-chalkboard-teacher' : 'fa-user-graduate';
+                const rolText = u.rol === 'teacher' ? 'Docente' : 'Estudiante';
+                const estadoClass = u.activo ? '' : ' style="opacity:0.5;"';
+                const estadoText = u.activo ? '' : ' (Inactivo)';
+                
+                html += '<div class="item-row"' + estadoClass + '>';
+                html += '<div style="display:flex;align-items:center;gap:8px;flex:1;">';
+                html += '<i class="fas ' + rolIcon + '" style="color:#666;font-size:12px;"></i>';
+                html += '<span><strong>' + u.cedula + '</strong> - ' + u.nombre + ' <span style="font-size:10px;color:#999;">(' + rolText + estadoText + ')</span></span>';
+                html += '</div>';
+                html += '<button class="btn-delete" onclick="eliminarUsuarioAdmin(\'' + u.id + '\')">';
+                html += '<i class="fas fa-trash"></i>';
+                html += '</button>';
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        /* ============================================================
+           CONTROL DE MÓDULOS / PÁGINAS HTML
+           ============================================================ */
+        
+        function renderizarModulosAdmin() {
+            const container = document.getElementById('modulos-container');
+            if (!container) return;
+            
+            const config = getFeaturesConfig();
+            const modules = SYSTEM_MODULES;
+            
+            // Agrupar por categoría
+            const categorias = {
+                estudiante: { label: 'Estudiante', color: '#2563eb', icon: 'fa-user-graduate' },
+                docente:    { label: 'Docente',    color: '#0a4d2a', icon: 'fa-chalkboard-teacher' },
+                admin:      { label: 'Admin',      color: '#dc3545', icon: 'fa-cogs' }
+            };
+            
+            let html = '';
+            
+            Object.keys(categorias).forEach(catKey => {
+                const cat = categorias[catKey];
+                const modsDeCat = Object.keys(modules).filter(k => modules[k].category === catKey);
+                
+                if (modsDeCat.length === 0) return;
+                
+                html += '<div style="background: white; border-radius: 8px; border: 1px solid #e0e0e0; overflow: hidden;">';
+                html += '<div style="background: ' + cat.color + '; color: white; padding: 10px 14px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px;">';
+                html += '<i class="fas ' + cat.icon + '"></i> ' + cat.label;
+                html += '</div>';
+                html += '<div style="padding: 8px;">'; // reduced padding
+                
+                modsDeCat.forEach(modKey => {
+                    const mod = modules[modKey];
+                    const enabled = config[modKey] !== false;
+                    const toggleId = 'toggle-' + modKey;
+                    
+                    html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #f0f0f0;" onmouseover="this.style.background=\'#f8f9fa\'" onmouseout="this.style.background=\'transparent\'">';
+                    html += '<div style="display: flex; align-items: center; gap: 10px;">';
+                    html += '<i class="fas ' + mod.icon + '" style="color: ' + (enabled ? cat.color : '#ccc') + '; font-size: 14px; width: 18px; text-align: center;"></i>';
+                    html += '<div>';
+                    html += '<div style="font-size: 13px; font-weight: 600; color: ' + (enabled ? '#333' : '#999') + ';">' + mod.label + '</div>';
+                    html += '<div style="font-size: 11px; color: #999;">' + mod.desc + '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '<label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; flex-shrink: 0;">';
+                    html += '<input type="checkbox" id="' + toggleId + '" ' + (enabled ? 'checked' : '') + ' onchange="toggleModuloAdmin(\'' + modKey + '\', this.checked)" style="opacity: 0; width: 0; height: 0;">';
+                    html += '<span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: ' + (enabled ? cat.color : '#ccc') + '; transition: .3s; border-radius: 24px;"></span>';
+                    html += '<span style="position: absolute; content: \"\"; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; transform: ' + (enabled ? 'translateX(20px)' : 'translateX(0)') + ';"></span>';
+                    html += '</label>';
+                    html += '</div>';
+                });
+                
+                html += '</div>';
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function toggleModuloAdmin(moduleKey, enabled) {
+            toggleModule(moduleKey, enabled);
+            renderizarModulosAdmin();
+            mostrarStatus('Módulo "' + SYSTEM_MODULES[moduleKey].label + '" ' + (enabled ? 'habilitado' : 'deshabilitado'), enabled ? 'success' : 'info');
+        }
+        
+        function habilitarTodosLosModulos() {
+            if (!confirm('¿Habilitar todos los módulos del sistema?')) return;
+            resetAllModules(true);
+            renderizarModulosAdmin();
+            mostrarStatus('Todos los módulos habilitados', 'success');
+        }
+        
+        function deshabilitarTodosLosModulos() {
+            if (!confirm('¿Deshabilitar todos los módulos? Los usuarios no podrán acceder a ninguna funcionalidad.')) return;
+            resetAllModules(false);
+            renderizarModulosAdmin();
+            mostrarStatus('Todos los módulos deshabilitados', 'info');
+        }
+        
+        function restaurarModulosDefault() {
+            if (!confirm('¿Restaurar configuración por defecto? Todos los módulos quedarán habilitados.')) return;
+            resetAllModules(true);
+            renderizarModulosAdmin();
+            mostrarStatus('Configuración restaurada', 'success');
+        }
+        
         // Inicializar
         aplicarCSSGuardado();
         cargarCSSPersonalizado();
+        cargarConfiguracionSeguridad();
+        renderizarModulosAdmin();
         cargarCatalogos().catch(err => {
             console.error('Error inicializando:', err);
             cargarDefaults();

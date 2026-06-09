@@ -272,13 +272,16 @@
                 <h2>Bienvenido al Sistema de Asistencia</h2>
                 <p>Sistema integral para el control de asistencia, planificación académica y gestión docente.</p>
                 
-                <div class="role-buttons">
-                    <button onclick="mostrarSeccion('estudiantes')" class="role-btn estudiante">
+                <div class="role-buttons" id="role-buttons-container">
+                    <button onclick="mostrarSeccion('estudiantes')" class="role-btn estudiante" id="btn-estudiante">
                         <i class="fas fa-user-graduate"></i> Soy Estudiante
                     </button>
-                    <button onclick="mostrarSeccion('docentes')" class="role-btn">
+                    <button onclick="mostrarSeccion('docentes')" class="role-btn" id="btn-docente">
                         <i class="fas fa-chalkboard-teacher"></i> Soy Docente
                     </button>
+                </div>
+                <div id="modulos-deshabilitados-msg" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-top: 12px;">
+                    <i class="fas fa-info-circle"></i> Algunos portales están deshabilitados por el administrador.
                 </div>
                 
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; margin: 0 auto;">
@@ -303,37 +306,54 @@
 
             <!-- ESTUDIANTES -->
             <div id="seccion-estudiantes" class="welcome-section" style="display: none;">
-                <button onclick="mostrarSeccion('inicio')" class="back-btn">
-                    <i class="fas fa-arrow-left"></i> Volver
-                </button>
-                <h3 class="section-title">
-                    <i class="fas fa-user-graduate"></i> Portal de Estudiantes
-                </h3>
+                <div id="student-login-area">
+                    <button onclick="mostrarSeccion('inicio')" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                    <h3 class="section-title">
+                        <i class="fas fa-user-graduate"></i> Portal de Estudiantes
+                    </h3>
+                    <div id="student-login-container"></div>
+                </div>
                 
-                <div class="functions-grid">
-                    <a href="asistencia.html" class="func-card">
-                        <div class="icon-circle" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
-                            <i class="fas fa-clipboard-check"></i>
-                        </div>
-                        <h4>Registrar Asistencia</h4>
-                        <p>Registre su ingreso o justifique una ausencia</p>
-                    </a>
+                <div id="student-portal-area" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <button onclick="mostrarSeccion('inicio')" class="back-btn">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </button>
+                        <button onclick="logoutStudent(); mostrarSeccion('inicio');" class="back-btn" style="border-color: #dc2626; color: #dc2626;">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                        </button>
+                    </div>
+                    <h3 class="section-title">
+                        <i class="fas fa-user-graduate"></i> Portal de Estudiantes
+                    </h3>
+                    
+                    <div class="functions-grid">
+                        <a href="asistencia.html" class="func-card" id="link-asistencia">
+                            <div class="icon-circle" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <h4>Registrar Asistencia</h4>
+                            <p>Registre su ingreso o justifique una ausencia</p>
+                        </a>
 
-                    <a href="consultar.html" class="func-card">
-                        <div class="icon-circle" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <h4>Consultar Estado</h4>
-                        <p>Verifique su estado de asistencia</p>
-                    </a>
+                        <a href="consultar.html" class="func-card" id="link-consultar">
+                            <div class="icon-circle" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h4>Consultar Estado</h4>
+                            <p>Verifique su estado de asistencia</p>
+                        </a>
 
-                    <a href="validar.html" class="func-card">
-                        <div class="icon-circle" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                            <i class="fas fa-check-double"></i>
-                        </div>
-                        <h4>Validar</h4>
-                        <p>Valide justificaciones y solicitudes</p>
-                    </a>
+                        <a href="validar.html" class="func-card" id="link-validar">
+                            <div class="icon-circle" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                                <i class="fas fa-check-double"></i>
+                            </div>
+                            <h4>Validar</h4>
+                            <p>Valide justificaciones y solicitudes</p>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -347,7 +367,7 @@
                 </h3>
                 
                 <div class="functions-grid docentes">
-                    <a href="planilla.html" class="func-card">
+                    <a href="planilla.html" class="func-card" id="link-planilla">
                         <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
                             <i class="fas fa-table"></i>
                         </div>
@@ -355,7 +375,7 @@
                         <p>Asistencia tradicional P/A/AJ</p>
                     </a>
 
-                    <a href="planificacion.html" class="func-card">
+                    <a href="planificacion.html" class="func-card" id="link-planificacion">
                         <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
                             <i class="fas fa-calendar-alt"></i>
                         </div>
@@ -363,7 +383,7 @@
                         <p>Códigos de vinculación</p>
                     </a>
 
-                    <a href="teacher_panel.html" class="func-card">
+                    <a href="teacher_panel.html" class="func-card" id="link-teacher-panel">
                         <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
                             <i class="fas fa-chart-line"></i>
                         </div>
@@ -371,7 +391,7 @@
                         <p>Estadísticas y gestión</p>
                     </a>
 
-                    <a href="admin.html" class="func-card">
+                    <a href="admin.html" class="func-card" id="link-admin">
                         <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
                             <i class="fas fa-cogs"></i>
                         </div>
@@ -390,6 +410,65 @@
     </div>
 
 <script>
+// Aplicar visibilidad según módulos habilitados
+function aplicarModulosEnIndex() {
+    function check() {
+        if (typeof isModuleEnabled !== 'function') {
+            setTimeout(check, 100);
+            return;
+        }
+        
+        // Botones de rol
+        const btnEst = document.getElementById('btn-estudiante');
+        const btnDoc = document.getElementById('btn-docente');
+        const msgDeshab = document.getElementById('modulos-deshabilitados-msg');
+        let algunoDeshabilitado = false;
+        
+        if (btnEst) {
+            const enabled = isModuleEnabled('student_portal');
+            btnEst.style.display = enabled ? '' : 'none';
+            if (!enabled) algunoDeshabilitado = true;
+        }
+        if (btnDoc) {
+            const enabled = isModuleEnabled('teacher_portal');
+            btnDoc.style.display = enabled ? '' : 'none';
+            if (!enabled) algunoDeshabilitado = true;
+        }
+        
+        // Mostrar mensaje si hay módulos deshabilitados
+        if (msgDeshab) {
+            msgDeshab.style.display = algunoDeshabilitado ? 'block' : 'none';
+        }
+        
+        // Links de estudiantes
+        const mapLinks = {
+            'link-asistencia': 'student_asistencia',
+            'link-consultar': 'student_consultar',
+            'link-validar': 'student_validar',
+            'link-planilla': 'teacher_planilla',
+            'link-planificacion': 'teacher_planificacion',
+            'link-teacher-panel': 'teacher_panel',
+            'link-admin': 'admin_panel'
+        };
+        
+        Object.keys(mapLinks).forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                const modKey = mapLinks[id];
+                el.style.display = isModuleEnabled(modKey) ? '' : 'none';
+            }
+        });
+    }
+    check();
+}
+
+// Ejecutar al cargar
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', aplicarModulosEnIndex);
+} else {
+    aplicarModulosEnIndex();
+}
+
 function mostrarSeccion(seccion) {
     document.getElementById('seccion-inicio').style.display = 'none';
     document.getElementById('seccion-estudiantes').style.display = 'none';
@@ -399,9 +478,39 @@ function mostrarSeccion(seccion) {
         document.getElementById('seccion-inicio').style.display = 'block';
     } else if (seccion === 'estudiantes') {
         document.getElementById('seccion-estudiantes').style.display = 'block';
+        initStudentLogin();
     } else if (seccion === 'docentes') {
         document.getElementById('seccion-docentes').style.display = 'block';
     }
+}
+
+function initStudentLogin() {
+    // Esperar a que script.js cargue
+    function checkAndInit() {
+        if (typeof isStudentSessionActive !== 'function') {
+            setTimeout(checkAndInit, 100);
+            return;
+        }
+        
+        if (isStudentSessionActive()) {
+            // Mostrar portal directamente
+            document.getElementById('student-login-area').style.display = 'none';
+            document.getElementById('student-portal-area').style.display = 'block';
+        } else {
+            // Mostrar login
+            document.getElementById('student-login-area').style.display = 'block';
+            document.getElementById('student-portal-area').style.display = 'none';
+            
+            const container = document.getElementById('student-login-container');
+            if (container && container.innerHTML.trim() === '') {
+                renderStudentLoginOverlay('student-login-container', function() {
+                    document.getElementById('student-login-area').style.display = 'none';
+                    document.getElementById('student-portal-area').style.display = 'block';
+                });
+            }
+        }
+    }
+    checkAndInit();
 }
 </script>
 

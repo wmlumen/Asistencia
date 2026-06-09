@@ -333,7 +333,8 @@ async function cargarConfiguracion() {
             asistencia_csv_url: '',
             asistencia_carreras: 'CARRERA 1|CARRERA 2|CARRERA 3',
             api_secret: 'TU_API_SECRET_AQUI',
-            teacherPassword: 'TU_CONTRASENA_AQUI'
+            teacherPassword: 'Docente2026',
+            studentPassword: 'Alumno2026'
         };
 
 
@@ -8700,33 +8701,28 @@ const TEACHER_SESSION_KEY = 'teacher_session_active';
 const TEACHER_TIMESTAMP_KEY = 'teacher_session_timestamp';
 
 function isTeacherSessionActive() {
-    const active = sessionStorage.getItem(TEACHER_SESSION_KEY);
+    const active = localStorage.getItem(TEACHER_SESSION_KEY);
     if (!active) return false;
-    // La sesión dura mientras la pestaña esté abierta (sessionStorage)
-    // pero también verificamos que no sea de otra pestaña cerrada y reabierta
+    // La sesión persiste en localStorage hasta que el usuario cierre sesión explícitamente
     return true;
 }
 
 function getTeacherPassword() {
-    // La contraseña se lee de la configuración cargada
-    // Si CONFIG no tiene teacherPassword, se usa un valor por defecto
-    // NOTA: En producción, la contraseña real debe venir de CONFIG
-    return (typeof CONFIG !== 'undefined' && CONFIG.teacherPassword) ? CONFIG.teacherPassword : 'Centuria2024!';
+    // Primero intenta obtener de la configuración de seguridad guardada
+    const config = getSecurityConfig();
+    if (config.teacherPassword) return config.teacherPassword;
+    // Fallback a CONFIG o default
+    return (typeof CONFIG !== 'undefined' && CONFIG.teacherPassword) ? CONFIG.teacherPassword : 'Docente2026';
 }
 
 function loginTeacher(password) {
-    const expected = getTeacherPassword();
-    if (password === expected) {
-        sessionStorage.setItem(TEACHER_SESSION_KEY, '1');
-        sessionStorage.setItem(TEACHER_TIMESTAMP_KEY, Date.now().toString());
-        return { ok: true };
-    }
-    return { ok: false, error: 'Contraseña incorrecta' };
+    // Usar el login mejorado que soporta global e individual
+    return loginTeacherEnhanced(password);
 }
 
 function logoutTeacher() {
-    sessionStorage.removeItem(TEACHER_SESSION_KEY);
-    sessionStorage.removeItem(TEACHER_TIMESTAMP_KEY);
+    localStorage.removeItem(TEACHER_SESSION_KEY);
+    localStorage.removeItem(TEACHER_TIMESTAMP_KEY);
 }
 
 function requireTeacherAuth(redirectUrl) {
@@ -8806,6 +8802,485 @@ function addTeacherLogoutButton(targetSelector) {
         window.location.href = 'index.html';
     });
     target.appendChild(btn);
+}
+
+/* ============================================================
+   LOGIN DE ESTUDIANTE
+   ============================================================ */
+
+const STUDENT_SESSION_KEY = 'student_session_active';
+const STUDENT_TIMESTAMP_KEY = 'student_session_timestamp';
+const STUDENT_DATA_KEY = 'student_data';
+
+function isStudentSessionActive() {
+    const active = localStorage.getItem(STUDENT_SESSION_KEY);
+    if (!active) return false;
+    return true;
+}
+
+function getStudentPassword() {
+    // Primero intenta obtener de la configuración de seguridad guardada
+    const config = getSecurityConfig();
+    if (config.studentPassword) return config.studentPassword;
+    // Fallback a CONFIG o default
+    return (typeof CONFIG !== 'undefined' && CONFIG.studentPassword) ? CONFIG.studentPassword : 'Alumno2026';
+}
+
+function loginStudent(password) {
+    // Usar el login mejorado que soporta global e individual
+    return loginStudentEnhanced(password);
+}
+
+function logoutStudent() {
+    localStorage.removeItem(STUDENT_SESSION_KEY);
+    localStorage.removeItem(STUDENT_TIMESTAMP_KEY);
+    localStorage.removeItem(STUDENT_DATA_KEY);
+}
+
+function requireStudentAuth(redirectUrl) {
+    if (!isStudentSessionActive()) {
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
+        }
+        return false;
+    }
+    return true;
+}
+
+function renderStudentLoginOverlay(containerId, onSuccess) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (isStudentSessionActive()) {
+        if (typeof onSuccess === 'function') onSuccess();
+        return;
+    }
+
+    container.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;padding:20px;">
+            <div style="background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:16px;padding:32px;max-width:400px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+                <img src="logo_centuria.png" alt="Logo Centuria" style="height:70px;margin-bottom:12px;">
+                <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:white;font-size:22px;">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;color:var(--text,#1a202c);">Portal de Estudiantes</h2>
+                <p style="font-size:14px;color:var(--text-secondary,#4a5568);margin-bottom:20px;">Ingrese la contraseña de estudiante para acceder al portal.</p>
+                <div style="display:flex;gap:8px;">
+                    <input type="password" id="student-login-input" placeholder="Contraseña estudiante" style="flex:1;padding:10px 14px;border:2px solid var(--border,#e2e8f0);border-radius:8px;font-size:14px;outline:none;"
+                        onkeydown="if(event.key==='Enter')document.getElementById('student-login-btn').click()">
+                    <button id="student-login-btn" style="padding:10px 18px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;white-space:nowrap;">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                </div>
+                <div id="student-login-msg" style="margin-top:12px;font-size:13px;min-height:20px;color:#dc3545;font-weight:600;"></div>
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border,#e2e8f0);">
+                    <a href="index.html" style="color:var(--primary,#2563eb);text-decoration:none;font-size:13px;font-weight:600;">
+                        <i class="fas fa-home"></i> Volver al inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const btn = document.getElementById('student-login-btn');
+    const input = document.getElementById('student-login-input');
+    const msg = document.getElementById('student-login-msg');
+
+    btn.addEventListener('click', function() {
+        const val = input.value.trim();
+        if (!val) {
+            msg.textContent = 'Ingrese la contraseña.';
+            return;
+        }
+        const result = loginStudent(val);
+        if (result.ok) {
+            if (typeof onSuccess === 'function') onSuccess();
+        } else {
+            msg.textContent = result.error;
+            input.value = '';
+            input.focus();
+        }
+    });
+}
+
+/* ============================================================
+   GESTIÓN DE MÓDULOS / FEATURES HABILITADOS
+   ============================================================ */
+
+const FEATURES_CONFIG_KEY = 'centuria_features_config';
+
+// Definición de todos los módulos del sistema
+const SYSTEM_MODULES = {
+    student_portal:       { label: 'Portal Estudiante',     icon: 'fa-user-graduate',     category: 'estudiante', desc: 'Acceso general al portal de estudiantes' },
+    student_asistencia:   { label: 'Registrar Asistencia',  icon: 'fa-clipboard-check',   category: 'estudiante', desc: 'Formulario de registro de asistencia' },
+    student_consultar:    { label: 'Consultar Estado',      icon: 'fa-search',            category: 'estudiante', desc: 'Consulta de estado de asistencia' },
+    student_validar:      { label: 'Validar',               icon: 'fa-check-double',      category: 'estudiante', desc: 'Validación de justificaciones' },
+    teacher_portal:       { label: 'Portal Docente',        icon: 'fa-chalkboard-teacher',  category: 'docente',    desc: 'Acceso general al portal de docentes' },
+    teacher_planilla:     { label: 'Planilla',              icon: 'fa-table',             category: 'docente',    desc: 'Planilla tradicional P/A/AJ' },
+    teacher_planificacion:{ label: 'Planificación',         icon: 'fa-calendar-alt',      category: 'docente',    desc: 'Códigos de vinculación y planificación' },
+    teacher_panel:        { label: 'Panel Docente',         icon: 'fa-chart-line',        category: 'docente',    desc: 'Estadísticas y gestión docente' },
+    admin_panel:          { label: 'Administración',        icon: 'fa-cogs',              category: 'admin',      desc: 'Gestión de catálogos, estilos y seguridad' }
+};
+
+function getFeaturesConfig() {
+    try {
+        const stored = localStorage.getItem(FEATURES_CONFIG_KEY);
+        if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    // Por defecto todo habilitado
+    const defaults = {};
+    Object.keys(SYSTEM_MODULES).forEach(k => defaults[k] = true);
+    return defaults;
+}
+
+function saveFeaturesConfig(config) {
+    localStorage.setItem(FEATURES_CONFIG_KEY, JSON.stringify(config));
+}
+
+function isModuleEnabled(moduleKey) {
+    const config = getFeaturesConfig();
+    return config[moduleKey] !== false; // true por defecto
+}
+
+function toggleModule(moduleKey, enabled) {
+    const config = getFeaturesConfig();
+    config[moduleKey] = !!enabled;
+    saveFeaturesConfig(config);
+    return config;
+}
+
+function resetAllModules(enabled = true) {
+    const config = {};
+    Object.keys(SYSTEM_MODULES).forEach(k => config[k] = enabled);
+    saveFeaturesConfig(config);
+    return config;
+}
+
+/* ============================================================
+   GESTIÓN DE SEGURIDAD Y USUARIOS (Admin)
+   ============================================================ */
+
+const SECURITY_CONFIG_KEY = 'centuria_security_config';
+const USERS_LIST_KEY = 'centuria_users_list';
+
+// Estructura de configuración de seguridad
+function getSecurityConfig() {
+    try {
+        const stored = localStorage.getItem(SECURITY_CONFIG_KEY);
+        if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return {
+        teacherPassword: (typeof CONFIG !== 'undefined' && CONFIG.teacherPassword) ? CONFIG.teacherPassword : 'Docente2026',
+        studentPassword: (typeof CONFIG !== 'undefined' && CONFIG.studentPassword) ? CONFIG.studentPassword : 'Alumno2026',
+        useIndividualPasswords: false, // false = todos usan la misma; true = cada uno tiene la suya
+        lastChanged: null
+    };
+}
+
+function saveSecurityConfig(config) {
+    config.lastChanged = new Date().toISOString();
+    localStorage.setItem(SECURITY_CONFIG_KEY, JSON.stringify(config));
+}
+
+// Obtener contraseña actual (global o individual)
+function getCurrentTeacherPassword() {
+    const config = getSecurityConfig();
+    return config.teacherPassword || 'Docente2026';
+}
+
+function getCurrentStudentPassword() {
+    const config = getSecurityConfig();
+    return config.studentPassword || 'Alumno2026';
+}
+
+// Actualizar contraseñas globales desde admin
+function updateGlobalPassword(role, newPassword) {
+    if (!newPassword || newPassword.length < 4) {
+        return { ok: false, error: 'La contraseña debe tener al menos 4 caracteres.' };
+    }
+    const config = getSecurityConfig();
+    if (role === 'teacher') {
+        config.teacherPassword = newPassword;
+    } else if (role === 'student') {
+        config.studentPassword = newPassword;
+    } else {
+        return { ok: false, error: 'Rol no válido.' };
+    }
+    saveSecurityConfig(config);
+    return { ok: true };
+}
+
+// Gestión de usuarios individuales (preparado para futuro)
+function getUsersList() {
+    try {
+        const stored = localStorage.getItem(USERS_LIST_KEY);
+        if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return [];
+}
+
+function saveUsersList(users) {
+    localStorage.setItem(USERS_LIST_KEY, JSON.stringify(users));
+}
+
+function addUser(userData) {
+    const users = getUsersList();
+    const newUser = {
+        id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        cedula: (userData.cedula || '').toString().replace(/\./g, '').trim(),
+        nombre: userData.nombre || '',
+        rol: userData.rol || 'student', // 'teacher' | 'student' | 'admin'
+        password: userData.password || '',
+        activo: userData.activo !== false,
+        creado: new Date().toISOString()
+    };
+    
+    // Validar duplicado por cédula
+    const existe = users.find(u => u.cedula === newUser.cedula && u.rol === newUser.rol);
+    if (existe) {
+        return { ok: false, error: 'Ya existe un usuario con esa cédula y rol.' };
+    }
+    
+    users.push(newUser);
+    saveUsersList(users);
+    return { ok: true, user: newUser };
+}
+
+function updateUser(userId, updates) {
+    const users = getUsersList();
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx === -1) return { ok: false, error: 'Usuario no encontrado.' };
+    
+    if (updates.password !== undefined) users[idx].password = updates.password;
+    if (updates.nombre !== undefined) users[idx].nombre = updates.nombre;
+    if (updates.activo !== undefined) users[idx].activo = updates.activo;
+    if (updates.rol !== undefined) users[idx].rol = updates.rol;
+    users[idx].actualizado = new Date().toISOString();
+    
+    saveUsersList(users);
+    return { ok: true, user: users[idx] };
+}
+
+function deleteUser(userId) {
+    let users = getUsersList();
+    const inicial = users.length;
+    users = users.filter(u => u.id !== userId);
+    if (users.length === inicial) return { ok: false, error: 'Usuario no encontrado.' };
+    saveUsersList(users);
+    return { ok: true };
+}
+
+// Login mejorado: soporta global e individual
+function loginTeacherEnhanced(password, cedula) {
+    const config = getSecurityConfig();
+    
+    // Modo individual (futuro)
+    if (config.useIndividualPasswords && cedula) {
+        const users = getUsersList();
+        const user = users.find(u => u.cedula === cedula.replace(/\./g, '').trim() && u.rol === 'teacher' && u.activo);
+        if (user && user.password === password) {
+            localStorage.setItem(TEACHER_SESSION_KEY, '1');
+            localStorage.setItem(TEACHER_TIMESTAMP_KEY, Date.now().toString());
+            localStorage.setItem('teacher_user_id', user.id);
+            return { ok: true, user };
+        }
+        return { ok: false, error: 'Credenciales incorrectas.' };
+    }
+    
+    // Modo global (actual)
+    const expected = config.teacherPassword || getTeacherPassword();
+    if (password === expected) {
+        localStorage.setItem(TEACHER_SESSION_KEY, '1');
+        localStorage.setItem(TEACHER_TIMESTAMP_KEY, Date.now().toString());
+        return { ok: true };
+    }
+    return { ok: false, error: 'Contraseña incorrecta' };
+}
+
+function loginStudentEnhanced(password, cedula) {
+    const config = getSecurityConfig();
+    
+    // Modo individual (futuro)
+    if (config.useIndividualPasswords && cedula) {
+        const users = getUsersList();
+        const user = users.find(u => u.cedula === cedula.replace(/\./g, '').trim() && u.rol === 'student' && u.activo);
+        if (user && user.password === password) {
+            localStorage.setItem(STUDENT_SESSION_KEY, '1');
+            localStorage.setItem(STUDENT_TIMESTAMP_KEY, Date.now().toString());
+            localStorage.setItem('student_user_id', user.id);
+            return { ok: true, user };
+        }
+        return { ok: false, error: 'Credenciales incorrectas.' };
+    }
+    
+    // Modo global (actual)
+    const expected = config.studentPassword || getStudentPassword();
+    if (password === expected) {
+        localStorage.setItem(STUDENT_SESSION_KEY, '1');
+        localStorage.setItem(STUDENT_TIMESTAMP_KEY, Date.now().toString());
+        return { ok: true };
+    }
+    return { ok: false, error: 'Contraseña incorrecta' };
+}
+
+/* ============================================================
+   DETECCIÓN DE INACTIVIDAD (30 minutos)
+   ============================================================ */
+
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos en ms
+const WARNING_TIMEOUT = 5000; // 5 segundos de advertencia
+let inactivityTimer = null;
+let warningTimer = null;
+let inactivityWarningShown = false;
+
+function resetInactivityTimer() {
+    // Limpiar timers existentes
+    if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = null;
+    }
+    if (warningTimer) {
+        clearTimeout(warningTimer);
+        warningTimer = null;
+    }
+    
+    // Ocultar advertencia si existe
+    hideInactivityWarning();
+    inactivityWarningShown = false;
+    
+    // Solo activar si hay sesión activa (docente o estudiante)
+    const hasSession = isTeacherSessionActive() || isStudentSessionActive();
+    if (!hasSession) return;
+    
+    // Iniciar nuevo timer
+    inactivityTimer = setTimeout(showInactivityWarning, INACTIVITY_TIMEOUT);
+}
+
+function showInactivityWarning() {
+    if (inactivityWarningShown) return;
+    inactivityWarningShown = true;
+    
+    // Crear overlay de advertencia
+    const overlay = document.createElement('div');
+    overlay.id = 'inactivity-warning-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="background: white; border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; font-size: 28px;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px; color: #1a202c;">Sesión por expirar</h2>
+            <p style="font-size: 14px; color: #4a5568; margin-bottom: 20px;">
+                Su sesión se cerrará automáticamente en <strong id="countdown-seconds" style="color: #dc2626; font-size: 18px;">5</strong> segundos por inactividad.
+            </p>
+            <button onclick="stayActive()" style="padding: 12px 24px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px;">
+                <i class="fas fa-hand-pointer"></i> Mantener sesión activa
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Iniciar countdown visual
+    let seconds = 5;
+    const countdownEl = document.getElementById('countdown-seconds');
+    const countdownInterval = setInterval(() => {
+        seconds--;
+        if (countdownEl) countdownEl.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+    
+    // Timer para cerrar sesión
+    warningTimer = setTimeout(() => {
+        clearInterval(countdownInterval);
+        performInactivityLogout();
+    }, WARNING_TIMEOUT);
+}
+
+function hideInactivityWarning() {
+    const overlay = document.getElementById('inactivity-warning-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+function stayActive() {
+    hideInactivityWarning();
+    if (warningTimer) {
+        clearTimeout(warningTimer);
+        warningTimer = null;
+    }
+    inactivityWarningShown = false;
+    resetInactivityTimer();
+}
+
+function performInactivityLogout() {
+    hideInactivityWarning();
+    
+    // Cerrar sesión según el rol activo
+    if (isTeacherSessionActive()) {
+        logoutTeacher();
+    }
+    if (isStudentSessionActive()) {
+        logoutStudent();
+    }
+    
+    // Mostrar mensaje final y redirigir
+    const msg = document.createElement('div');
+    msg.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #dc2626;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        z-index: 10000;
+        box-shadow: 0 10px 40px rgba(220, 38, 38, 0.3);
+        animation: slideInRight 0.3s ease;
+    `;
+    msg.innerHTML = '<i class="fas fa-info-circle"></i> Sesión cerrada por inactividad';
+    document.body.appendChild(msg);
+    
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 2000);
+}
+
+function initInactivityDetection() {
+    // Eventos que resetean el timer
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click', 'keydown'];
+    events.forEach(event => {
+        document.addEventListener(event, resetInactivityTimer, true);
+    });
+    
+    // Iniciar timer inicial
+    resetInactivityTimer();
+}
+
+// Inicializar detección de inactividad cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInactivityDetection);
+} else {
+    initInactivityDetection();
 }
 
 /* ============================================================

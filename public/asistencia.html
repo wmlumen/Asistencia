@@ -9,6 +9,20 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="institutional.css">
     <script src="script.js?v=2"></script>
+    <script>
+    (function() {
+        function checkModule() {
+            if (typeof isModuleEnabled !== 'function') {
+                setTimeout(checkModule, 50);
+                return;
+            }
+            if (!isModuleEnabled('student_asistencia')) {
+                window.location.href = 'index.html?msg=modulo_deshabilitado';
+            }
+        }
+        checkModule();
+    })();
+    </script>
     <style>
         /* ============================================
            CSS PREMIUM 5X - Instituto Superior Centuria
@@ -1319,9 +1333,14 @@
                     <p style="font-size: 12px; margin: 0; opacity: 0.9;">Sistema de Control de Asistencia</p>
                 </div>
             </div>
-            <a href="index.html" style="color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-                <i class="fas fa-home"></i> Volver al inicio
-            </a>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button onclick="logoutStudent(); window.location.href='index.html';" style="color: white; text-decoration: none; background: rgba(220, 38, 38, 0.3); border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </button>
+                <a href="index.html" style="color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-home"></i> Volver al inicio
+                </a>
+            </div>
         </div>
     </div>
 
@@ -1987,6 +2006,32 @@
         
         // Ejecutar al cargar
         inicializarCatalogosAsistencia();
+    </script>
+    
+    <!-- Autenticación de estudiante -->
+    <script>
+    (function() {
+        function initStudentAuth() {
+            if (typeof isStudentSessionActive !== 'function') {
+                setTimeout(initStudentAuth, 100);
+                return;
+            }
+            if (!isStudentSessionActive()) {
+                document.body.innerHTML = '';
+                const div = document.createElement('div');
+                div.id = 'student-login-container';
+                document.body.appendChild(div);
+                renderStudentLoginOverlay('student-login-container', function() {
+                    window.location.reload();
+                });
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initStudentAuth);
+        } else {
+            initStudentAuth();
+        }
+    })();
     </script>
 </body>
 </html>

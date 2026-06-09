@@ -12,9 +12,23 @@
  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="script.js?v=2" defer></script>
- <script>
- tailwind.config = {
+     <script src="script.js?v=2" defer></script>
+  <script>
+  (function() {
+      function checkModule() {
+          if (typeof isModuleEnabled !== 'function') {
+              setTimeout(checkModule, 50);
+              return;
+          }
+          if (!isModuleEnabled('teacher_panel')) {
+              window.location.href = 'index.html?msg=modulo_deshabilitado';
+          }
+      }
+      checkModule();
+  })();
+  </script>
+  <script>
+  tailwind.config = {
  theme: {
  extend: {
  fontFamily: { sans: ['Inter', 'sans-serif'] },
@@ -153,14 +167,20 @@
  </div>
  </div>
 
- <div class="flex items-center gap-2">
- <button @click="showImport = !showImport" class="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-xl text-xs font-medium transition-all shadow-sm hover:shadow">
- <i class="fas fa-cloud-upload-alt text-blue-500"></i> <span>Módulo de Carga</span>
- </button>
- <button onclick="renderAll()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl transition-all" title="Forzar sincronización manual">
- <i class="fas fa-sync-alt text-xs"></i>
- </button>
- </div>
+  <div class="flex items-center gap-2">
+  <button onclick="toggleRightSidebar()" class="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-xl text-xs font-medium transition-all shadow-sm hover:shadow" title="Mis Planificaciones">
+  <i class="fas fa-book-open text-blue-500"></i> <span>Mis Planificaciones</span>
+  </button>
+  <button @click="showImport = !showImport" class="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-xl text-xs font-medium transition-all shadow-sm hover:shadow">
+  <i class="fas fa-cloud-upload-alt text-blue-500"></i> <span>Módulo de Carga</span>
+  </button>
+  <button onclick="renderAll()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl transition-all" title="Forzar sincronización manual">
+  <i class="fas fa-sync-alt text-xs"></i>
+  </button>
+  <button onclick="logoutTeacher(); window.location.href='index.html';" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-2 rounded-xl text-xs font-medium transition-all" title="Cerrar sesión">
+  <i class="fas fa-sign-out-alt"></i>
+  </button>
+  </div>
  </header>
 
  <!-- Content -->
@@ -482,8 +502,48 @@
    </div>
    </div>
    </div>
- </div>
-  </main>
+  </div>
+   </main>
+
+  <!-- ===== RIGHT SIDEBAR: Planificaciones del Docente ===== -->
+  <aside id="right-sidebar" class="w-80 bg-white border-l border-slate-200 flex flex-col transition-all duration-300 ease-in-out" style="position: fixed; right: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(0);">
+    <!-- Header del panel derecho -->
+    <div class="h-16 px-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-book-open text-blue-600"></i>
+        <h3 class="text-sm font-bold text-slate-800">Mis Planificaciones</h3>
+      </div>
+      <button onclick="toggleRightSidebar()" class="p-2 hover:bg-slate-100 rounded-lg transition-all text-slate-500" title="Ocultar panel">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+    
+    <!-- Contenido del panel -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3" id="right-sidebar-content">
+      <p class="text-xs text-slate-400 text-center py-4">Cargando planificaciones...</p>
+    </div>
+    
+    <!-- Footer con info del docente -->
+    <div class="p-4 border-t border-slate-200 bg-slate-50">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+          <i class="fas fa-user-tie text-blue-600 text-xs"></i>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-slate-700" id="docente-nombre">Docente</p>
+          <p class="text-[10px] text-slate-500" id="docente-cedula">Cédula</p>
+        </div>
+      </div>
+      <button onclick="logoutTeacher(); window.location.href='index.html';" class="w-full flex items-center justify-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-2 rounded-lg text-xs font-medium transition-all border border-rose-200">
+        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- Botón flotante para mostrar el panel cuando está oculto -->
+  <button id="btn-show-right-sidebar" onclick="toggleRightSidebar()" class="fixed right-4 top-20 z-30 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all transform translate-x-20 opacity-0" style="transition: all 0.3s ease;">
+    <i class="fas fa-book-open"></i>
+  </button>
 
 <script>
 (function() {
@@ -868,7 +928,144 @@ function renderizarVistaDiaria(planificaciones, contenido) {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(cargarCalendarioDocente, 2000);
     cargarFiltroCarreras();
+    cargarPlanificacionesDocente();
+    mostrarInfoDocente();
 });
+
+// ============================================================
+// PANEL DERECHO - Planificaciones del Docente
+// ============================================================
+
+let rightSidebarVisible = true;
+
+function toggleRightSidebar() {
+    const sidebar = document.getElementById('right-sidebar');
+    const btnShow = document.getElementById('btn-show-right-sidebar');
+    const main = document.querySelector('main');
+    
+    if (!sidebar) return;
+    
+    rightSidebarVisible = !rightSidebarVisible;
+    
+    if (rightSidebarVisible) {
+        sidebar.style.transform = 'translateX(0)';
+        if (btnShow) {
+            btnShow.style.transform = 'translateX(20px)';
+            btnShow.style.opacity = '0';
+        }
+        if (main) main.style.paddingRight = '320px';
+    } else {
+        sidebar.style.transform = 'translateX(100%)';
+        if (btnShow) {
+            btnShow.style.transform = 'translateX(0)';
+            btnShow.style.opacity = '1';
+        }
+        if (main) main.style.paddingRight = '0';
+    }
+}
+
+async function cargarPlanificacionesDocente() {
+    try {
+        const apiUrl = typeof getApiUrl === 'function' ? getApiUrl() : '';
+        const apiKey = typeof getApiKeyLocal === 'function' ? getApiKeyLocal() : '';
+        const cedulaDocente = typeof CONFIG !== 'undefined' && CONFIG.cedula_docente ? CONFIG.cedula_docente : '';
+        
+        if (!apiUrl || !apiKey) {
+            mostrarPlanificacionesDocente([]);
+            return;
+        }
+        
+        const url = apiUrl + '?modo=planificaciones&apiKey=' + encodeURIComponent(apiKey);
+        const resp = await fetch(url);
+        const data = await resp.json();
+        
+        if (!data.planificaciones) {
+            mostrarPlanificacionesDocente([]);
+            return;
+        }
+        
+        // Filtrar planificaciones del docente actual
+        const planifsDocente = cedulaDocente 
+            ? data.planificaciones.filter(p => {
+                const cedula = (p.Cedula || p.cedula || '').toString().replace(/\./g, '').trim();
+                return cedula === cedulaDocente;
+              })
+            : data.planificaciones;
+        
+        mostrarPlanificacionesDocente(planifsDocente);
+        
+    } catch (err) {
+        console.error('Error cargando planificaciones del docente:', err);
+        mostrarPlanificacionesDocente([]);
+    }
+}
+
+function mostrarPlanificacionesDocente(planificaciones) {
+    const container = document.getElementById('right-sidebar-content');
+    if (!container) return;
+    
+    if (planificaciones.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-book-open text-3xl text-slate-300 mb-2"></i>
+                <p class="text-xs text-slate-500">No hay planificaciones vinculadas.</p>
+                <a href="planificacion.html" class="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block">Crear planificación</a>
+            </div>
+        `;
+        return;
+    }
+    
+    const hoy = new Date();
+    let html = '<div class="space-y-2">';
+    
+    planificaciones.forEach(p => {
+        const fechaInicio = new Date(p['Fecha de Inicio'] || p.fechaInicio);
+        const fechaCierre = new Date(p['Fecha de Cierre'] || p.fechaCierre);
+        
+        if (isNaN(fechaInicio) || isNaN(fechaCierre)) return;
+        
+        const esActiva = hoy >= fechaInicio && hoy <= fechaCierre;
+        const esProxima = fechaInicio > hoy;
+        const esFinalizada = fechaCierre < hoy;
+        
+        let estadoColor = 'bg-slate-100 text-slate-600';
+        let estadoTexto = 'Finalizada';
+        if (esActiva) {
+            estadoColor = 'bg-emerald-100 text-emerald-700';
+            estadoTexto = 'Activa';
+        } else if (esProxima) {
+            estadoColor = 'bg-blue-100 text-blue-700';
+            estadoTexto = 'Próxima';
+        }
+        
+        html += '<div class="border rounded-lg p-3 bg-white hover:bg-slate-50 transition-all cursor-pointer" onclick="window.location.href=\'planificacion.html\'">';
+        html += '<div class="flex justify-between items-start mb-1">';
+        html += '<strong class="text-xs text-slate-800">' + (p.COD_ASIGNATURA || p.codAsignatura || 'Sin asignatura') + '</strong>';
+        html += '<span class="text-[10px] font-medium px-2 py-0.5 rounded-full ' + estadoColor + '">' + estadoTexto + '</span>';
+        html += '</div>';
+        html += '<p class="text-[10px] text-slate-500">' + (p.COD_CARRERA || p.codCarrera || '') + ' | ' + (p.COD_SECCION || p.codSeccion || '') + '</p>';
+        html += '<div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-100">';
+        html += '<span class="text-[10px] text-slate-400">' + fechaInicio.toLocaleDateString('es-PY') + '</span>';
+        html += '<span class="text-[10px] text-slate-400">' + fechaCierre.toLocaleDateString('es-PY') + '</span>';
+        html += '</div>';
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function mostrarInfoDocente() {
+    const nombreEl = document.getElementById('docente-nombre');
+    const cedulaEl = document.getElementById('docente-cedula');
+    
+    if (nombreEl && typeof CONFIG !== 'undefined' && CONFIG.name_docente) {
+        nombreEl.textContent = CONFIG.name_docente;
+    }
+    if (cedulaEl && typeof CONFIG !== 'undefined' && CONFIG.cedula_docente) {
+        cedulaEl.textContent = 'C.I.: ' + CONFIG.cedula_docente;
+    }
+}
 
 // Cargar filtro de carreras desde catálogos sincronizados
 async function cargarFiltroCarreras() {

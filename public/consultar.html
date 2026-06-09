@@ -28,9 +28,14 @@
                     <p style="font-size: 11px; margin: 0; opacity: 0.9;">Consulta de Resultados</p>
                 </div>
             </div>
-            <a href="index.html" style="color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px;">
-                <i class="fas fa-home"></i> Volver al inicio
-            </a>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button onclick="logoutStudent(); window.location.href='index.html';" style="color: white; text-decoration: none; background: rgba(220, 38, 38, 0.3); border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </button>
+                <a href="index.html" style="color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-home"></i> Volver al inicio
+                </a>
+            </div>
         </div>
     </div>
 
@@ -218,33 +223,33 @@
 <script src="script.js?v=2"></script>
 <script>
 (function() {
+    function checkModule() {
+        if (typeof isModuleEnabled !== 'function') {
+            setTimeout(checkModule, 50);
+            return;
+        }
+        if (!isModuleEnabled('student_consultar')) {
+            window.location.href = 'index.html?msg=modulo_deshabilitado';
+        }
+    }
+    checkModule();
+})();
+</script>
+<script>
+(function() {
     function initAuth() {
-        if (typeof isTeacherSessionActive !== 'function') {
+        if (typeof isStudentSessionActive !== 'function') {
             setTimeout(initAuth, 100);
             return;
         }
-        if (!isTeacherSessionActive()) {
+        if (!isStudentSessionActive()) {
             document.body.innerHTML = '';
             const div = document.createElement('div');
-            div.id = 'teacher-login-container';
+            div.id = 'student-login-container';
             document.body.appendChild(div);
-            renderTeacherLoginOverlay('teacher-login-container', function() {
+            renderStudentLoginOverlay('student-login-container', function() {
                 window.location.reload();
             });
-        } else {
-            const header = document.querySelector('.glass-panel-light > div:first-child > div.relative');
-            if (header) {
-                const btn = document.createElement('a');
-                btn.href = '#';
-                btn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Cerrar sesión';
-                btn.className = 'text-white text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5 no-underline';
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    logoutTeacher();
-                    window.location.href = 'index.html';
-                });
-                header.querySelector('.flex').appendChild(btn);
-            }
         }
     }
     if (document.readyState === 'loading') {
