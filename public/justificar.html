@@ -736,6 +736,38 @@
         // Variable para controlar el timeout de búsqueda
         let busquedaTimeout;
         
+        // Función para combinar datos de múltiples registros (toma el último valor no vacío de cada campo)
+        function combinarRegistros(registros) {
+            if (!registros || registros.length === 0) return null;
+            
+            // Ordenar por fecha descendente
+            const ordenados = registros.sort((a, b) => {
+                const fechaA = new Date(a.fecha || a.timestamp || a.MarcaTemporal || 0);
+                const fechaB = new Date(b.fecha || b.timestamp || b.MarcaTemporal || 0);
+                return fechaB - fechaA;
+            });
+            
+            const resultado = {};
+            
+            // Para cada campo, buscar el primer valor no vacío en orden cronológico inverso
+            const campos = ['nombre', 'carrera', 'seccion', 'section', 'career'];
+            campos.forEach(campo => {
+                for (const reg of ordenados) {
+                    const valor = reg[campo] || reg[campo.charAt(0).toUpperCase() + campo.slice(1)] || '';
+                    if (valor && valor.toString().trim()) {
+                        resultado[campo] = valor.toString().trim();
+                        break;
+                    }
+                }
+            });
+            
+            // Contar cuántos registros se encontraron
+            resultado.totalRegistros = ordenados.length;
+            resultado.ultimaFecha = ordenados[0].fecha || ordenados[0].timestamp || ordenados[0].MarcaTemporal || '';
+            
+            return resultado;
+        }
+        
         // Función para buscar alumno por cédula y autocompletar datos
         async function buscarAlumnoJustificar(cedula) {
             if (!cedula || cedula.trim().length < 3) return;
@@ -755,60 +787,82 @@
             // Esperar 500ms para que el usuario termine de escribir
             busquedaTimeout = setTimeout(async () => {
                 try {
-                    let registroEncontrado = null;
+                    let todosLosRegistros = [];
                     
                     // Primero buscar en localStorage
                     const registrosLocales = JSON.parse(localStorage.getItem('attendance_records') || '[]');
-                    const registroLocal = registrosLocales
-                        .filter(r => r.cedula && r.cedula.toString().replace(/\./g, '') === cedulaLimpia)
-                        .sort((a, b) => new Date(b.fecha || b.timestamp || 0) - new Date(a.fecha || a.timestamp || 0))[0];
+                    const localesFiltrados = registrosLocales.filter(r => 
+                        r.cedula && r.cedula.toString().replace(/\./g, '') === cedulaLimpia
+                    );
                     
-                    if (registroLocal) {
-                        registroEncontrado = registroLocal;
-                        console.log('Alumno encontrado en localStorage:', registroLocal.nombre);
+                    if (localesFiltrados.length > 0) {
+                        todosLosRegistros = todosLosRegistros.concat(localesFiltrados);
+                        console.log('Encontrados', localesFiltrados.length, 'registros en localStorage');
                     }
                     
-                    // Si no está en localStorage, buscar en la API
-                    if (!registroEncontrado) {
-                        try {
-                            const apiUrl = typeof CONFIG !== 'undefined' && CONFIG.asistenciaApiUrl ? CONFIG.asistenciaApiUrl : '';
-                            if (apiUrl) {
-                                const response = await fetch(apiUrl + '?modo=buscar&cedula=' + encodeURIComponent(cedulaLimpia) + '&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
-                                if (response.ok) {
-                                    const data = await response.json();
-                                    if (data && data.registros && data.registros.length > 0) {
-                                        registroEncontrado = data.registros.sort((a, b) => new Date(b.fecha || b.timestamp || 0) - new Date(a.fecha || a.timestamp || 0))[0];
-                                        console.log('Alumno encontrado en API:', registroEncontrado.nombre);
-                                    }
+                    // Buscar en la API
+                    try {
+                        const apiUrl = typeof CONFIG !== 'undefined' && CONFIG.asistenciaApiUrl ? CONFIG.asistenciaApiUrl : '';
+                        if (apiUrl) {
+                            const response = await fetch(apiUrl + '?modo=buscar&cedula=' + encodeURIComponent(cedulaLimpia) + '&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data && data.registros && data.registros.length > 0) {
+                                    todosLosRegistros = todosLosRegistros.concat(data.registros);
+                                    console.log('Encontrados', data.registros.length, 'registros en API');
                                 }
                             }
-                        } catch (apiError) {
-                            console.log('Error al buscar en API:', apiError);
                         }
+                    } catch (apiError) {
+                        console.log('Error al buscar en API:', apiError);
                     }
                     
-                    if (registroEncontrado) {
+                    if (todosLosRegistros.length > 0) {
+                        // Combinar datos de todos los registros
+                        const datosCombinados = combinarRegistros(todosLosRegistros);
+                        
                         const nombreInput = document.getElementById('justificar-name');
                         const carreraSelect = document.getElementById('justificar-career');
                         const seccionSelect = document.getElementById('justificar-section');
                         
-                        if (registroEncontrado.nombre && nombreInput) {
-                            nombreInput.value = registroEncontrado.nombre.toUpperCase();
+                        const camposCompletados = [];
+                        
+                        if (datosCombinados.nombre && nombreInput && !nombreInput.value.trim()) {
+                            nombreInput.value = datosCombinados.nombre.toUpperCase();
+                            camposCompletados.push('Nombre');
                         }
-                        if (registroEncontrado.carrera && carreraSelect) {
-                            carreraSelect.value = registroEncontrado.carrera;
+                        if (datosCombinados.carrera && carreraSelect && !carreraSelect.value) {
+                            carreraSelect.value = datosCombinados.carrera;
+                            camposCompletados.push('Carrera');
                         }
-                        if (registroEncontrado.seccion && seccionSelect) {
-                            seccionSelect.value = registroEncontrado.seccion;
+                        if (datosCombinados.seccion && seccionSelect && !seccionSelect.value) {
+                            seccionSelect.value = datosCombinados.seccion;
+                            camposCompletados.push('Sección');
                         }
+                        
+                        // Si el campo ya tenía valor, mostrar de todos modos el dato encontrado
+                        const datosMostrados = [];
+                        if (datosCombinados.nombre) datosMostrados.push('Nombre: ' + datosCombinados.nombre.toUpperCase());
+                        if (datosCombinados.carrera) datosMostrados.push('Carrera: ' + datosCombinados.carrera);
+                        if (datosCombinados.seccion) datosMostrados.push('Sección: ' + datosCombinados.seccion);
                         
                         if (status) {
                             status.className = 'status-msg success';
-                            status.innerHTML = '<i class="fas fa-user-check"></i><span><strong>' + registroEncontrado.nombre.toUpperCase() + '</strong> - Datos cargados automáticamente. Puede modificarlos si es necesario.</span>';
+                            let mensaje = '<i class="fas fa-user-check"></i><span>';
+                            if (datosCombinados.nombre) {
+                                mensaje += '<strong>' + datosCombinados.nombre.toUpperCase() + '</strong> - ';
+                            }
+                            mensaje += 'Se encontraron ' + datosCombinados.totalRegistros + ' registro(s). ';
+                            if (camposCompletados.length > 0) {
+                                mensaje += 'Campos completados: ' + camposCompletados.join(', ') + '. ';
+                            }
+                            mensaje += 'Puede modificarlos si es necesario.</span>';
+                            status.innerHTML = mensaje;
                         }
                         
+                        // Resaltar campos que se completaron
                         [nombreInput, carreraSelect, seccionSelect].forEach(el => {
-                            if (el) {
+                            if (el && camposCompletados.length > 0) {
                                 el.style.borderColor = '#28a745';
                                 el.style.boxShadow = '0 0 0 3px rgba(40,167,69,0.25)';
                                 setTimeout(() => {
