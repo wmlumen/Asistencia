@@ -433,16 +433,24 @@
             return DEFAULT_API_KEY;
         }
         
-        // Cargar desde API al iniciar
+        // Cargar desde API al iniciar - SOLO ONLINE, no usa localStorage
         async function cargarPlanificaciones() {
             const status = document.getElementById('statusPlanif');
-            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando con Google Sheets...';
+            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando desde Google Sheets...';
             
             const apiUrl = getApiUrl();
             const apiKey = getApiKeyLocal();
             
+            // Si no hay API key, esperar a que script.js cargue CONFIG
+            if (!apiKey || apiKey === 'CenturiaApi2024!') {
+                console.log('Esperando que CONFIG cargue...');
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inicializando...';
+                setTimeout(() => cargarPlanificaciones(), 500);
+                return;
+            }
+            
             console.log('API URL:', apiUrl);
-            console.log('API Key:', apiKey ? 'Configurada' : 'No configurada');
+            console.log('API Key:', 'Configurada');
             
             try {
                 const url = apiUrl + '?modo=planificaciones&apiKey=' + encodeURIComponent(apiKey);
@@ -461,14 +469,12 @@
                     data = JSON.parse(text);
                 } catch (parseErr) {
                     console.error('Error parseando JSON:', parseErr);
-                    console.log('Respuesta no es JSON:', text.substring(0, 500));
-                    throw new Error('La API no devolvió JSON válido. ¿Actualizaste el código en Apps Script?');
+                    throw new Error('La API no devolvió JSON válido');
                 }
                 
                 if (data.planificaciones) {
                     planificaciones = data.planificaciones;
-                    localStorage.setItem('planificaciones_centuria', JSON.stringify(planificaciones));
-                    status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> ' + planificaciones.length + ' planificaciones cargadas desde Sheets';
+                    status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> ' + planificaciones.length + ' planificaciones cargadas desde Google Sheets';
                 } else if (data.error) {
                     throw new Error(data.error);
                 } else {
@@ -476,9 +482,8 @@
                 }
             } catch (err) {
                 console.error('Error cargando desde API:', err);
-                // Fallback a localStorage
-                planificaciones = JSON.parse(localStorage.getItem('planificaciones_centuria') || '[]');
-                status.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Modo local: ' + planificaciones.length + ' planificaciones (API no disponible)';
+                planificaciones = []; // No usar localStorage, solo datos online
+                status.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#dc3545;"></i> Error: ' + err.message;
             }
             
             setTimeout(() => status.textContent = '', 5000);
@@ -562,31 +567,10 @@
                 codigo = cedula + '-' + codAsig + '-' + codSec + '-' + correlativo;
             }
             
-            // Guardar primero en localStorage (siempre funciona)
-            const planif = {
-                codigo: codigo,
-                cedula: cedula,
-                nombre: nombre,
-                codAsignatura: asignatura,
-                codSeccion: seccion,
-                codCarrera: carrera,
-                fechaInicio: fechaInicio,
-                fechaCierre: fechaCierre
-            };
-            
-            if (editandoIndex >= 0) {
-                planificaciones[editandoIndex] = planif;
-            } else {
-                planificaciones.push(planif);
-            }
-            localStorage.setItem('planificaciones_centuria', JSON.stringify(planificaciones));
-            renderizarTabla();
-            toggleFormulario();
-            
             const status = document.getElementById('statusPlanif');
-            status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> Guardado localmente. Intentando sincronizar con Sheets...';
+            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando en Google Sheets...';
             
-            // Intentar sincronizar con API
+            // Solo guardar via API - no localStorage
             try {
                 const apiUrlSave = getApiUrl();
                 const apiKeySave = getApiKeyLocal();
@@ -619,13 +603,14 @@
                 
                 if (result.ok) {
                     status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> Guardado en Google Sheets correctamente';
-                    await cargarPlanificaciones();
+                    toggleFormulario();
+                    await cargarPlanificaciones(); // Recargar desde API
                 } else {
                     throw new Error(result.error || 'Error de la API');
                 }
             } catch (err) {
-                console.error('Error sincronizando con API:', err);
-                status.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Guardado localmente. Error Sheets: ' + err.message;
+                console.error('Error guardando:', err);
+                status.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#dc3545;"></i> Error: ' + err.message + '. No se guardó localmente.';
             }
             
             setTimeout(() => status.textContent = '', 5000);
@@ -635,7 +620,7 @@
             const tbody = document.getElementById('tbodyPlanif');
             
             if (planificaciones.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#999;"><i class="fas fa-inbox" style="font-size:24px;display:block;margin-bottom:10px;"></i>No hay planificaciones registradas</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#999;"><i class="fas fa-cloud" style="font-size:24px;display:block;margin-bottom:10px;"></i>No hay planificaciones cargadas desde Google Sheets.<br><span style="font-size:12px;">Haga clic en "Recargar Sheets" para cargar los datos.</span></td></tr>';
                 return;
             }
             
@@ -697,9 +682,8 @@
         }
         
         function eliminarPlanif(index) {
-            if (!confirm('¿Eliminar esta planificación?\n\nNota: Esto solo elimina del almacenamiento local. Para eliminar de Google Sheets, debe hacerlo manualmente desde la planilla.')) return;
+            if (!confirm('¿Eliminar esta planificación?\n\nNota: Esto solo elimina de la vista temporal. Para eliminar permanentemente de Google Sheets, debe hacerlo manualmente desde la planilla.')) return;
             planificaciones.splice(index, 1);
-            localStorage.setItem('planificaciones_centuria', JSON.stringify(planificaciones));
             renderizarTabla();
         }
         
@@ -727,12 +711,12 @@
                 info.style.background = '#d4edda';
                 info.style.borderColor = '#c3e6cb';
                 info.style.color = '#155724';
-                info.innerHTML = '<i class="fas fa-check-circle"></i> <strong>Conectado a Google Sheets.</strong> Los datos se sincronizan automáticamente.';
+                info.innerHTML = '<i class="fas fa-check-circle"></i> <strong>Conectado a Google Sheets.</strong> Los datos se cargan y guardan directamente en la planilla online.';
             } else {
-                info.style.background = '#fff3cd';
-                info.style.borderColor = '#ffeeba';
-                info.style.color = '#856404';
-                info.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>Modo local.</strong> Los datos se guardan en el navegador. Use "Exportar CSV" para importar manualmente en Google Sheets.';
+                info.style.background = '#f8d7da';
+                info.style.borderColor = '#f5c6cb';
+                info.style.color = '#721c24';
+                info.innerHTML = '<i class="fas fa-exclamation-circle"></i> <strong>Sin conexión.</strong> No se pueden cargar los datos de Google Sheets. Verifique su conexión e intente recargar.';
             }
         }
         
