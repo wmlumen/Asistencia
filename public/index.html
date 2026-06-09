@@ -8,168 +8,393 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="institutional.css">
     <script src="script.js?v=2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: var(--light-bg, #f4f4f4);
+        }
+        
+        .page-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* Header compacto */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green, #0a4d2a) 0%, var(--accent-color, #0d6335) 100%);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        
+        .main-header img {
+            height: 36px;
+        }
+        
+        .main-header h1 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .main-header p {
+            font-size: 11px;
+            opacity: 0.85;
+            margin: 0;
+        }
+        
+        .btn-home {
+            color: white;
+            text-decoration: none;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 16px 24px;
+            overflow: hidden;
+        }
+        
+        /* Sección Inicio */
+        .welcome-section {
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .welcome-section h2 {
+            color: var(--primary-green, #0a4d2a);
+            font-size: 22px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .welcome-section > p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .role-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .role-btn {
+            background: var(--primary-green, #0a4d2a);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(10, 77, 42, 0.3);
+        }
+        
+        .role-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 77, 42, 0.4);
+        }
+        
+        .role-btn.estudiante {
+            background: #2563eb;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+        
+        .role-btn.estudiante:hover {
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        
+        /* Grid de funciones */
+        .functions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .functions-grid.docentes {
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 900px;
+        }
+        
+        .func-card {
+            background: white;
+            border-radius: 8px;
+            padding: 14px;
+            text-decoration: none;
+            color: inherit;
+            border-top: 3px solid var(--primary-green, #0a4d2a);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .func-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        
+        .func-card .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        .func-card h4 {
+            color: var(--primary-green, #0a4d2a);
+            font-size: 13px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        
+        .func-card p {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.3;
+            margin: 0;
+        }
+        
+        .back-btn {
+            background: none;
+            border: 1px solid var(--primary-green, #0a4d2a);
+            color: var(--primary-green, #0a4d2a);
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-bottom: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .section-title {
+            color: var(--primary-green, #0a4d2a);
+            font-size: 18px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--primary-green, #0a4d2a);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+        
+        .main-footer p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .functions-grid,
+            .functions-grid.docentes {
+                grid-template-columns: repeat(2, 1fr);
+                max-width: 100%;
+            }
+            
+            .role-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .role-btn {
+                width: 200px;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
-
-    <!-- Header Institucional -->
-    <div class="institutional-header">
-        <img src="logo_centuria_blanco.png" alt="Logo Centuria">
-        <h1>Instituto Superior Centuria</h1>
-        <p>Sistema de Control de Asistencia y Planificación Académica</p>
-    </div>
-
-    <!-- Contenido Principal -->
-    <main class="content-section" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
-        
-        <!-- SECCIÓN ESTUDIANTES -->
-        <div id="seccion-estudiantes" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h2 style="color: var(--primary-green); font-size: 24px; margin: 0;">
-                    <i class="fas fa-user-graduate"></i> Portal de Estudiantes
-                </h2>
-                <button onclick="mostrarSeccion('inicio')" style="background: none; border: 1px solid var(--primary-green); color: var(--primary-green); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px;">
-                    <i class="fas fa-arrow-left"></i> Volver
-                </button>
+    <div class="page-container">
+        <!-- Header -->
+        <header class="main-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="logo_centuria_blanco.png" alt="Logo Centuria">
+                <div>
+                    <h1>Instituto Superior Centuria</h1>
+                    <p>Sistema de Control de Asistencia</p>
+                </div>
             </div>
+        </header>
+
+        <!-- Contenido -->
+        <main class="main-content">
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <!-- INICIO -->
+            <div id="seccion-inicio" class="welcome-section">
+                <h2>Bienvenido al Sistema de Asistencia</h2>
+                <p>Sistema integral para el control de asistencia, planificación académica y gestión docente.</p>
                 
-                <a href="asistencia.html" class="institutional-card" style="text-decoration: none; color: inherit;">
-                    <div style="background: rgba(59, 130, 246, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                        <i class="fas fa-clipboard-check" style="font-size: 20px; color: #3b82f6;"></i>
-                    </div>
-                    <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Registrar Asistencia</h3>
-                    <p style="font-size: 13px; color: #666; line-height: 1.5;">Registre su ingreso o justifique una ausencia de forma rápida y sencilla.</p>
-                </a>
-
-                <a href="consultar.html" class="institutional-card" style="text-decoration: none; color: inherit;">
-                    <div style="background: rgba(16, 185, 129, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                        <i class="fas fa-search" style="font-size: 20px; color: #10b981;"></i>
-                    </div>
-                    <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Consultar Estado</h3>
-                    <p style="font-size: 13px; color: #666; line-height: 1.5;">Verifique su estado de asistencia, presentes, ausencias y justificaciones.</p>
-                </a>
-
-                <a href="validar.html" class="institutional-card" style="text-decoration: none; color: inherit;">
-                    <div style="background: rgba(245, 158, 11, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                        <i class="fas fa-check-double" style="font-size: 20px; color: #f59e0b;"></i>
-                    </div>
-                    <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Validar Justificación</h3>
-                    <p style="font-size: 13px; color: #666; line-height: 1.5;">Valide el estado de sus justificaciones y solicitudes.</p>
-                </a>
-            </div>
-        </div>
-
-        <!-- SECCIÓN DOCENTES -->
-        <div id="seccion-docentes" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h2 style="color: var(--primary-green); font-size: 24px; margin: 0;">
-                    <i class="fas fa-chalkboard-teacher"></i> Portal de Docentes
-                </h2>
-                <button onclick="mostrarSeccion('inicio')" style="background: none; border: 1px solid var(--primary-green); color: var(--primary-green); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px;">
-                    <i class="fas fa-arrow-left"></i> Volver
-                </button>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                
-                <a href="planilla.html" class="institutional-card" style="text-decoration: none; color: inherit;">
-                    <div style="background: rgba(10, 77, 42, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                        <i class="fas fa-table" style="font-size: 20px; color: var(--primary-green);"></i>
-                    </div>
-                    <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Planilla de Asistencia</h3>
-                    <p style="font-size: 13px; color: #666; line-height: 1.5;">Planilla tradicional con formato P/A/AJ para control de clases.</p>
-                </a>
-
-                <a href="planificacion.html" class="institutional-card" style="text-decoration: none; color: inherit;">
-                    <div style="background: rgba(10, 77, 42, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                        <i class="fas fa-calendar-alt" style="font-size: 20px; color: var(--primary-green);"></i>
-                    </div>
-                    <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Planificación Docente</h3>
-                    <p style="font-size: 13px; color: #666; line-height: 1.5;">Genere códigos de vinculación docente-asignatura-sección.</p>
-                </a>
-
-                <a href="teacher_panel.html" class="institutional-card" style="text-decoration: none; color: inherit;">
-                    <div style="background: rgba(10, 77, 42, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                        <i class="fas fa-chart-line" style="font-size: 20px; color: var(--primary-green);"></i>
-                    </div>
-                    <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Panel de Gestión</h3>
-                    <p style="font-size: 13px; color: #666; line-height: 1.5;">Estadísticas, gráficos, exportación de datos y monitoreo en vivo.</p>
-                </a>
-
-                <a href="admin.html" class="institutional-card" style="text-decoration: none; color: inherit;">
-                    <div style="background: rgba(10, 77, 42, 0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                        <i class="fas fa-cogs" style="font-size: 20px; color: var(--primary-green);"></i>
-                    </div>
-                    <h3 style="color: var(--primary-green); font-size: 16px; margin-bottom: 8px;">Administración</h3>
-                    <p style="font-size: 13px; color: #666; line-height: 1.5;">Gestione asignaturas, secciones, carreras y estilos CSS personalizados.</p>
-                </a>
-            </div>
-        </div>
-
-        <!-- SECCIÓN INICIO (por defecto) -->
-        <div id="seccion-inicio">
-            <div style="text-align: center; padding: 40px 20px;">
-                <h2 style="color: var(--primary-green); font-size: 28px; margin-bottom: 15px;">Bienvenido al Sistema de Asistencia</h2>
-                <p style="font-size: 16px; color: #666; max-width: 600px; margin: 0 auto 30px; line-height: 1.6;">
-                    Sistema integral para el control de asistencia, planificación académica y gestión docente del Instituto Superior Centuria.
-                </p>
-                
-                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                    <button onclick="mostrarSeccion('estudiantes')" class="nav-button" style="font-size: 16px; padding: 15px 30px;">
+                <div class="role-buttons">
+                    <button onclick="mostrarSeccion('estudiantes')" class="role-btn estudiante">
                         <i class="fas fa-user-graduate"></i> Soy Estudiante
                     </button>
-                    <button onclick="mostrarSeccion('docentes')" class="nav-button" style="font-size: 16px; padding: 15px 30px;">
+                    <button onclick="mostrarSeccion('docentes')" class="role-btn">
                         <i class="fas fa-chalkboard-teacher"></i> Soy Docente
                     </button>
                 </div>
-            </div>
-            
-            <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #eee;">
-                <h3 style="color: var(--primary-green); font-size: 18px; margin-bottom: 20px; text-align: center;">
-                    <i class="fas fa-info-circle"></i> Información del Sistema
-                </h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div style="text-align: center; padding: 15px;">
-                        <i class="fas fa-shield-alt" style="font-size: 24px; color: var(--primary-green); margin-bottom: 8px;"></i>
-                        <p style="font-size: 13px; color: #666; margin: 0;">Datos seguros en Google Sheets</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; margin: 0 auto;">
+                    <div style="text-align: center; padding: 8px;">
+                        <i class="fas fa-shield-alt" style="font-size: 18px; color: var(--primary-green); margin-bottom: 4px;"></i>
+                        <p style="font-size: 10px; color: #666; margin: 0;">Datos seguros</p>
                     </div>
-                    <div style="text-align: center; padding: 15px;">
-                        <i class="fas fa-mobile-alt" style="font-size: 24px; color: var(--primary-green); margin-bottom: 8px;"></i>
-                        <p style="font-size: 13px; color: #666; margin: 0;">Acceso desde cualquier dispositivo</p>
+                    <div style="text-align: center; padding: 8px;">
+                        <i class="fas fa-mobile-alt" style="font-size: 18px; color: var(--primary-green); margin-bottom: 4px;"></i>
+                        <p style="font-size: 10px; color: #666; margin: 0;">Multi-dispositivo</p>
                     </div>
-                    <div style="text-align: center; padding: 15px;">
-                        <i class="fas fa-file-export" style="font-size: 24px; color: var(--primary-green); margin-bottom: 8px;"></i>
-                        <p style="font-size: 13px; color: #666; margin: 0;">Exportación a PDF y CSV</p>
+                    <div style="text-align: center; padding: 8px;">
+                        <i class="fas fa-file-export" style="font-size: 18px; color: var(--primary-green); margin-bottom: 4px;"></i>
+                        <p style="font-size: 10px; color: #666; margin: 0;">Exportar PDF/CSV</p>
                     </div>
-                    <div style="text-align: center; padding: 15px;">
-                        <i class="fas fa-sync" style="font-size: 24px; color: var(--primary-green); margin-bottom: 8px;"></i>
-                        <p style="font-size: 13px; color: #666; margin: 0;">Sincronización automática</p>
+                    <div style="text-align: center; padding: 8px;">
+                        <i class="fas fa-sync" style="font-size: 18px; color: var(--primary-green); margin-bottom: 4px;"></i>
+                        <p style="font-size: 10px; color: #666; margin: 0;">Sincronización</p>
                     </div>
                 </div>
             </div>
-        </div>
 
-    </main>
+            <!-- ESTUDIANTES -->
+            <div id="seccion-estudiantes" class="welcome-section" style="display: none;">
+                <button onclick="mostrarSeccion('inicio')" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </button>
+                <h3 class="section-title">
+                    <i class="fas fa-user-graduate"></i> Portal de Estudiantes
+                </h3>
+                
+                <div class="functions-grid">
+                    <a href="asistencia.html" class="func-card">
+                        <div class="icon-circle" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <h4>Registrar Asistencia</h4>
+                        <p>Registre su ingreso o justifique una ausencia</p>
+                    </a>
 
-    <!-- Footer -->
-    <footer style="background: var(--primary-green); color: white; text-align: center; padding: 20px; margin-top: 40px;">
-        <p style="margin: 0; font-size: 13px; opacity: 0.9;">
-            <i class="fas fa-copyright"></i> 2026 Instituto Superior Centuria. Todos los derechos reservados.
-        </p>
-        <p style="margin: 5px 0 0; font-size: 11px; opacity: 0.7;">
-            Sistema de Asistencia v2.0 | Desarrollado para la gestión académica
-        </p>
-    </footer>
+                    <a href="consultar.html" class="func-card">
+                        <div class="icon-circle" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h4>Consultar Estado</h4>
+                        <p>Verifique su estado de asistencia</p>
+                    </a>
+
+                    <a href="validar.html" class="func-card">
+                        <div class="icon-circle" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <h4>Validar</h4>
+                        <p>Valide justificaciones y solicitudes</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- DOCENTES -->
+            <div id="seccion-docentes" class="welcome-section" style="display: none;">
+                <button onclick="mostrarSeccion('inicio')" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </button>
+                <h3 class="section-title">
+                    <i class="fas fa-chalkboard-teacher"></i> Portal de Docentes
+                </h3>
+                
+                <div class="functions-grid docentes">
+                    <a href="planilla.html" class="func-card">
+                        <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
+                            <i class="fas fa-table"></i>
+                        </div>
+                        <h4>Planilla</h4>
+                        <p>Asistencia tradicional P/A/AJ</p>
+                    </a>
+
+                    <a href="planificacion.html" class="func-card">
+                        <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h4>Planificación</h4>
+                        <p>Códigos de vinculación</p>
+                    </a>
+
+                    <a href="teacher_panel.html" class="func-card">
+                        <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4>Panel Docente</h4>
+                        <p>Estadísticas y gestión</p>
+                    </a>
+
+                    <a href="admin.html" class="func-card">
+                        <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h4>Administración</h4>
+                        <p>Catálogos y estilos</p>
+                    </a>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <p><i class="fas fa-copyright"></i> 2026 Instituto Superior Centuria | Sistema de Asistencia v2.0</p>
+        </footer>
+    </div>
 
 <script>
 function mostrarSeccion(seccion) {
-    // Ocultar todas
     document.getElementById('seccion-inicio').style.display = 'none';
     document.getElementById('seccion-estudiantes').style.display = 'none';
     document.getElementById('seccion-docentes').style.display = 'none';
     
-    // Mostrar la seleccionada
     if (seccion === 'inicio') {
         document.getElementById('seccion-inicio').style.display = 'block';
     } else if (seccion === 'estudiantes') {
@@ -178,30 +403,6 @@ function mostrarSeccion(seccion) {
         document.getElementById('seccion-docentes').style.display = 'block';
     }
 }
-
-// Verificar sesion docente
-(function() {
-    function checkIndicator() {
-        if (typeof isTeacherSessionActive === 'function' && isTeacherSessionActive()) {
-            // Si hay sesion docente, mostrar indicador visual
-            const header = document.querySelector('.institutional-header');
-            if (header) {
-                const badge = document.createElement('div');
-                badge.innerHTML = '<span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px; font-size: 12px;"><i class="fas fa-user-shield"></i> Sesión docente activa</span>';
-                badge.style.position = 'absolute';
-                badge.style.top = '20px';
-                badge.style.right = '20px';
-                header.style.position = 'relative';
-                header.appendChild(badge);
-            }
-        }
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', checkIndicator);
-    } else {
-        checkIndicator();
-    }
-})();
 </script>
 
 </body>
