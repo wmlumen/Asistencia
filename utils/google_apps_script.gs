@@ -142,6 +142,43 @@ function doGet(e) {
       return jsonResponse({ planificaciones, total: planificaciones.length });
     }
 
+    // Modo planificación via GET (para guardar desde planificacion.html)
+    if (modo === 'planificacion') {
+      const sheet = getSheet_(SHEET_PLANIFICACION);
+      
+      const codigo = (data.codigo || '').trim();
+      const cedula = (data.cedula || '').toString().replace(/\./g, '').trim();
+      const nombre = (data.nombre || '').trim().toUpperCase();
+      const codAsignatura = (data.codAsignatura || '').trim();
+      const codSeccion = (data.codSeccion || '').trim();
+      const codCarrera = (data.codCarrera || '').trim();
+      const fechaInicio = (data.fechaInicio || '').trim();
+      const fechaCierre = (data.fechaCierre || '').trim();
+      
+      if (!codigo || !cedula || !nombre || !codAsignatura || !codSeccion || !codCarrera || !fechaInicio || !fechaCierre) {
+        return jsonResponse({ ok: false, error: 'Faltan datos requeridos para planificación' });
+      }
+      
+      // Verificar si ya existe el código (editar) o es nuevo
+      const valores = sheet.getDataRange().getValues();
+      let filaEditar = -1;
+      
+      for (let i = 1; i < valores.length; i++) {
+        if (valores[i][0] === codigo) {
+          filaEditar = i + 1;
+          break;
+        }
+      }
+      
+      if (filaEditar > 0) {
+        sheet.getRange(filaEditar, 1, 1, 8).setValues([[codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre]]);
+        return jsonResponse({ ok: true, mensaje: 'Planificación actualizada correctamente', codigo: codigo });
+      } else {
+        sheet.appendRow([codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre]);
+        return jsonResponse({ ok: true, mensaje: 'Planificación guardada correctamente', codigo: codigo });
+      }
+    }
+
     // modo = 'registro' por defecto
     const sheet = getSheet_(SHEET_REGISTRO);
     const values = sheet.getDataRange().getValues();

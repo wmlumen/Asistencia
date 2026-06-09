@@ -545,7 +545,7 @@
             status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando en Google Sheets...';
             
             try {
-                // Enviar a Google Apps Script via POST
+                // Enviar a Google Apps Script via GET (más compatible)
                 const params = new URLSearchParams();
                 params.append('modo', 'planificacion');
                 params.append('apiKey', apiKey);
@@ -558,11 +558,8 @@
                 params.append('fechaInicio', fechaInicio);
                 params.append('fechaCierre', fechaCierre);
                 
-                const resp = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: params.toString()
-                });
+                const url = apiUrl + '?' + params.toString();
+                const resp = await fetch(url);
                 
                 const result = await resp.json();
                 
