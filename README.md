@@ -331,14 +331,57 @@ npx serve public
 
 ## Pendiente / TODO
 
-- [ ] **Verificar Google Form**: Confirmar que el formulario oficial tiene la pregunta **"Carrera"** con las opciones exactas `ADMINISTRACION DE EMPRESAS` y `ADMINISTRACION Y GESTION`.
-- [ ] **Prueba end-to-end**: Registrar una asistencia desde el formulario propio (`asistencia.html`) y verificar que llega correctamente a la planilla de Google Sheets.
-- [ ] **Verificar CSV en vivo**: Confirmar que `seguimiento.html` y la lista de recientes en `asistencia.html` leen correctamente el CSV público (`pub?output=csv`).
-- [ ] **Verificar QR**: Escanear el QR con un celular y confirmar que abre `https://wmlumen.github.io/Asistencia/asistencia.html`.
-- [ ] **Responsive avanzado**: Revisar visualización en pantallas entre 1100px y 1300px para evitar scroll horizontal.
-- [ ] **Notificaciones push**: Opcional — agregar notificación visual sonora cuando llega un nuevo registro de asistencia en la lista reciente.
-- [ ] **Autorefresh de lista reciente**: Implementar polling automático cada 30 segundos para actualizar la lista de asistencias recientes sin recargar la página.
-- [ ] **Exportar asistencia a PDF/CSV**: Botón en `seguimiento.html` para descargar el reporte de asistencia.
+### Fase 1 — Correcciones y Ajustes (Alta prioridad) ✅ Completada
+
+| # | Tarea | Archivos | Estado |
+|---|-------|----------|--------|
+| 1 | **Layout panel derecho docente** — Sidebar como flex-child en lugar de fixed | `teacher_panel.html` | ✅ |
+| 2 | **Datos del docente** — Fallback a localStorage + botón "Ingresar Cédula" | `teacher_panel.html`, `script.js` | ✅ |
+| 3 | **Sincronizar planificaciones** — Corregido frontend para usar `getAttendanceApiUrl()` y `getApiKey()` | `teacher_panel.html`, `utils/google_apps_script.gs` | ✅ |
+| 4 | **Estilos toggles admin** — Refactorizados con clases CSS | `admin.html` | ✅ |
+
+### Fase 2 — Mejoras de UX (Media prioridad)
+
+| # | Tarea | Archivos | Descripción |
+|---|-------|----------|-------------|
+| 5 | **Mensaje en index.html** | `index.html` | Indicar qué portal específico está deshabilitado (no solo mensaje genérico) |
+| 6 | **Mejorar countdown de inactividad** | `script.js` | El `setInterval` puede desincronizarse. Mejorar con `requestAnimationFrame`. Agregar alerta visual/sonora adicional |
+| 7 | **Cerrar sesión mobile** | `asistencia.html`, `consultar.html`, `validar.html` | Botón de cerrar sesión puede no ser visible en mobile. Agregar botón flotante o menú hamburguesa |
+| 8 | **Confirmación deshabilitar módulos** | `admin.html` | Mensaje más claro: "Esto bloqueará el acceso a TODO el sistema, incluyendo tu propia sesión si recargas" |
+
+### Fase 3 — Funcionalidades Pendientes (Media prioridad)
+
+| # | Tarea | Archivos | Descripción |
+|---|-------|----------|-------------|
+| 9 | **Implementar modo=catalogos en Apps Script** | `utils/google_apps_script.gs` | Ya está en el código. Falta desplegar como Web App y verificar |
+| 10 | **Activar modo usuarios individuales** | `script.js`, `admin.html` | Arquitectura lista. Falta: toggle en admin para `useIndividualPasswords`, y overlays de login con cédula + contraseña |
+| 11 | **Protección páginas docentes** | `planilla.html`, `planificacion.html`, `teacher_panel.html` | Verificar que tengan detección de sesión docente activa (como teacher_panel.html) |
+
+### Fase 4 — Optimización y Testing (Baja prioridad)
+
+| # | Tarea | Archivos | Descripción |
+|---|-------|----------|-------------|
+| 12 | **Limpiar script.js** | `script.js` | ~9400 líneas. Refactorizar en módulos separados |
+| 13 | **Cache buster automático** | Todas las páginas | `script.js?v=2` manual → versión dinámica |
+| 14 | **Test de flujo completo** | Manual | Login docente → panel → sidebar → inactividad → logout. Login estudiante → asistencia → consultar → validar → logout. Admin → cambiar passwords → deshabilitar módulos |
+| 15 | **Mobile responsive** | `teacher_panel.html`, `admin.html` | Panel derecho y controles de módulos en pantallas pequeñas |
+
+### Resumen de Prioridades
+
+| Prioridad | Tareas | Esfuerzo estimado |
+|-----------|--------|-------------------|
+| 🔴 Alta | ✅ Completada | — |
+| 🟡 Media | 5, 6, 7, 8, 9, 10, 11 | ~8-12 horas |
+| 🟢 Baja | 12, 13, 14, 15 | ~6-8 horas |
+
+---
+
+### Historial de Versiones
+
+| Fecha | Versión | Cambios |
+|-------|---------|---------|
+| 09/06/2026 | v2.1 | Login persistente (localStorage), inactividad 30 min, control de módulos desde admin, panel lateral docente con planificaciones |
+| 09/06/2026 | v2.0 | Rediseño completo: login docente persistente, panel lateral derecho, logout, detección de inactividad, gestión de seguridad y módulos |
 
 ---
 
