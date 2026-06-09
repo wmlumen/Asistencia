@@ -943,28 +943,6 @@
             status.className = 'status-msg info';
             status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Preparando envío...</span>';
 
-            // Preparar datos del archivo si existe
-            let fileData = '';
-            let fileName = '';
-            if (file) {
-                if (file.size > 1 * 1024 * 1024) {
-                    status.className = 'status-msg error';
-                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>El archivo es muy grande. Máximo 1MB para envío seguro.</span>';
-                    return;
-                }
-                try {
-                    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Convirtiendo archivo...</span>';
-                    fileData = await fileToBase64(file);
-                    fileName = file.name;
-                    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Archivo listo. Enviando...</span>';
-                } catch (err) {
-                    console.error('Error al leer archivo:', err);
-                    status.className = 'status-msg error';
-                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Error al leer el archivo. Intente con otro.</span>';
-                    return;
-                }
-            }
-
             const record = {
                 cedula: id,
                 nombre: name,
@@ -987,8 +965,9 @@
             const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
             if (apiUrl) {
                 status.className = 'status-msg info';
-                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Enviando a la planilla...</span>';
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Enviando datos a la planilla...</span>';
 
+                // PASO 1: Enviar datos de la justificación (sin archivo)
                 const params = new URLSearchParams();
                 params.append('modo', 'justificar');
                 params.append('studentId', id);
@@ -998,61 +977,73 @@
                 params.append('fechaAusencia', fecha);
                 params.append('motivo', motivo);
                 params.append('notes', obs);
-                if (fileData) {
-                    params.append('fileData', fileData);
-                    params.append('fileName', fileName);
-                }
                 if (apiKey) params.append('apiKey', apiKey);
 
-                // Usar un timeout más largo para archivos grandes
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 segundos
+                const urlDatos = apiUrl + '?' + params.toString();
+                console.log('Enviando datos. URL length:', urlDatos.length);
                 
-                // Verificar tamaño de URL antes de enviar
-                const urlCompleta = apiUrl + '?' + params.toString();
-                if (urlCompleta.length > 8000) {
-                    clearTimeout(timeoutId);
-                    status.className = 'status-msg error';
-                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>El archivo es demasiado grande para enviar. Máximo 1MB.</span>';
-                    return;
-                }
-                
-                console.log('Enviando justificación. URL length:', urlCompleta.length);
-                
-                fetch(urlCompleta, {
-                    method: 'POST',
-                    signal: controller.signal
-                })
-                .then(r => {
-                    clearTimeout(timeoutId);
-                    if (!r.ok) throw new Error('HTTP ' + r.status);
-                    return r.json();
-                })
-                .then(data => {
+                try {
+                    const response = await fetch(urlDatos, { method: 'POST' });
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    const data = await response.json();
+                    
                     if (data.ok) {
                         let msg = 'Justificación registrada en la planilla correctamente.';
-                        if (data.fileUrl) {
-                            msg += ' <a href="' + data.fileUrl + '" target="_blank" style="color:#155724;text-decoration:underline;"><i class="fas fa-external-link-alt"></i> Ver documento en Drive</a>';
-                        }
                         status.className = 'status-msg success';
                         status.innerHTML = '<i class="fas fa-check-circle"></i><span>' + msg + '</span>';
+                        
+                        // PASO 2: Si hay archivo, subirlo por separado
+                        if (file) {
+                            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Justificación guardada. Preparando archivo...</span>';
+                            
+                            if (file.size > 500 * 1024) {
+                                status.className = 'status-msg info';
+                                status.innerHTML = '<i class="fas fa-info-circle"></i><span>Justificación guardada. El archivo es muy grande para subir automáticamente (máx 500KB). Guárdelo manualmente en Drive.</span>';
+                            } else {
+                                try {
+                                    const fileData = await fileToBase64(file);
+                                    const fileParams = new URLSearchParams();
+                                    fileParams.append('modo', 'subirArchivo');
+                                    fileParams.append('studentId', id);
+                                    fileParams.append('studentName', name);
+                                    fileParams.append('fileData', fileData);
+                                    fileParams.append('fileName', file.name);
+                                    if (apiKey) fileParams.append('apiKey', apiKey);
+                                    
+                                    const urlFile = apiUrl + '?' + fileParams.toString();
+                                    console.log('Subiendo archivo. URL length:', urlFile.length);
+                                    
+                                    if (urlFile.length > 8000) {
+                                        status.innerHTML = '<i class="fas fa-info-circle"></i><span>Justificación guardada. El archivo es muy grande para subir automáticamente. Guárdelo manualmente en Drive.</span>';
+                                    } else {
+                                        const fileResponse = await fetch(urlFile, { method: 'POST' });
+                                        if (fileResponse.ok) {
+                                            const fileData = await fileResponse.json();
+                                            if (fileData.ok && fileData.fileUrl) {
+                                                status.innerHTML = '<i class="fas fa-check-circle"></i><span>Justificación y archivo guardados. <a href="' + fileData.fileUrl + '" target="_blank" style="color:#155724;text-decoration:underline;"><i class="fas fa-external-link-alt"></i> Ver documento</a></span>';
+                                            } else {
+                                                status.innerHTML = '<i class="fas fa-check-circle"></i><span>Justificación guardada. El archivo no se pudo subir: ' + (fileData.error || 'Error desconocido') + '</span>';
+                                            }
+                                        }
+                                    }
+                                } catch (fileErr) {
+                                    console.error('Error al subir archivo:', fileErr);
+                                    status.innerHTML = '<i class="fas fa-check-circle"></i><span>Justificación guardada. No se pudo subir el archivo automáticamente.</span>';
+                                }
+                            }
+                        }
+                        
                         // Recargar lista desde API
                         setTimeout(() => cargarJustificacionesDesdeAPI(), 1000);
                     } else {
                         status.className = 'status-msg error';
                         status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. Error en planilla: ' + (data.error || data.mensaje || 'Error desconocido') + '</span>';
                     }
-                })
-                .catch(err => {
-                    clearTimeout(timeoutId);
+                } catch (err) {
                     console.error('Error de conexión:', err);
                     status.className = 'status-msg error';
-                    if (err.name === 'AbortError') {
-                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. La conexión tardó demasiado (45s). Intente sin archivo o con uno más pequeño.</span>';
-                    } else {
-                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. Error de conexión: ' + err.message + '. Verifique su conexión a internet.</span>';
-                    }
-                });
+                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. Error de conexión: ' + err.message + '</span>';
+                }
             } else {
                 status.className = 'status-msg success';
                 status.innerHTML = '<i class="fas fa-check-circle"></i><span>Justificación guardada localmente (sin conexión a planilla).</span>';

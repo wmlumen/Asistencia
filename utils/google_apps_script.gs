@@ -213,6 +213,45 @@ function doPost(e) {
       return jsonResponse({ ok: true, mensaje: 'Ausencia justificada registrada correctamente en la planilla de asistencia', fileUrl: fileUrl });
     }
 
+    // Modo subir archivo a Drive (separado de la justificación)
+    if (data.modo === 'subirArchivo') {
+      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
+      const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
+      const fileData = data.fileData || '';
+      const fileName = data.fileName || '';
+
+      if (!fileData || !fileName) {
+        return jsonResponse({ ok: false, error: 'No se proporcionó archivo' });
+      }
+
+      // Subir archivo a Drive
+      let fileUrl = '';
+      try {
+        const folderId = '1mpEs3pytsFEWsb1esJRRay9fiktBh8e0';
+        console.log('Subiendo archivo a Drive. Folder ID:', folderId);
+        console.log('Nombre archivo:', fileName);
+        console.log('Tamaño datos:', fileData.length);
+        
+        const folder = DriveApp.getFolderById(folderId);
+        const decoded = Utilities.base64Decode(fileData);
+        console.log('Bytes decodificados:', decoded.length);
+        
+        // Renombrar archivo con cédula y nombre para identificarlo
+        const nombreArchivo = cedula + '_' + nombre.replace(/\s+/g, '_') + '_' + fileName;
+        const blob = Utilities.newBlob(decoded, getMimeType_(fileName), nombreArchivo);
+        const file = folder.createFile(blob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        fileUrl = file.getUrl();
+        console.log('Archivo subido exitosamente. URL:', fileUrl);
+        
+        return jsonResponse({ ok: true, mensaje: 'Archivo subido correctamente', fileUrl: fileUrl });
+      } catch (driveError) {
+        console.error('Error al subir a Drive:', driveError);
+        console.error('Stack:', driveError.stack);
+        return jsonResponse({ ok: false, error: 'Error al subir archivo: ' + driveError.message });
+      }
+    }
+
     // Modo asistencia (default)
     const sheet = getSheet_(SHEET_REGISTRO);
     const now = new Date();
