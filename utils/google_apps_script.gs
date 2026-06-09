@@ -36,7 +36,7 @@ function getSheet_(name) {
       sheet.appendRow(['FechaAusencia','Cedula','Nombre','Carrera','Motivo','Observacion','MarcaTemporal']);
       sheet.getRange('A:A').setNumberFormat('dd/MM/yyyy');
     } else if (name === SHEET_RESUMEN) {
-      sheet.appendRow(['Cedula','Nombre','Carrera','TotalClases','Asistencias','Tardanzas','Ausencias','Porcentaje']);
+      sheet.appendRow(['Cedula','Nombre','Carrera','TotalClases','Presentes','Tardanzas','AusJustificadas','Ausencias','Porcentaje']);
     }
   }
   return sheet;
@@ -139,21 +139,23 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
     }
 
-    // Modo justificación de ausencia
+    // Modo justificación de ausencia — guarda en Registro con estado "Ausencia Justificada"
     if (data.modo === 'justificar') {
-      const sheet = getSheet_(SHEET_JUSTIFICACIONES);
+      const sheet = getSheet_(SHEET_REGISTRO);
       const now = new Date();
       const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
 
       const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
       const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
       const carrera = (data.career || data.carrera || '').trim();
+      const seccion = (data.seccion || data.section || '').trim();
       const fechaAusencia = (data.fechaAusencia || data.fecha || '').trim();
       const motivo = (data.motivo || '').trim();
+      const documento = (data.documento || '').trim();
       const observacion = (data.notes || data.observacion || '').trim();
 
-      if (!nombre || !cedula || !carrera || !fechaAusencia) {
-        return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o fecha de ausencia' });
+      if (!nombre || !cedula || !carrera || !seccion || !fechaAusencia) {
+        return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera, seccion o fecha de ausencia' });
       }
 
       const carrerasValidas = [
@@ -171,8 +173,14 @@ function doPost(e) {
         return jsonResponse({ ok: false, error: 'Carrera no válida: ' + carrera });
       }
 
-      sheet.appendRow([fechaAusencia, cedula, nombre, carreraValida, motivo, observacion, marcaTemporal]);
-      return jsonResponse({ ok: true, mensaje: 'Justificación registrada correctamente' });
+      // Construir observación combinada: motivo + documento + observación original
+      let obsCombinada = motivo ? 'Motivo: ' + motivo : '';
+      if (documento) obsCombinada += (obsCombinada ? ' | ' : '') + 'Doc: ' + documento;
+      if (observacion) obsCombinada += (obsCombinada ? ' | ' : '') + 'Obs: ' + observacion;
+
+      sheet.appendRow([fechaAusencia, nombre, cedula, carreraValida, seccion, obsCombinada, 'Ausencia Justificada', marcaTemporal]);
+      recalcularResumen_();
+      return jsonResponse({ ok: true, mensaje: 'Ausencia justificada registrada correctamente en la planilla de asistencia' });
     }
 
     // Modo asistencia (default)
@@ -229,7 +237,7 @@ function recalcularResumen_() {
       return;
     }
 
-    // Mapa: cedula -> { nombre, carrera, total, presente, tarde }
+    // Mapa: cedula -> { nombre, carrera, total, presente, tarde, ausenciaJustificada }
     const mapa = {};
     const fechasUnicas = new Set();
 
@@ -246,20 +254,22 @@ function recalcularResumen_() {
           carrera: carrera || '', 
           total: 0, 
           presente: 0, 
-          tarde: 0 
+          tarde: 0,
+          ausenciaJustificada: 0
         };
       }
       mapa[cedulaLimpia].total++;
       if (estado === 'Presente') mapa[cedulaLimpia].presente++;
       else if (estado === 'Tarde') mapa[cedulaLimpia].tarde++;
+      else if (estado === 'Ausencia Justificada') mapa[cedulaLimpia].ausenciaJustificada++;
     }
 
     const totalClases = fechasUnicas.size;
     const filas = Object.keys(mapa).sort().map(cedula => {
       const r = mapa[cedula];
-      const asistencias = r.presente + (r.tarde * 0.5); // Tarde = 0.5
-      const ausencias = Math.max(0, totalClases - r.presente - r.tarde);
-      const porcentaje = totalClases > 0 ? Math.round((asistencias / totalClases) * 100) : 0;
+      const puntaje = r.presente + (r.tarde * 0.5) + (r.ausenciaJustificada * 0.5); // Tarde y AJ = 0.5
+      const ausencias = Math.max(0, totalClases - r.presente - r.tarde - r.ausenciaJustificada);
+      const porcentaje = totalClases > 0 ? Math.round((puntaje / totalClases) * 100) : 0;
       return [
         cedula, 
         r.nombre, 
@@ -267,6 +277,7 @@ function recalcularResumen_() {
         totalClases, 
         r.presente, 
         r.tarde, 
+        r.ausenciaJustificada,
         ausencias, 
         porcentaje
       ];
@@ -342,7 +353,7 @@ function limpiarDatosDePrueba() {
   const sheet = getSheet_(SHEET_REGISTRO);
   const lastRow = sheet.getLastRow();
   if (lastRow > 1) {
-    sheet.getRange(2, 1, lastRow - 1, 7).clearContent();
+    sheet.getRange(2, 1, lastRow - 1, 8).clearContent();
   }
   recalcularResumen_();
   console.log('Datos de prueba eliminados');
