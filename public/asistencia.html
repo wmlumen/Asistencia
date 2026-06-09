@@ -1953,6 +1953,40 @@
                 return [];
             }
         };
+        
+        // Cargar catálogos desde Sheets y llenar selects
+        async function inicializarCatalogosAsistencia() {
+            await inicializarCatalogos();
+            
+            // Llenar select de carreras
+            const carreras = JSON.parse(localStorage.getItem('cat_carreras') || '[]');
+            const selectCarrera = document.getElementById('attendance-career');
+            if (selectCarrera && carreras.length > 0) {
+                selectCarrera.innerHTML = '<option value="">-- Seleccione --</option>';
+                carreras.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c;
+                    option.textContent = c.split('-').slice(1).join('-') || c;
+                    selectCarrera.appendChild(option);
+                });
+            }
+            
+            // Llenar select de secciones
+            const secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
+            const selectSeccion = document.getElementById('attendance-section');
+            if (selectSeccion && secciones.length > 0) {
+                selectSeccion.innerHTML = '<option value="">-- Seleccione --</option>';
+                secciones.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s;
+                    option.textContent = s.split('-').slice(1).join('-') || s;
+                    selectSeccion.appendChild(option);
+                });
+            }
+        }
+        
+        // Ejecutar al cargar
+        inicializarCatalogosAsistencia();
     </script>
 </body>
 </html>

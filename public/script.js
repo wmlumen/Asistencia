@@ -898,7 +898,114 @@ function reemplazarPlaceholders() {
 
 
 
+
+/* ============================================================
+   CARGAR CATÁLOGOS DESDE GOOGLE SHEETS
+   ============================================================ */
+
+async function cargarCatalogosDesdeAPI() {
+    try {
+        const apiUrl = getApiUrl();
+        const apiKey = getApiKeyLocal();
+        
+        if (!apiUrl || !apiKey) {
+            console.log('API no configurada, usando localStorage');
+            return false;
+        }
+        
+        const url = apiUrl + '?modo=catalogos&apiKey=' + encodeURIComponent(apiKey);
+        console.log('Cargando catálogos desde:', url);
+        
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        
+        const data = await resp.json();
+        
+        if (data.asignaturas && data.secciones && data.carreras) {
+            // Guardar en localStorage en formato compatible
+            const asignaturasFormat = data.asignaturas.map(a => a.codigo + '-' + a.nombre);
+            const seccionesFormat = data.secciones.map(s => s.codigo + '-' + s.nombre);
+            const carrerasFormat = data.carreras.map(c => c.codigo + '-' + c.nombre);
             
+            localStorage.setItem('cat_asignaturas', JSON.stringify(asignaturasFormat));
+            localStorage.setItem('cat_secciones', JSON.stringify(seccionesFormat));
+            localStorage.setItem('cat_carreras', JSON.stringify(carrerasFormat));
+            
+            // También guardar en formato admin
+            const catalogos = {
+                asignaturas: data.asignaturas,
+                secciones: data.secciones,
+                carreras: data.carreras
+            };
+            localStorage.setItem('admin_catalogos_centuria', JSON.stringify(catalogos));
+            
+            console.log('Catálogos cargados desde Sheets:', {
+                asignaturas: data.asignaturas.length,
+                secciones: data.secciones.length,
+                carreras: data.carreras.length
+            });
+            
+            return true;
+        }
+        
+        return false;
+    } catch (err) {
+        console.error('Error cargando catálogos desde API:', err);
+        return false;
+    }
+}
+
+// Función para que las páginas carguen catálogos automáticamente
+async function inicializarCatalogos() {
+    // Intentar cargar desde Sheets primero
+    const cargado = await cargarCatalogosDesdeAPI();
+    
+    if (!cargado) {
+        // Si no se pudo, verificar si hay datos en localStorage
+        const asignaturas = localStorage.getItem('cat_asignaturas');
+        if (!asignaturas) {
+            // Si no hay nada, cargar defaults
+            console.log('No hay catálogos, cargando valores por defecto');
+            const defaults = {
+                asignaturas: [
+                    { codigo: '01', nombre: 'Sociología' },
+                    { codigo: '02', nombre: 'Contabilidad' },
+                    { codigo: '03', nombre: 'Administración' },
+                    { codigo: '04', nombre: 'Derecho' },
+                    { codigo: '05', nombre: 'Economía' },
+                    { codigo: '06', nombre: 'Matemáticas' },
+                    { codigo: '07', nombre: 'Informática' },
+                    { codigo: '08', nombre: 'Pedagogía' },
+                    { codigo: '09', nombre: 'Psicología' },
+                    { codigo: '10', nombre: 'Comunicación' }
+                ],
+                secciones: [
+                    { codigo: '01', nombre: 'S026 (Sábado)' },
+                    { codigo: '02', nombre: 'LV026 (Lunes-Viernes)' },
+                    { codigo: '03', nombre: 'M026 (Mañana)' },
+                    { codigo: '04', nombre: 'T026 (Tarde)' },
+                    { codigo: '05', nombre: 'N026 (Noche)' },
+                    { codigo: '06', nombre: 'VL026 (Virtual)' }
+                ],
+                carreras: [
+                    { codigo: '01', nombre: 'Licenciatura Administración de Empresas' },
+                    { codigo: '02', nombre: 'Licenciatura Contabilidad' },
+                    { codigo: '03', nombre: 'Ingeniería Comercial' },
+                    { codigo: '04', nombre: 'Licenciatura Administración Aduanera' },
+                    { codigo: '05', nombre: 'Licenciatura Administración y Gestión Pública' },
+                    { codigo: '06', nombre: 'Maestría Administración y Gestión Pública' },
+                    { codigo: '07', nombre: 'Otro' }
+                ]
+            };
+            
+            localStorage.setItem('admin_catalogos_centuria', JSON.stringify(defaults));
+            localStorage.setItem('cat_asignaturas', JSON.stringify(defaults.asignaturas.map(a => a.codigo + '-' + a.nombre)));
+            localStorage.setItem('cat_secciones', JSON.stringify(defaults.secciones.map(s => s.codigo + '-' + s.nombre)));
+            localStorage.setItem('cat_carreras', JSON.stringify(defaults.carreras.map(c => c.codigo + '-' + c.nombre)));
+        }
+    }
+}
+
 
 
 

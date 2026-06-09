@@ -142,6 +142,42 @@ function doGet(e) {
       return jsonResponse({ planificaciones, total: planificaciones.length });
     }
 
+    // Modo catalogos — extrae asignaturas, secciones y carreras únicas de Planificacion
+    if (modo === 'catalogos') {
+      const sheet = getSheet_(SHEET_PLANIFICACION);
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) return jsonResponse({ asignaturas: [], secciones: [], carreras: [] });
+      
+      const asignaturasSet = new Set();
+      const seccionesSet = new Set();
+      const carrerasSet = new Set();
+      
+      values.slice(1).forEach(row => {
+        const codAsig = (row[3] || '').toString().trim();
+        const codSec = (row[4] || '').toString().trim();
+        const codCarr = (row[5] || '').toString().trim();
+        
+        if (codAsig) asignaturasSet.add(codAsig);
+        if (codSec) seccionesSet.add(codSec);
+        if (codCarr) carrerasSet.add(codCarr);
+      });
+      
+      // Convertir a array de objetos {codigo, nombre}
+      const parseItem = (item) => {
+        const partes = item.split('-');
+        if (partes.length >= 2 && !isNaN(partes[0])) {
+          return { codigo: partes[0], nombre: partes.slice(1).join('-') };
+        }
+        return { codigo: item, nombre: item };
+      };
+      
+      const asignaturas = Array.from(asignaturasSet).sort().map(parseItem);
+      const secciones = Array.from(seccionesSet).sort().map(parseItem);
+      const carreras = Array.from(carrerasSet).sort().map(parseItem);
+      
+      return jsonResponse({ asignaturas, secciones, carreras });
+    }
+
     // Modo planificación via GET (para guardar desde planificacion.html)
     if (modo === 'planificacion') {
       const sheet = getSheet_(SHEET_PLANIFICACION);

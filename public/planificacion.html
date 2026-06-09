@@ -1124,7 +1124,9 @@
         }
         
         // Inicializar
-        cargarCatalogosDinamicos();
+        inicializarCatalogos().then(() => {
+            cargarCatalogosDinamicos();
+        });
         
         // Esperar a que CONFIG esté listo antes de cargar planificaciones
         if (typeof CONFIG !== 'undefined' && CONFIG.asistencia_api_url) {
