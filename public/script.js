@@ -3340,15 +3340,24 @@ async function submitAttendanceRecord(payload) {
         };
         if (apiKey) body.apiKey = apiKey;
 
+        console.log('Enviando POST a:', apiUrl);
+        console.log('Body:', JSON.stringify(body));
+
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
 
-        const result = await response.json().catch(() => ({}));
+        console.log('Response status:', response.status);
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+
+        let result = {};
+        try { result = JSON.parse(responseText); } catch(e) {}
+
         if (!response.ok || result.ok === false) {
-            throw new Error(result.error || result.mensaje || 'No se pudo guardar la asistencia en Drive.');
+            throw new Error(result.error || result.mensaje || 'Error ' + response.status + ': ' + responseText.substring(0, 200));
         }
 
         return normalized;
