@@ -1384,11 +1384,44 @@
                     </div>
 
                     <div class="form-group">
-                        <label><i class="fas fa-sticky-note" style="color:var(--text-muted)"></i> Observación <span style="font-weight:normal;color:var(--text-muted)">(Opcional)</span></label>
-                        <textarea id="attendance-notes" rows="1" placeholder="Ej: Llegada tardía, clase virtual, etc."></textarea>
+                        <label><i class="fas fa-toggle-on"></i> Estado</label>
+                        <div class="estado-toggle" style="display:flex;gap:8px;">
+                            <button type="button" id="btn-presente" class="estado-btn active" onclick="cambiarEstado('Presente')" style="flex:1;padding:8px;border:2px solid #28a745;border-radius:8px;background:#28a745;color:white;font-weight:600;font-size:12px;cursor:pointer;">
+                                <i class="fas fa-check-circle"></i> Presente
+                            </button>
+                            <button type="button" id="btn-ausencia" class="estado-btn" onclick="cambiarEstado('Ausencia Justificada')" style="flex:1;padding:8px;border:2px solid #e2e8f0;border-radius:8px;background:white;color:var(--text-secondary);font-weight:600;font-size:12px;cursor:pointer;">
+                                <i class="fas fa-file-medical"></i> Ausencia Justificada
+                            </button>
+                        </div>
+                        <input type="hidden" id="attendance-estado" value="Presente">
                     </div>
 
-                    <button type="submit" class="btn-submit">
+                    <div id="campos-ausencia" style="display:none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-calendar-alt"></i> Fecha de Ausencia</label>
+                                <input id="attendance-fecha-ausencia" type="date">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-tag"></i> Motivo</label>
+                                <select id="attendance-motivo">
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="Enfermedad">Enfermedad</option>
+                                    <option value="Trabajo">Trabajo</option>
+                                    <option value="Problema Familiar">Problema Familiar</option>
+                                    <option value="Falta de Pago">Falta de Pago</option>
+                                    <option value="Otros">Otros</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-sticky-note" style="color:var(--text-muted)"></i> Observación / Detalle <span style="font-weight:normal;color:var(--text-muted)">(Opcional)</span></label>
+                        <textarea id="attendance-notes" rows="1" placeholder="Ej: Llegada tardía, certificado médico, etc."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btn-submit-form">
                         <i class="fas fa-check-circle"></i> Registrar Asistencia
                     </button>
 
@@ -1400,7 +1433,63 @@
             </div>
 
             <script>
+                function cambiarEstado(estado) {
+                    const inputEstado = document.getElementById('attendance-estado');
+                    const camposAusencia = document.getElementById('campos-ausencia');
+                    const btnPresente = document.getElementById('btn-presente');
+                    const btnAusencia = document.getElementById('btn-ausencia');
+                    const formCard = document.querySelector('.form-card');
+                    const btnSubmit = document.getElementById('btn-submit-form');
+                    const fechaAusencia = document.getElementById('attendance-fecha-ausencia');
+                    
+                    inputEstado.value = estado;
+                    
+                    if (estado === 'Ausencia Justificada') {
+                        // Mostrar campos de ausencia
+                        camposAusencia.style.display = 'block';
+                        
+                        // Cambiar colores a naranja
+                        btnPresente.style.borderColor = '#e2e8f0';
+                        btnPresente.style.background = 'white';
+                        btnPresente.style.color = 'var(--text-secondary)';
+                        
+                        btnAusencia.style.borderColor = '#d97706';
+                        btnAusencia.style.background = '#d97706';
+                        btnAusencia.style.color = 'white';
+                        
+                        formCard.style.borderColor = '#d97706';
+                        formCard.style.boxShadow = '0 4px 20px rgba(217,119,6,0.15)';
+                        
+                        btnSubmit.style.background = 'linear-gradient(135deg, #d97706 0%, #b45309 100%)';
+                        btnSubmit.innerHTML = '<i class="fas fa-file-medical"></i> Registrar Ausencia Justificada';
+                        
+                        // Establecer fecha de hoy por defecto
+                        if (!fechaAusencia.value) {
+                            fechaAusencia.valueAsDate = new Date();
+                        }
+                    } else {
+                        // Ocultar campos de ausencia
+                        camposAusencia.style.display = 'none';
+                        
+                        // Restaurar colores verdes
+                        btnPresente.style.borderColor = '#28a745';
+                        btnPresente.style.background = '#28a745';
+                        btnPresente.style.color = 'white';
+                        
+                        btnAusencia.style.borderColor = '#e2e8f0';
+                        btnAusencia.style.background = 'white';
+                        btnAusencia.style.color = 'var(--text-secondary)';
+                        
+                        formCard.style.borderColor = 'var(--border)';
+                        formCard.style.boxShadow = 'var(--shadow)';
+                        
+                        btnSubmit.style.background = 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)';
+                        btnSubmit.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
+                    }
+                }
+
                 function validarFormularioAsistencia(form) {
+                    const estado = document.getElementById('attendance-estado').value;
                     const campos = {
                         'attendance-id': 'Cédula de Identidad',
                         'attendance-name': 'Nombre y Apellido',
@@ -1408,11 +1497,18 @@
                         'attendance-section': 'Sección'
                     };
                     
+                    // Si es ausencia justificada, también validar fecha y motivo
+                    if (estado === 'Ausencia Justificada') {
+                        campos['attendance-fecha-ausencia'] = 'Fecha de Ausencia';
+                        campos['attendance-motivo'] = 'Motivo';
+                    }
+                    
                     const faltantes = [];
                     let primerCampo = null;
                     
                     for (const [id, label] of Object.entries(campos)) {
                         const el = document.getElementById(id);
+                        if (!el) continue;
                         const val = el.value.trim();
                         if (!val) {
                             faltantes.push(label);
@@ -1439,7 +1535,7 @@
                     
                     // Si todo OK, dejar que el handler de script.js procese el submit
                     status.className = 'status-msg info';
-                    status.innerHTML = '<i class="fas fa-info-circle"></i><span>Enviando asistencia...</span>';
+                    status.innerHTML = '<i class="fas fa-info-circle"></i><span>Enviando ' + (estado === 'Ausencia Justificada' ? 'ausencia justificada' : 'asistencia') + '...</span>';
                     return true;
                 }
 

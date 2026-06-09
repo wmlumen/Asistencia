@@ -6446,6 +6446,12 @@ async function submitAttendanceRecord(payload) {
             timestamp: normalized.marcaTemporal,
             sourcePage: getAttendancePublicUrl()
         };
+        
+        // Si es ausencia justificada, enviar fecha de ausencia
+        if (normalized.estado === 'Ausencia Justificada' && payload.fechaAusencia) {
+            body.fechaAusencia = payload.fechaAusencia;
+        }
+        
         if (apiKey) body.apiKey = apiKey;
 
         // Enviar datos como query params (mas confiable con Apps Script)
@@ -8447,12 +8453,28 @@ function initAttendanceRegistrationPage() {
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
 
+        const estado = document.getElementById('attendance-estado')?.value || 'Presente';
+        const fechaAusencia = document.getElementById('attendance-fecha-ausencia')?.value || '';
+        const motivo = document.getElementById('attendance-motivo')?.value || '';
+        const observacion = document.getElementById('attendance-notes')?.value.trim() || '';
+        
+        // Construir observación según el estado
+        let obsFinal = observacion;
+        if (estado === 'Ausencia Justificada') {
+            let obsParts = [];
+            if (motivo) obsParts.push('Motivo: ' + motivo);
+            if (observacion) obsParts.push('Obs: ' + observacion);
+            obsFinal = obsParts.join(' | ');
+        }
+        
         const payload = {
             nombre: document.getElementById('attendance-name')?.value.trim() || '',
             cedula: document.getElementById('attendance-id')?.value.trim() || '',
             carrera: document.getElementById('attendance-career')?.value || '',
             seccion: document.getElementById('attendance-section')?.value || '',
-            observacion: document.getElementById('attendance-notes')?.value.trim() || '',
+            observacion: obsFinal,
+            estado: estado,
+            fechaAusencia: fechaAusencia,
             marcaTemporal: new Date().toLocaleString('es-PY')
         };
 
@@ -8468,18 +8490,35 @@ function initAttendanceRegistrationPage() {
             }
             return;
         }
+        
+        // Validar campos adicionales para ausencia
+        if (estado === 'Ausencia Justificada' && (!fechaAusencia || !motivo)) {
+            if (status) {
+                let faltantes = [];
+                if (!fechaAusencia) faltantes.push('Fecha de Ausencia');
+                if (!motivo) faltantes.push('Motivo');
+                status.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Complete: ' + faltantes.join(', ');
+                status.className = 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700';
+            }
+            return;
+        }
 
         try {
             await submitAttendanceRecord(payload);
             form.reset();
+            // Restaurar estado a Presente
+            cambiarEstado('Presente');
             if (status) {
-                status.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Asistencia registrada correctamente.';
+                const msg = estado === 'Ausencia Justificada' 
+                    ? 'Ausencia justificada registrada correctamente.' 
+                    : 'Asistencia registrada correctamente.';
+                status.innerHTML = '<i class="fas fa-check-circle mr-1"></i> ' + msg;
                 status.className = 'rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 font-semibold';
             }
             await refreshAttendanceData();
         } catch (error) {
             if (status) {
-                status.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> ' + (error.message || 'No se pudo registrar la asistencia.');
+                status.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> ' + (error.message || 'No se pudo registrar.');
                 status.className = 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700';
             }
         }

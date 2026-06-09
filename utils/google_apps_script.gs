@@ -249,10 +249,9 @@ function doPost(e) {
       }
     }
 
-    // Modo asistencia (default)
+    // Modo asistencia (default) - ahora soporta Presente y Ausencia Justificada
     const sheet = getSheet_(SHEET_REGISTRO);
     const now = new Date();
-    const fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
     const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
 
     const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
@@ -260,26 +259,48 @@ function doPost(e) {
     const carrera = (data.career || data.carrera || '').trim();
     const seccion = (data.seccion || data.section || '').trim();
     const observacion = (data.notes || data.observacion || '').trim();
+    const estado = (data.estado || 'Presente').trim();
+    const fechaAusencia = (data.fechaAusencia || '').trim();
 
     if (!nombre || !cedula || !carrera || !seccion) {
       return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o seccion' });
     }
 
-    // Evitar duplicados exactos en la misma fecha
-    const datos = sheet.getDataRange().getValues();
-    const yaExiste = datos.some(row => {
-      const rowCedula = (row[2] || '').toString().replace(/\./g, '').trim();
-      return rowCedula === cedula && row[0] === fechaStr;
-    });
-
-    if (yaExiste) {
-      return jsonResponse({ ok: false, duplicado: true, mensaje: 'Ya existe un registro para esta cedula en la fecha actual' });
+    // Determinar fecha a usar
+    let fechaStr;
+    if (estado === 'Ausencia Justificada' && fechaAusencia) {
+      // Convertir fecha YYYY-MM-DD a DD/MM/YYYY
+      const partes = fechaAusencia.split('-');
+      if (partes.length === 3) {
+        fechaStr = partes[2] + '/' + partes[1] + '/' + partes[0];
+      } else {
+        fechaStr = fechaAusencia;
+      }
+    } else {
+      fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
     }
 
-    sheet.appendRow([fechaStr, nombre, cedula, carrera, seccion, observacion, 'Presente', marcaTemporal]);
+    // Evitar duplicados exactos en la misma fecha (solo para Presente)
+    if (estado === 'Presente') {
+      const datos = sheet.getDataRange().getValues();
+      const yaExiste = datos.some(row => {
+        const rowCedula = (row[2] || '').toString().replace(/\./g, '').trim();
+        return rowCedula === cedula && row[0] === fechaStr;
+      });
+
+      if (yaExiste) {
+        return jsonResponse({ ok: false, duplicado: true, mensaje: 'Ya existe un registro para esta cedula en la fecha actual' });
+      }
+    }
+
+    sheet.appendRow([fechaStr, nombre, cedula, carrera, seccion, observacion, estado, marcaTemporal]);
     recalcularResumen_();
 
-    return jsonResponse({ ok: true, mensaje: 'Asistencia registrada correctamente', duplicado: false });
+    const mensaje = estado === 'Ausencia Justificada' 
+      ? 'Ausencia justificada registrada correctamente' 
+      : 'Asistencia registrada correctamente';
+
+    return jsonResponse({ ok: true, mensaje: mensaje, duplicado: false });
   } catch (error) {
     return jsonResponse({ ok: false, error: error.message || 'Error desconocido' });
   }
