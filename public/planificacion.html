@@ -440,13 +440,35 @@
         let editandoIndex = -1;
         let planifEditandoCodigo = null;
         
-        const apiUrl = typeof CONFIG !== 'undefined' && CONFIG.asistencia_api_url ? CONFIG.asistencia_api_url : '';
-        const apiKey = typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!';
+        // URL hardcodeada como fallback (la misma que está en script.js y Datos_asistencia.txt)
+        const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbz5MUkxeYtwzDt3x-mMSImyQl7EjAUCzgvxTwCZbjmIkzszRQsSDaFfjgcXzheZ9XXdGw/exec';
+        const DEFAULT_API_KEY = 'CenturiaApi2024!';
+        
+        function getApiUrl() {
+            // Intentar obtener de CONFIG (si ya cargó script.js)
+            if (typeof CONFIG !== 'undefined' && CONFIG.asistencia_api_url) {
+                return CONFIG.asistencia_api_url;
+            }
+            return DEFAULT_API_URL;
+        }
+        
+        function getApiKeyLocal() {
+            if (typeof getApiKey === 'function') {
+                return getApiKey();
+            }
+            return DEFAULT_API_KEY;
+        }
         
         // Cargar desde API al iniciar
         async function cargarPlanificaciones() {
             const status = document.getElementById('statusPlanif');
             status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando con Google Sheets...';
+            
+            const apiUrl = getApiUrl();
+            const apiKey = getApiKeyLocal();
+            
+            console.log('API URL:', apiUrl);
+            console.log('API Key:', apiKey ? 'Configurada' : 'No configurada');
             
             try {
                 const url = apiUrl + '?modo=planificaciones&apiKey=' + encodeURIComponent(apiKey);
@@ -592,9 +614,12 @@
             
             // Intentar sincronizar con API
             try {
+                const apiUrlSave = getApiUrl();
+                const apiKeySave = getApiKeyLocal();
+                
                 const params = new URLSearchParams();
                 params.append('modo', 'planificacion');
-                params.append('apiKey', apiKey);
+                params.append('apiKey', apiKeySave);
                 params.append('codigo', codigo);
                 params.append('cedula', cedula);
                 params.append('nombre', nombre);
@@ -604,7 +629,7 @@
                 params.append('fechaInicio', fechaInicio);
                 params.append('fechaCierre', fechaCierre);
                 
-                const url = apiUrl + '?' + params.toString();
+                const url = apiUrlSave + '?' + params.toString();
                 console.log('Enviando a API:', url);
                 const resp = await fetch(url);
                 
