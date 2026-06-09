@@ -255,6 +255,54 @@
             gap: 8px;
         }
         
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        .toggle-modulo-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s;
+        }
+        .toggle-modulo-row:hover {
+            background: #f8f9fa;
+        }
+        
         @media (max-width: 768px) {
             .grid-admin {
                 grid-template-columns: 1fr;
@@ -1058,8 +1106,9 @@
                     const mod = modules[modKey];
                     const enabled = config[modKey] !== false;
                     const toggleId = 'toggle-' + modKey;
+                    const sliderBg = enabled ? cat.color : '#ccc';
                     
-                    html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #f0f0f0;" onmouseover="this.style.background=\'#f8f9fa\'" onmouseout="this.style.background=\'transparent\'">';
+                    html += '<div class="toggle-modulo-row">';
                     html += '<div style="display: flex; align-items: center; gap: 10px;">';
                     html += '<i class="fas ' + mod.icon + '" style="color: ' + (enabled ? cat.color : '#ccc') + '; font-size: 14px; width: 18px; text-align: center;"></i>';
                     html += '<div>';
@@ -1067,10 +1116,9 @@
                     html += '<div style="font-size: 11px; color: #999;">' + mod.desc + '</div>';
                     html += '</div>';
                     html += '</div>';
-                    html += '<label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; flex-shrink: 0;">';
-                    html += '<input type="checkbox" id="' + toggleId + '" ' + (enabled ? 'checked' : '') + ' onchange="toggleModuloAdmin(\'' + modKey + '\', this.checked)" style="opacity: 0; width: 0; height: 0;">';
-                    html += '<span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: ' + (enabled ? cat.color : '#ccc') + '; transition: .3s; border-radius: 24px;"></span>';
-                    html += '<span style="position: absolute; content: \"\"; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; transform: ' + (enabled ? 'translateX(20px)' : 'translateX(0)') + ';"></span>';
+                    html += '<label class="toggle-switch">';
+                    html += '<input type="checkbox" id="' + toggleId + '" ' + (enabled ? 'checked' : '') + ' onchange="toggleModuloAdmin(\'' + modKey + '\', this.checked)">';
+                    html += '<span class="toggle-slider" style="background-color: ' + sliderBg + ';"></span>';
                     html += '</label>';
                     html += '</div>';
                 });
