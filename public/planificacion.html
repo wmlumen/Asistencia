@@ -648,12 +648,43 @@
         
         function formatearFecha(fechaStr) {
             if (!fechaStr) return '';
-            // Si ya viene en formato DD/MM/YYYY desde Sheets
-            if (fechaStr.includes('/')) return fechaStr;
+            
+            const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+            
+            let dia, mes, anio;
+            
+            // Formato ISO: 2026-06-01 o 2026-06-01T03:00:00.000Z
+            if (fechaStr.includes('T')) {
+                fechaStr = fechaStr.split('T')[0];
+            }
+            
             const partes = fechaStr.split('-');
             if (partes.length === 3) {
-                return partes[2] + '/' + partes[1] + '/' + partes[0];
+                if (partes[0].length === 4) {
+                    // YYYY-MM-DD
+                    anio = partes[0].slice(-2); // Solo últimos 2 dígitos
+                    mes = meses[parseInt(partes[1]) - 1];
+                    dia = partes[2];
+                } else {
+                    // DD-MM-YYYY
+                    dia = partes[0];
+                    mes = meses[parseInt(partes[1]) - 1];
+                    anio = partes[2].slice(-2);
+                }
+                return dia + ' ' + mes + ' ' + anio;
             }
+            
+            // Si ya viene en formato DD/MM/YYYY
+            if (fechaStr.includes('/')) {
+                const p = fechaStr.split('/');
+                if (p.length === 3) {
+                    dia = p[0];
+                    mes = meses[parseInt(p[1]) - 1];
+                    anio = p[2].slice(-2);
+                    return dia + ' ' + mes + ' ' + anio;
+                }
+            }
+            
             return fechaStr;
         }
         
