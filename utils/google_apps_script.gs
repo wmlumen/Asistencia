@@ -372,11 +372,34 @@ function inicializarHojas() {
    ============================================================ */
 
 function probarEscrituraManual() {
-  const sheet = getSheet_(SHEET_REGISTRO);
-  const now = new Date();
-  const fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
-  const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
+  console.log('Iniciando probarEscrituraManual...');
+  console.log('SPREADSHEET_ID:', SPREADSHEET_ID);
   
-  sheet.appendRow([fechaStr, 'TEST MANUAL', '9999999', 'CONTABILIDAD', 'S026', '', 'Presente', marcaTemporal]);
-  console.log('Registro de prueba insertado en hoja Registro');
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    console.log('Planilla abierta. Nombre:', ss.getName());
+    console.log('URL:', ss.getUrl());
+    
+    let sheet = ss.getSheetByName(SHEET_REGISTRO);
+    console.log('Hoja Registro existe?', sheet ? 'SI' : 'NO');
+    
+    if (!sheet) {
+      console.log('Creando hoja Registro...');
+      sheet = ss.insertSheet(SHEET_REGISTRO);
+      sheet.appendRow(['Fecha','Nombre','Cedula','Carrera','Seccion','Observacion','Estado','MarcaTemporal']);
+      console.log('Hoja creada');
+    }
+    
+    const now = new Date();
+    const fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
+    const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
+    
+    console.log('Insertando fila...');
+    sheet.appendRow([fechaStr, 'TEST MANUAL', '9999999', 'CONTABILIDAD', 'S026', '', 'Presente', marcaTemporal]);
+    console.log('Fila insertada. Total filas:', sheet.getLastRow());
+    
+  } catch (error) {
+    console.error('ERROR:', error.message);
+    console.error('Stack:', error.stack);
+  }
 }
