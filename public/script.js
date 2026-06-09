@@ -327,12 +327,12 @@ async function cargarConfiguracion() {
 
 
 
-            link_respuestas: 'https://docs.google.com/spreadsheets/d/TU_SHEET_ID',
-            asistencia_public_url: 'https://TU_USUARIO.github.io/Asistencia/asistencia.html',
-            asistencia_api_url: 'https://script.google.com/macros/s/TU_ID_DE_WEB_APP/exec',
+            link_respuestas: 'https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA',
+            asistencia_public_url: 'https://wmlumen.github.io/Asistencia/asistencia.html',
+            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbz5MUkxeYtwzDt3x-mMSImyQl7EjAUCzgvxTwCZbjmIkzszRQsSDaFfjgcXzheZ9XXdGw/exec',
             asistencia_csv_url: '',
-            asistencia_carreras: 'CARRERA 1|CARRERA 2|CARRERA 3',
-            api_secret: 'TU_API_SECRET_AQUI',
+            asistencia_carreras: 'LICENCIATURA EN ADMINISTRACION DE EMPRESAS|LICENCIATURA EN CONTABILIDAD|LICENCIATURA EN ADMINISTRACION ADUANERA|INGENIERIA COMERCIAL',
+            api_secret: 'CenturiaApi2024!',
             teacherPassword: 'Docente2026',
             studentPassword: 'Alumno2026'
         };
