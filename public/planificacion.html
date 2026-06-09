@@ -343,41 +343,18 @@
                     <label>Asignatura</label>
                     <select id="planif-asignatura" onchange="generarCodigoPreview()">
                         <option value="">-- Seleccione --</option>
-                        <option value="01-Sociología">01 - Sociología</option>
-                        <option value="02-Contabilidad">02 - Contabilidad</option>
-                        <option value="03-Administración">03 - Administración</option>
-                        <option value="04-Derecho">04 - Derecho</option>
-                        <option value="05-Economía">05 - Economía</option>
-                        <option value="06-Matemáticas">06 - Matemáticas</option>
-                        <option value="07-Informática">07 - Informática</option>
-                        <option value="08-Pedagogía">08 - Pedagogía</option>
-                        <option value="09-Psicología">09 - Psicología</option>
-                        <option value="10-Comunicación">10 - Comunicación</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Sección</label>
                     <select id="planif-seccion" onchange="generarCodigoPreview()">
                         <option value="">-- Seleccione --</option>
-                        <option value="01-S026">01 - S026 (Sábado)</option>
-                        <option value="02-LV026">02 - LV026 (Lunes-Viernes)</option>
-                        <option value="03-M026">03 - M026 (Mañana)</option>
-                        <option value="04-T026">04 - T026 (Tarde)</option>
-                        <option value="05-N026">05 - N026 (Noche)</option>
-                        <option value="06-VL026">06 - VL026 (Virtual)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Carrera</label>
                     <select id="planif-carrera">
                         <option value="">-- Seleccione --</option>
-                        <option value="01-Licenciatura Administración de Empresas">01 - Licenciatura Administración de Empresas</option>
-                        <option value="02-Licenciatura Contabilidad">02 - Licenciatura Contabilidad</option>
-                        <option value="03-Ingeniería Comercial">03 - Ingeniería Comercial</option>
-                        <option value="04-Licenciatura Administración Aduanera">04 - Licenciatura Administración Aduanera</option>
-                        <option value="05-Licenciatura Administración y Gestión Pública">05 - Licenciatura Administración y Gestión Pública</option>
-                        <option value="06-Maestría Administración y Gestión Pública">06 - Maestría Administración y Gestión Pública</option>
-                        <option value="07-Otro">07 - Otro</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -775,7 +752,54 @@
             }
         }
         
+        // Cargar catálogos dinámicos desde admin
+        function cargarCatalogosDinamicos() {
+            const asignaturas = JSON.parse(localStorage.getItem('cat_asignaturas') || '[]');
+            const secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
+            const carreras = JSON.parse(localStorage.getItem('cat_carreras') || '[]');
+            
+            // Si no hay catálogos, usar defaults
+            if (asignaturas.length === 0) {
+                asignaturas.push('01-Sociología', '02-Contabilidad', '03-Administración', '04-Derecho', '05-Economía', '06-Matemáticas', '07-Informática', '08-Pedagogía', '09-Psicología', '10-Comunicación');
+            }
+            if (secciones.length === 0) {
+                secciones.push('01-S026', '02-LV026', '03-M026', '04-T026', '05-N026', '06-VL026');
+            }
+            if (carreras.length === 0) {
+                carreras.push('01-Licenciatura Administración de Empresas', '02-Licenciatura Contabilidad', '03-Ingeniería Comercial', '04-Licenciatura Administración Aduanera', '05-Licenciatura Administración y Gestión Pública', '06-Maestría Administración y Gestión Pública', '07-Otro');
+            }
+            
+            // Llenar selects
+            llenarSelect('planif-asignatura', asignaturas);
+            llenarSelect('planif-seccion', secciones);
+            llenarSelect('planif-carrera', carreras);
+        }
+        
+        function llenarSelect(id, items) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            
+            // Mantener primera opción
+            const primera = select.options[0];
+            select.innerHTML = '';
+            select.appendChild(primera);
+            
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                // Formato: "01-Sociología" -> "01 - Sociología"
+                const partes = item.split('-');
+                if (partes.length >= 2) {
+                    option.textContent = partes[0] + ' - ' + partes.slice(1).join('-');
+                } else {
+                    option.textContent = item;
+                }
+                select.appendChild(option);
+            });
+        }
+        
         // Inicializar
+        cargarCatalogosDinamicos();
         cargarPlanificaciones().then(() => {
             // Verificar si hay datos de la API o solo local
             const status = document.getElementById('statusPlanif');

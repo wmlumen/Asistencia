@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Instituto Superior Centuria</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="institutional.css">
+    <script src="script.js?v=2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .admin-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header-admin {
+            background: linear-gradient(135deg, var(--primary-green, #0a4d2a) 0%, var(--accent-color, #0d6335) 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .header-admin img {
+            height: 50px;
+        }
+        
+        .header-admin h1 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .header-admin a {
+            margin-left: auto;
+            color: white;
+            text-decoration: none;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+        
+        .grid-admin {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .card-admin {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .card-admin h3 {
+            font-size: 16px;
+            color: var(--primary-green, #0a4d2a);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-green, #0a4d2a);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-green, #0a4d2a);
+        }
+        
+        .btn-add {
+            background: var(--primary-green, #0a4d2a);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        .btn-add:hover {
+            background: #073a20;
+        }
+        
+        .lista-items {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        
+        .item-row:hover {
+            background: #f8f9fa;
+        }
+        
+        .item-row:last-child {
+            border-bottom: none;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .empty-msg {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 13px;
+        }
+        
+        .status-bar {
+            margin-top: 20px;
+            padding: 12px;
+            background: #e8f4f8;
+            border: 1px solid #bee5eb;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #0c5460;
+        }
+        
+        .btn-export {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        
+        .btn-export:hover {
+            background: #218838;
+        }
+        
+        .btn-reset {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-admin {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="header-admin">
+            <img src="logo_centuria_blanco.png" alt="Logo Centuria">
+            <div>
+                <h1><i class="fas fa-cog"></i> Panel de Administración</h1>
+                <p style="font-size:12px;opacity:0.9;">Gestión de catálogos del sistema</p>
+            </div>
+            <a href="index.html"><i class="fas fa-home"></i> Volver al inicio</a>
+        </div>
+        
+        <div class="grid-admin">
+            <!-- Asignaturas -->
+            <div class="card-admin">
+                <h3><i class="fas fa-book"></i> Asignaturas (COD_ASIGNATURA)</h3>
+                <div class="input-group">
+                    <input type="text" id="input-asig-codigo" placeholder="Código (Ej: 01)" style="width:80px;">
+                    <input type="text" id="input-asig-nombre" placeholder="Nombre (Ej: Sociología)" style="flex:1;">
+                    <button class="btn-add" onclick="agregarItem('asignaturas')">
+                        <i class="fas fa-plus"></i> Agregar
+                    </button>
+                </div>
+                <div class="lista-items" id="lista-asignaturas">
+                    <div class="empty-msg">No hay asignaturas registradas</div>
+                </div>
+            </div>
+            
+            <!-- Secciones -->
+            <div class="card-admin">
+                <h3><i class="fas fa-users"></i> Secciones (COD_SECCION)</h3>
+                <div class="input-group">
+                    <input type="text" id="input-sec-codigo" placeholder="Código (Ej: 01)" style="width:80px;">
+                    <input type="text" id="input-sec-nombre" placeholder="Nombre (Ej: S026)" style="flex:1;">
+                    <button class="btn-add" onclick="agregarItem('secciones')">
+                        <i class="fas fa-plus"></i> Agregar
+                    </button>
+                </div>
+                <div class="lista-items" id="lista-secciones">
+                    <div class="empty-msg">No hay secciones registradas</div>
+                </div>
+            </div>
+            
+            <!-- Carreras -->
+            <div class="card-admin">
+                <h3><i class="fas fa-graduation-cap"></i> Carreras (COD_CARRERA)</h3>
+                <div class="input-group">
+                    <input type="text" id="input-carr-codigo" placeholder="Código (Ej: 01)" style="width:80px;">
+                    <input type="text" id="input-carr-nombre" placeholder="Nombre (Ej: Lic. Administración)" style="flex:1;">
+                    <button class="btn-add" onclick="agregarItem('carreras')">
+                        <i class="fas fa-plus"></i> Agregar
+                    </button>
+                </div>
+                <div class="lista-items" id="lista-carreras">
+                    <div class="empty-msg">No hay carreras registradas</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar" id="statusAdmin">
+            <i class="fas fa-info-circle"></i> Los cambios se guardan automáticamente en el navegador. Use "Exportar Configuración" para respaldar.
+        </div>
+        
+        <div style="margin-top:15px;">
+            <button class="btn-export" onclick="exportarConfiguracion()">
+                <i class="fas fa-download"></i> Exportar Configuración
+            </button>
+            <button class="btn-reset" onclick="cargarDefaults()">
+                <i class="fas fa-undo"></i> Restaurar Valores por Defecto
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Estructura de datos
+        const STORAGE_KEY = 'admin_catalogos_centuria';
+        
+        let catalogos = {
+            asignaturas: [],
+            secciones: [],
+            carreras: []
+        };
+        
+        // Cargar desde localStorage
+        function cargarCatalogos() {
+            const guardado = localStorage.getItem(STORAGE_KEY);
+            if (guardado) {
+                catalogos = JSON.parse(guardado);
+            } else {
+                // Cargar defaults
+                cargarDefaults();
+            }
+            renderizarTodo();
+        }
+        
+        // Valores por defecto
+        function cargarDefaults() {
+            catalogos = {
+                asignaturas: [
+                    { codigo: '01', nombre: 'Sociología' },
+                    { codigo: '02', nombre: 'Contabilidad' },
+                    { codigo: '03', nombre: 'Administración' },
+                    { codigo: '04', nombre: 'Derecho' },
+                    { codigo: '05', nombre: 'Economía' },
+                    { codigo: '06', nombre: 'Matemáticas' },
+                    { codigo: '07', nombre: 'Informática' },
+                    { codigo: '08', nombre: 'Pedagogía' },
+                    { codigo: '09', nombre: 'Psicología' },
+                    { codigo: '10', nombre: 'Comunicación' }
+                ],
+                secciones: [
+                    { codigo: '01', nombre: 'S026 (Sábado)' },
+                    { codigo: '02', nombre: 'LV026 (Lunes-Viernes)' },
+                    { codigo: '03', nombre: 'M026 (Mañana)' },
+                    { codigo: '04', nombre: 'T026 (Tarde)' },
+                    { codigo: '05', nombre: 'N026 (Noche)' },
+                    { codigo: '06', nombre: 'VL026 (Virtual)' }
+                ],
+                carreras: [
+                    { codigo: '01', nombre: 'Licenciatura Administración de Empresas' },
+                    { codigo: '02', nombre: 'Licenciatura Contabilidad' },
+                    { codigo: '03', nombre: 'Ingeniería Comercial' },
+                    { codigo: '04', nombre: 'Licenciatura Administración Aduanera' },
+                    { codigo: '05', nombre: 'Licenciatura Administración y Gestión Pública' },
+                    { codigo: '06', nombre: 'Maestría Administración y Gestión Pública' },
+                    { codigo: '07', nombre: 'Otro' }
+                ]
+            };
+            guardarCatalogos();
+            renderizarTodo();
+            mostrarStatus('Valores por defecto restaurados', 'success');
+        }
+        
+        function guardarCatalogos() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(catalogos));
+            // También guardar en formato compatible para otras páginas
+            sincronizarConPaginas();
+        }
+        
+        function sincronizarConPaginas() {
+            // Convertir a formato que usan las otras páginas
+            const asignaturasFormat = catalogos.asignaturas.map(a => a.codigo + '-' + a.nombre);
+            const seccionesFormat = catalogos.secciones.map(s => s.codigo + '-' + s.nombre);
+            const carrerasFormat = catalogos.carreras.map(c => c.codigo + '-' + c.nombre);
+            
+            localStorage.setItem('cat_asignaturas', JSON.stringify(asignaturasFormat));
+            localStorage.setItem('cat_secciones', JSON.stringify(seccionesFormat));
+            localStorage.setItem('cat_carreras', JSON.stringify(carrerasFormat));
+        }
+        
+        function agregarItem(tipo) {
+            const inputCodigo = document.getElementById('input-' + tipo.slice(0, -1) + '-codigo');
+            const inputNombre = document.getElementById('input-' + tipo.slice(0, -1) + '-nombre');
+            
+            const codigo = inputCodigo.value.trim();
+            const nombre = inputNombre.value.trim();
+            
+            if (!codigo || !nombre) {
+                alert('Complete código y nombre');
+                return;
+            }
+            
+            // Verificar que no exista
+            if (catalogos[tipo].some(item => item.codigo === codigo)) {
+                alert('El código ' + codigo + ' ya existe');
+                return;
+            }
+            
+            catalogos[tipo].push({ codigo, nombre });
+            catalogos[tipo].sort((a, b) => a.codigo.localeCompare(b.codigo));
+            
+            guardarCatalogos();
+            renderizarTodo();
+            
+            inputCodigo.value = '';
+            inputNombre.value = '';
+            inputCodigo.focus();
+            
+            mostrarStatus('Item agregado correctamente', 'success');
+        }
+        
+        function eliminarItem(tipo, codigo) {
+            if (!confirm('¿Eliminar este item?')) return;
+            catalogos[tipo] = catalogos[tipo].filter(item => item.codigo !== codigo);
+            guardarCatalogos();
+            renderizarTodo();
+            mostrarStatus('Item eliminado', 'info');
+        }
+        
+        function renderizarTodo() {
+            renderizarLista('asignaturas', 'lista-asignaturas');
+            renderizarLista('secciones', 'lista-secciones');
+            renderizarLista('carreras', 'lista-carreras');
+        }
+        
+        function renderizarLista(tipo, containerId) {
+            const container = document.getElementById(containerId);
+            const items = catalogos[tipo];
+            
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-msg">No hay items registrados</div>';
+                return;
+            }
+            
+            let html = '';
+            items.forEach(item => {
+                html += '<div class="item-row">';
+                html += '<span><strong>' + item.codigo + '</strong> - ' + item.nombre + '</span>';
+                html += '<button class="btn-delete" onclick="eliminarItem(\'' + tipo + '\', \'' + item.codigo + '\')">';
+                html += '<i class="fas fa-trash"></i> Eliminar';
+                html += '</button>';
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function exportarConfiguracion() {
+            const config = {
+                asignaturas: catalogos.asignaturas,
+                secciones: catalogos.secciones,
+                carreras: catalogos.carreras,
+                exportado: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'configuracion_centuria_' + new Date().toISOString().split('T')[0] + '.json';
+            link.click();
+            
+            mostrarStatus('Configuración exportada', 'success');
+        }
+        
+        function mostrarStatus(mensaje, tipo) {
+            const status = document.getElementById('statusAdmin');
+            const icon = tipo === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-info-circle"></i>';
+            status.innerHTML = icon + ' ' + mensaje;
+            status.style.background = tipo === 'success' ? '#d4edda' : '#e8f4f8';
+            status.style.borderColor = tipo === 'success' ? '#c3e6cb' : '#bee5eb';
+            status.style.color = tipo === 'success' ? '#155724' : '#0c5460';
+            
+            setTimeout(() => {
+                status.innerHTML = '<i class="fas fa-info-circle"></i> Los cambios se guardan automáticamente en el navegador. Use "Exportar Configuración" para respaldar.';
+                status.style.background = '#e8f4f8';
+                status.style.borderColor = '#bee5eb';
+                status.style.color = '#0c5460';
+            }, 3000);
+        }
+        
+        // Inicializar
+        cargarCatalogos();
+    </script>
+</body>
+</html>
