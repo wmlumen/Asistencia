@@ -81,16 +81,19 @@ function doGet(e) {
     }
 
     if (modo === 'justificaciones') {
-      const sheet = getSheet_(SHEET_JUSTIFICACIONES);
+      const sheet = getSheet_(SHEET_REGISTRO);
       const values = sheet.getDataRange().getValues();
       if (values.length <= 1) return jsonResponse({ justificaciones: [] });
       const headers = values[0];
-      const justificaciones = values.slice(1).reverse().map(row => {
-        return headers.reduce((acc, h, i) => { 
-          acc[h] = row[i]; 
-          return acc; 
-        }, {});
-      });
+      const justificaciones = values.slice(1)
+        .filter(row => row[6] === 'Ausencia Justificada')
+        .reverse()
+        .map(row => {
+          return headers.reduce((acc, h, i) => { 
+            acc[h] = row[i]; 
+            return acc; 
+          }, {});
+        });
       return jsonResponse({ justificaciones, total: justificaciones.length });
     }
 
