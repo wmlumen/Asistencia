@@ -313,9 +313,6 @@
             <button class="btn" onclick="window.print()">
                 <i class="fas fa-print"></i> Imprimir
             </button>
-            <button class="btn" onclick="sincronizarConAsistencia()">
-                <i class="fas fa-sync"></i> Vincular con Asistencia
-            </button>
             <button class="btn" onclick="cargarPlanificaciones()" title="Recargar desde Google Sheets">
                 <i class="fas fa-cloud-download-alt"></i> Recargar Sheets
             </button>
@@ -324,7 +321,7 @@
         
         <!-- Mensaje informativo -->
         <div id="info-conexion" style="background:#e8f4f8;border:1px solid #bee5eb;border-radius:4px;padding:10px 15px;margin-bottom:15px;font-size:12px;color:#0c5460;">
-            <i class="fas fa-info-circle"></i> <strong>Modo de funcionamiento:</strong> Los datos se guardan primero en el navegador (localStorage) y luego se intenta sincronizar con Google Sheets. Si la sincronización falla, puede exportar a CSV e importar manualmente en la planilla.
+            <i class="fas fa-info-circle"></i> <strong>Planilla de Planificación Docente:</strong> Los datos se guardan primero en el navegador (localStorage) y luego se intenta sincronizar con Google Sheets. Si la sincronización falla, puede exportar a CSV e importar manualmente en la planilla.
         </div>
         
         <!-- Formulario -->
@@ -722,19 +719,6 @@
             link.href = URL.createObjectURL(blob);
             link.download = 'planificacion_centuria_' + new Date().toISOString().split('T')[0] + '.csv';
             link.click();
-        }
-        
-        function sincronizarConAsistencia() {
-            if (planificaciones.length === 0) {
-                alert('No hay planificaciones para vincular. Cree al menos una planificación primero.');
-                return;
-            }
-            
-            // Guardar en formato compatible para otras páginas
-            localStorage.setItem('planificaciones_activas', JSON.stringify(planificaciones));
-            
-            document.getElementById('statusPlanif').innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> ' + planificaciones.length + ' planificaciones vinculadas. Otras páginas pueden usar el código para autocompletar datos.';
-            setTimeout(() => document.getElementById('statusPlanif').textContent = '', 5000);
         }
         
         function actualizarInfoConexion(conectado) {
