@@ -466,11 +466,10 @@
             const apiUrl = getApiUrl();
             const apiKey = getApiKeyLocal();
             
-            // Si no hay API key, esperar a que script.js cargue CONFIG
+            // Si no hay API key, mostrar error (debe esperar a configLoaded)
             if (!apiKey || apiKey === 'CenturiaApi2024!') {
-                console.log('Esperando que CONFIG cargue...');
-                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inicializando...';
-                setTimeout(() => cargarPlanificaciones(), 500);
+                console.log('CONFIG no disponible aún, esperando evento configLoaded...');
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Esperando configuración...';
                 return;
             }
             
@@ -844,15 +843,32 @@
         
         // Inicializar
         cargarCatalogosDinamicos();
-        cargarPlanificaciones().then(() => {
-            // Verificar si hay datos de la API o solo local
-            const status = document.getElementById('statusPlanif');
-            if (status.textContent.includes('local')) {
-                actualizarInfoConexion(false);
-            } else {
-                actualizarInfoConexion(true);
-            }
-        });
+        
+        // Esperar a que CONFIG esté listo antes de cargar planificaciones
+        if (typeof CONFIG !== 'undefined' && CONFIG.asistencia_api_url) {
+            // CONFIG ya está cargado
+            cargarPlanificaciones().then(() => {
+                const status = document.getElementById('statusPlanif');
+                if (status.textContent.includes('local')) {
+                    actualizarInfoConexion(false);
+                } else {
+                    actualizarInfoConexion(true);
+                }
+            });
+        } else {
+            // Esperar evento configLoaded desde script.js
+            window.addEventListener('configLoaded', function(e) {
+                console.log('configLoaded recibido, cargando planificaciones...');
+                cargarPlanificaciones().then(() => {
+                    const status = document.getElementById('statusPlanif');
+                    if (status.textContent.includes('local')) {
+                        actualizarInfoConexion(false);
+                    } else {
+                        actualizarInfoConexion(true);
+                    }
+                });
+            }, { once: true });
+        }
     </script>
 </body>
 </html>

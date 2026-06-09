@@ -332,13 +332,10 @@ async function cargarConfiguracion() {
 
 
     reemplazarPlaceholders();
-
-
-
-
-
-
-
+    
+    // Notificar que CONFIG está listo
+    window.dispatchEvent(new CustomEvent('configLoaded', { detail: CONFIG }));
+    console.log('Evento configLoaded disparado');
 }
 
 
