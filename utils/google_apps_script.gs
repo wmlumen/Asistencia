@@ -39,7 +39,7 @@ function getSheet_(name) {
     } else if (name === SHEET_RESUMEN) {
       sheet.appendRow(['Cedula','Nombre','Carrera','TotalClases','Presentes','Tardanzas','AusJustificadas','Ausencias','Porcentaje']);
     } else if (name === SHEET_PLANIFICACION) {
-      sheet.appendRow(['CODIGO','Cedula','Nombre y Apellido','COD_ASIGNATURA','COD_SECCION','COD_CARRERA','Fecha de Inicio','Fecha de Cierre']);
+      sheet.appendRow(['CODIGO','Cedula','Nombre y Apellido','COD_ASIGNATURA','COD_SECCION','COD_CARRERA','Fecha de Inicio','Fecha de Cierre','SALA','SEDE','Modalidad','Observaciones']);
     }
   }
   return sheet;
@@ -154,6 +154,10 @@ function doGet(e) {
       const codCarrera = (data.codCarrera || '').trim();
       const fechaInicio = (data.fechaInicio || '').trim();
       const fechaCierre = (data.fechaCierre || '').trim();
+      const sala = (data.sala || '').trim();
+      const sede = (data.sede || '').trim();
+      const modalidad = (data.modalidad || '').trim();
+      const observaciones = (data.observaciones || '').trim();
       
       if (!codigo || !cedula || !nombre || !codAsignatura || !codSeccion || !codCarrera || !fechaInicio || !fechaCierre) {
         return jsonResponse({ ok: false, error: 'Faltan datos requeridos para planificación' });
@@ -171,10 +175,10 @@ function doGet(e) {
       }
       
       if (filaEditar > 0) {
-        sheet.getRange(filaEditar, 1, 1, 8).setValues([[codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre]]);
+        sheet.getRange(filaEditar, 1, 1, 12).setValues([[codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones]]);
         return jsonResponse({ ok: true, mensaje: 'Planificación actualizada correctamente', codigo: codigo });
       } else {
-        sheet.appendRow([codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre]);
+        sheet.appendRow([codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones]);
         return jsonResponse({ ok: true, mensaje: 'Planificación guardada correctamente', codigo: codigo });
       }
     }

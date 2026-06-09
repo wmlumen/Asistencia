@@ -363,6 +363,27 @@
                     <input type="date" id="planif-fecha-cierre">
                 </div>
                 <div class="form-group">
+                    <label>Sala</label>
+                    <input type="text" id="planif-sala" placeholder="Ej: Aula 1, Sala A">
+                </div>
+                <div class="form-group">
+                    <label>Sede</label>
+                    <input type="text" id="planif-sede" placeholder="Ej: Sede Central, Campus Norte">
+                </div>
+                <div class="form-group">
+                    <label>Modalidad</label>
+                    <select id="planif-modalidad">
+                        <option value="">-- Seleccione --</option>
+                        <option value="Presencial">Presencial</option>
+                        <option value="Virtual">Virtual</option>
+                        <option value="Híbrida">Híbrida</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Observaciones</label>
+                    <input type="text" id="planif-observaciones" placeholder="Notas adicionales">
+                </div>
+                <div class="form-group">
                     <label>Código Generado</label>
                     <div class="codigo-preview" id="codigoPreview">---</div>
                 </div>
@@ -390,6 +411,10 @@
                         <th>COD_CARRERA</th>
                         <th>Fecha Inicio</th>
                         <th>Fecha Cierre</th>
+                        <th>SALA</th>
+                        <th>SEDE</th>
+                        <th>Modalidad</th>
+                        <th>Observaciones</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -536,6 +561,10 @@
                 document.getElementById('planif-carrera').value = '';
                 document.getElementById('planif-fecha-inicio').value = '';
                 document.getElementById('planif-fecha-cierre').value = '';
+                document.getElementById('planif-sala').value = '';
+                document.getElementById('planif-sede').value = '';
+                document.getElementById('planif-modalidad').value = '';
+                document.getElementById('planif-observaciones').value = '';
                 document.getElementById('codigoPreview').textContent = '---';
                 editandoIndex = -1;
                 planifEditandoCodigo = null;
@@ -550,6 +579,10 @@
             const carrera = document.getElementById('planif-carrera').value;
             const fechaInicio = document.getElementById('planif-fecha-inicio').value;
             const fechaCierre = document.getElementById('planif-fecha-cierre').value;
+            const sala = document.getElementById('planif-sala').value.trim();
+            const sede = document.getElementById('planif-sede').value.trim();
+            const modalidad = document.getElementById('planif-modalidad').value;
+            const observaciones = document.getElementById('planif-observaciones').value.trim();
             
             if (!cedula || !nombre || !asignatura || !seccion || !carrera || !fechaInicio || !fechaCierre) {
                 alert('Complete todos los campos obligatorios.');
@@ -586,6 +619,10 @@
                 params.append('codCarrera', carrera);
                 params.append('fechaInicio', fechaInicio);
                 params.append('fechaCierre', fechaCierre);
+                params.append('sala', sala);
+                params.append('sede', sede);
+                params.append('modalidad', modalidad);
+                params.append('observaciones', observaciones);
                 
                 const url = apiUrlSave + '?' + params.toString();
                 console.log('Enviando a API:', url);
@@ -620,7 +657,7 @@
             const tbody = document.getElementById('tbodyPlanif');
             
             if (planificaciones.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#999;"><i class="fas fa-cloud" style="font-size:24px;display:block;margin-bottom:10px;"></i>No hay planificaciones cargadas desde Google Sheets.<br><span style="font-size:12px;">Haga clic en "Recargar Sheets" para cargar los datos.</span></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:30px;color:#999;"><i class="fas fa-cloud" style="font-size:24px;display:block;margin-bottom:10px;"></i>No hay planificaciones cargadas desde Google Sheets.<br><span style="font-size:12px;">Haga clic en "Recargar Sheets" para cargar los datos.</span></td></tr>';
                 return;
             }
             
@@ -635,6 +672,10 @@
                 html += '<td>' + (p.COD_CARRERA || p.codCarrera || '') + '</td>';
                 html += '<td>' + formatearFecha(p['Fecha de Inicio'] || p.fechaInicio || '') + '</td>';
                 html += '<td>' + formatearFecha(p['Fecha de Cierre'] || p.fechaCierre || '') + '</td>';
+                html += '<td>' + (p.SALA || p.sala || '') + '</td>';
+                html += '<td>' + (p.SEDE || p.sede || '') + '</td>';
+                html += '<td>' + (p.Modalidad || p.modalidad || '') + '</td>';
+                html += '<td>' + (p.Observaciones || p.observaciones || '') + '</td>';
                 html += '<td class="acciones-cell">';
                 html += '<button class="btn-small btn-copy" onclick="copiarCodigo(\'' + (p.CODIGO || p.codigo) + '\')" title="Copiar código"><i class="fas fa-copy"></i></button>';
                 html += '<button class="btn-small btn-edit" onclick="editarPlanif(' + index + ')" title="Editar"><i class="fas fa-edit"></i></button>';
@@ -706,6 +747,10 @@
             document.getElementById('planif-carrera').value = p.COD_CARRERA || p.codCarrera || '';
             document.getElementById('planif-fecha-inicio').value = p['Fecha de Inicio'] || p.fechaInicio || '';
             document.getElementById('planif-fecha-cierre').value = p['Fecha de Cierre'] || p.fechaCierre || '';
+            document.getElementById('planif-sala').value = p.SALA || p.sala || '';
+            document.getElementById('planif-sede').value = p.SEDE || p.sede || '';
+            document.getElementById('planif-modalidad').value = p.Modalidad || p.modalidad || '';
+            document.getElementById('planif-observaciones').value = p.Observaciones || p.observaciones || '';
             document.getElementById('codigoPreview').textContent = p.CODIGO || p.codigo || '';
             
             document.getElementById('formPlanif').style.display = 'block';
@@ -724,9 +769,9 @@
                 return;
             }
             
-            let csv = 'CODIGO,Cedula,Nombre y Apellido,COD_ASIGNATURA,COD_SECCION,COD_CARRERA,Fecha de Inicio,Fecha de Cierre\n';
+            let csv = 'CODIGO,Cedula,Nombre y Apellido,COD_ASIGNATURA,COD_SECCION,COD_CARRERA,Fecha de Inicio,Fecha de Cierre,SALA,SEDE,Modalidad,Observaciones\n';
             planificaciones.forEach(p => {
-                csv += (p.CODIGO || p.codigo || '') + ',' + (p.Cedula || p.cedula || '') + ',' + (p['Nombre y Apellido'] || p.nombre || '') + ',' + (p.COD_ASIGNATURA || p.codAsignatura || '') + ',' + (p.COD_SECCION || p.codSeccion || '') + ',' + (p.COD_CARRERA || p.codCarrera || '') + ',' + (p['Fecha de Inicio'] || p.fechaInicio || '') + ',' + (p['Fecha de Cierre'] || p.fechaCierre || '') + '\n';
+                csv += (p.CODIGO || p.codigo || '') + ',' + (p.Cedula || p.cedula || '') + ',' + (p['Nombre y Apellido'] || p.nombre || '') + ',' + (p.COD_ASIGNATURA || p.codAsignatura || '') + ',' + (p.COD_SECCION || p.codSeccion || '') + ',' + (p.COD_CARRERA || p.codCarrera || '') + ',' + (p['Fecha de Inicio'] || p.fechaInicio || '') + ',' + (p['Fecha de Cierre'] || p.fechaCierre || '') + ',' + (p.SALA || p.sala || '') + ',' + (p.SEDE || p.sede || '') + ',' + (p.Modalidad || p.modalidad || '') + ',' + (p.Observaciones || p.observaciones || '') + '\n';
             });
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
