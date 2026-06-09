@@ -278,16 +278,60 @@
             carreras: []
         };
         
-        // Cargar desde localStorage
+        // Cargar desde localStorage (ambos formatos)
         function cargarCatalogos() {
+            // Intentar 1: Formato admin (estructurado)
             const guardado = localStorage.getItem(STORAGE_KEY);
             if (guardado) {
-                catalogos = JSON.parse(guardado);
-            } else {
-                // Cargar defaults
-                cargarDefaults();
+                try {
+                    catalogos = JSON.parse(guardado);
+                    renderizarTodo();
+                    return;
+                } catch (e) {
+                    console.error('Error parseando admin_catalogos_centuria:', e);
+                }
             }
-            renderizarTodo();
+            
+            // Intentar 2: Formato de otras páginas (cat_asignaturas, cat_secciones, cat_carreras)
+            const asignaturasRaw = localStorage.getItem('cat_asignaturas');
+            const seccionesRaw = localStorage.getItem('cat_secciones');
+            const carrerasRaw = localStorage.getItem('cat_carreras');
+            
+            if (asignaturasRaw || seccionesRaw || carrerasRaw) {
+                catalogos.asignaturas = parsearFormatoPaginas(asignaturasRaw);
+                catalogos.secciones = parsearFormatoPaginas(seccionesRaw);
+                catalogos.carreras = parsearFormatoPaginas(carrerasRaw);
+                
+                // Guardar en formato admin para futuro
+                guardarCatalogos();
+                renderizarTodo();
+                mostrarStatus('Datos cargados desde configuración existente', 'success');
+                return;
+            }
+            
+            // Si no hay nada, cargar defaults
+            cargarDefaults();
+        }
+        
+        // Convertir formato "01-Sociología" a {codigo: "01", nombre: "Sociología"}
+        function parsearFormatoPaginas(raw) {
+            if (!raw) return [];
+            try {
+                const array = JSON.parse(raw);
+                if (!Array.isArray(array)) return [];
+                return array.map(item => {
+                    const partes = item.split('-');
+                    if (partes.length >= 2) {
+                        return {
+                            codigo: partes[0],
+                            nombre: partes.slice(1).join('-')
+                        };
+                    }
+                    return { codigo: item, nombre: item };
+                });
+            } catch (e) {
+                return [];
+            }
         }
         
         // Valores por defecto
