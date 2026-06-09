@@ -7,6 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="institutional.css">
     <script src="script.js?v=2"></script>
     <style>
         /* ============================================
@@ -1314,8 +1315,11 @@
             <div class="top-row">
                 <div class="header-card animate-in">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                        <div class="institution-badge">
-                            <i class="fas fa-university"></i> Instituto Superior Centuria
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <img src="logo_centuria_blanco.png" alt="Logo Centuria" style="height:40px;">
+                            <div class="institution-badge">
+                                <i class="fas fa-university"></i> Instituto Superior Centuria
+                            </div>
                         </div>
                         <a href="index.html" style="color:white;font-size:11px;text-decoration:none;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(10px);transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)';" onmouseout="this.style.background='rgba(255,255,255,0.15)';">
                             <i class="fas fa-home" style="font-size:10px;"></i> Volver al inicio
@@ -1555,14 +1559,21 @@
                     
                     const resultado = {};
                     
-                    // Para cada campo, buscar el primer valor no vacío en orden cronológico inverso
-                    const campos = ['nombre', 'carrera', 'seccion', 'section', 'career'];
-                    campos.forEach(campo => {
+                    // Mapeo de campos: clave_resultado -> [posibles_nombres_en_registro]
+                    const camposMap = {
+                        'nombre': ['nombre', 'Nombre', 'studentName'],
+                        'carrera': ['carrera', 'Carrera', 'career'],
+                        'seccion': ['seccion', 'Seccion', 'section']
+                    };
+                    
+                    Object.entries(camposMap).forEach(([campoResultado, posiblesNombres]) => {
                         for (const reg of ordenados) {
-                            const valor = reg[campo] || reg[campo.charAt(0).toUpperCase() + campo.slice(1)] || '';
-                            if (valor && valor.toString().trim()) {
-                                resultado[campo] = valor.toString().trim();
-                                break;
+                            for (const nombreCampo of posiblesNombres) {
+                                const valor = reg[nombreCampo];
+                                if (valor && valor.toString().trim()) {
+                                    resultado[campoResultado] = valor.toString().trim();
+                                    return; // break del forEach
+                                }
                             }
                         }
                     });
@@ -1608,7 +1619,7 @@
                             
                             // Buscar en la API
                             try {
-                                const apiUrl = typeof CONFIG !== 'undefined' && CONFIG.asistenciaApiUrl ? CONFIG.asistenciaApiUrl : '';
+                                const apiUrl = typeof CONFIG !== 'undefined' && CONFIG.asistencia_api_url ? CONFIG.asistencia_api_url : '';
                                 if (apiUrl) {
                                     const response = await fetch(apiUrl + '?modo=buscar&cedula=' + encodeURIComponent(cedulaLimpia) + '&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
                                     if (response.ok) {

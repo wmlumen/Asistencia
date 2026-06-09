@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planilla de Planificación - Instituto Superior Centuria</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="institutional.css">
+    <script src="script.js?v=2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .planificacion-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header-planif {
+            background: linear-gradient(135deg, var(--primary-green, #0a4d2a) 0%, var(--accent-color, #0d6335) 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .header-planif img {
+            height: 60px;
+        }
+        
+        .header-planif h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .header-planif p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        /* Controles */
+        .controles-planif {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .btn-primary {
+            background: var(--primary-green, #0a4d2a);
+            color: white;
+            border-color: var(--primary-green, #0a4d2a);
+        }
+        
+        .btn-primary:hover {
+            background: #073a20;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        /* Formulario */
+        .form-planif {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .form-planif h3 {
+            font-size: 16px;
+            color: var(--primary-green, #0a4d2a);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-green, #0a4d2a);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .form-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 8px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-green, #0a4d2a);
+        }
+        
+        .codigo-preview {
+            background: #f8f9fa;
+            border: 2px dashed var(--primary-green, #0a4d2a);
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-green, #0a4d2a);
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Tabla */
+        .tabla-planif-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .tabla-planif {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .tabla-planif thead {
+            background: linear-gradient(135deg, var(--primary-green, #0a4d2a) 0%, var(--accent-color, #0d6335) 100%);
+            color: white;
+        }
+        
+        .tabla-planif th {
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .tabla-planif th:last-child {
+            border-right: none;
+        }
+        
+        .tabla-planif td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
+        }
+        
+        .tabla-planif td:last-child {
+            border-right: none;
+        }
+        
+        .tabla-planif tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .tabla-planif tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .codigo-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: var(--primary-green, #0a4d2a);
+            font-size: 11px;
+        }
+        
+        .acciones-cell {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .btn-edit {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-copy {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        /* Leyenda */
+        .leyenda-planif {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .leyenda-planif strong {
+            color: var(--primary-green, #0a4d2a);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabla-planif {
+                font-size: 10px;
+            }
+            
+            .tabla-planif th,
+            .tabla-planif td {
+                padding: 6px 4px;
+            }
+        }
+        
+        @media print {
+            .controles-planif,
+            .form-planif,
+            .acciones-cell,
+            .btn {
+                display: none !important;
+            }
+            
+            .tabla-planif-container {
+                border: 1px solid #333;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="planificacion-wrapper">
+        <!-- Header -->
+        <div class="header-planif">
+            <img src="logo_centuria_blanco.png" alt="Logo Centuria">
+            <div>
+                <h1><i class="fas fa-calendar-alt"></i> PLANILLA DE PLANIFICACIÓN</h1>
+                <p>Instituto Superior Centuria - Generación de códigos de vinculación</p>
+            </div>
+            <a href="index.html" class="btn" style="margin-left:auto;background:rgba(255,255,255,0.2);color:white;border:none;">
+                <i class="fas fa-home"></i> Inicio
+            </a>
+        </div>
+        
+        <!-- Controles -->
+        <div class="controles-planif">
+            <button class="btn btn-primary" onclick="toggleFormulario()">
+                <i class="fas fa-plus"></i> Nueva Planificación
+            </button>
+            <button class="btn btn-success" onclick="exportarPlanificacion()">
+                <i class="fas fa-file-csv"></i> Exportar CSV
+            </button>
+            <button class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            <button class="btn" onclick="sincronizarConAsistencia()">
+                <i class="fas fa-sync"></i> Vincular con Asistencia
+            </button>
+            <span id="statusPlanif" style="font-size:12px;color:#666;"></span>
+        </div>
+        
+        <!-- Formulario -->
+        <div class="form-planif" id="formPlanif" style="display:none;">
+            <h3><i class="fas fa-edit"></i> Datos de la Planificación</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Cédula del Docente</label>
+                    <input type="text" id="planif-cedula" placeholder="Ej: 1340130" oninput="generarCodigoPreview()">
+                </div>
+                <div class="form-group">
+                    <label>Nombre y Apellido</label>
+                    <input type="text" id="planif-nombre" placeholder="Ej: CHRISTHIAN JOSE RAUL KEIM" oninput="this.value = this.value.toUpperCase()">
+                </div>
+                <div class="form-group">
+                    <label>Asignatura</label>
+                    <select id="planif-asignatura" onchange="generarCodigoPreview()">
+                        <option value="">-- Seleccione --</option>
+                        <option value="01-Sociología">01 - Sociología</option>
+                        <option value="02-Contabilidad">02 - Contabilidad</option>
+                        <option value="03-Administración">03 - Administración</option>
+                        <option value="04-Derecho">04 - Derecho</option>
+                        <option value="05-Economía">05 - Economía</option>
+                        <option value="06-Matemáticas">06 - Matemáticas</option>
+                        <option value="07-Informática">07 - Informática</option>
+                        <option value="08-Pedagogía">08 - Pedagogía</option>
+                        <option value="09-Psicología">09 - Psicología</option>
+                        <option value="10-Comunicación">10 - Comunicación</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sección</label>
+                    <select id="planif-seccion" onchange="generarCodigoPreview()">
+                        <option value="">-- Seleccione --</option>
+                        <option value="01-S026">01 - S026 (Sábado)</option>
+                        <option value="02-LV026">02 - LV026 (Lunes-Viernes)</option>
+                        <option value="03-M026">03 - M026 (Mañana)</option>
+                        <option value="04-T026">04 - T026 (Tarde)</option>
+                        <option value="05-N026">05 - N026 (Noche)</option>
+                        <option value="06-VL026">06 - VL026 (Virtual)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Carrera</label>
+                    <select id="planif-carrera">
+                        <option value="">-- Seleccione --</option>
+                        <option value="01-Licenciatura Administración de Empresas">01 - Licenciatura Administración de Empresas</option>
+                        <option value="02-Licenciatura Contabilidad">02 - Licenciatura Contabilidad</option>
+                        <option value="03-Ingeniería Comercial">03 - Ingeniería Comercial</option>
+                        <option value="04-Licenciatura Administración Aduanera">04 - Licenciatura Administración Aduanera</option>
+                        <option value="05-Licenciatura Administración y Gestión Pública">05 - Licenciatura Administración y Gestión Pública</option>
+                        <option value="06-Maestría Administración y Gestión Pública">06 - Maestría Administración y Gestión Pública</option>
+                        <option value="07-Otro">07 - Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Inicio</label>
+                    <input type="date" id="planif-fecha-inicio">
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Cierre</label>
+                    <input type="date" id="planif-fecha-cierre">
+                </div>
+                <div class="form-group">
+                    <label>Código Generado</label>
+                    <div class="codigo-preview" id="codigoPreview">---</div>
+                </div>
+            </div>
+            <div style="margin-top:15px;display:flex;gap:10px;">
+                <button class="btn btn-success" onclick="guardarPlanificacion()">
+                    <i class="fas fa-save"></i> Guardar Planificación
+                </button>
+                <button class="btn" onclick="toggleFormulario()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tabla -->
+        <div class="tabla-planif-container">
+            <table class="tabla-planif" id="tablaPlanif">
+                <thead>
+                    <tr>
+                        <th>CÓDIGO</th>
+                        <th>Cédula</th>
+                        <th>Nombre y Apellido</th>
+                        <th>COD_ASIGNATURA</th>
+                        <th>COD_SECCIÓN</th>
+                        <th>COD_CARRERA</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Cierre</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyPlanif">
+                    <!-- Se genera dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Leyenda -->
+        <div class="leyenda-planif">
+            <strong><i class="fas fa-info-circle"></i> Formato del Código:</strong> 
+            CÉDULA-COD_ASIG-COD_SEC-CORRELATIVO (Ej: 1340130-01-01-01)
+            <br>
+            <strong>Vinculación:</strong> Este código se puede usar en las páginas de asistencia para cargar automáticamente los datos del docente, asignatura y sección.
+        </div>
+    </div>
+
+    <script>
+        // Datos de planificación
+        let planificaciones = [];
+        let editandoIndex = -1;
+        let planifEditandoCodigo = null;
+        
+        const apiUrl = typeof CONFIG !== 'undefined' && CONFIG.asistencia_api_url ? CONFIG.asistencia_api_url : '';
+        const apiKey = typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!';
+        
+        // Cargar desde API al iniciar
+        async function cargarPlanificaciones() {
+            const status = document.getElementById('statusPlanif');
+            status.textContent = 'Cargando desde Google Sheets...';
+            
+            try {
+                const url = apiUrl + '?modo=planificaciones&apiKey=' + encodeURIComponent(apiKey);
+                const resp = await fetch(url);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    planificaciones = data.planificaciones || [];
+                    // También guardar en localStorage como respaldo
+                    localStorage.setItem('planificaciones_centuria', JSON.stringify(planificaciones));
+                    status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> ' + planificaciones.length + ' planificaciones cargadas desde Sheets';
+                    setTimeout(() => status.textContent = '', 3000);
+                } else {
+                    throw new Error('Error HTTP: ' + resp.status);
+                }
+            } catch (err) {
+                console.error('Error cargando desde API:', err);
+                // Fallback a localStorage
+                planificaciones = JSON.parse(localStorage.getItem('planificaciones_centuria') || '[]');
+                status.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Usando datos locales (' + planificaciones.length + ')';
+                setTimeout(() => status.textContent = '', 3000);
+            }
+            
+            renderizarTabla();
+        }
+        
+        // Contador por combinación cédula-asig-sec
+        function getNextCorrelativo(cedula, codAsig, codSec) {
+            const prefix = cedula + '-' + codAsig + '-' + codSec;
+            const existentes = planificaciones.filter(p => p.codigo && p.codigo.startsWith(prefix));
+            const maxCorr = existentes.reduce((max, p) => {
+                const parts = (p.codigo || '').split('-');
+                const corr = parseInt(parts[3] || 0);
+                return corr > max ? corr : max;
+            }, 0);
+            return String(maxCorr + 1).padStart(2, '0');
+        }
+        
+        function generarCodigoPreview() {
+            const cedula = document.getElementById('planif-cedula').value.trim();
+            const asignatura = document.getElementById('planif-asignatura').value;
+            const seccion = document.getElementById('planif-seccion').value;
+            
+            if (!cedula || !asignatura || !seccion) {
+                document.getElementById('codigoPreview').textContent = '---';
+                return;
+            }
+            
+            const codAsig = asignatura.split('-')[0];
+            const codSec = seccion.split('-')[0];
+            const correlativo = planifEditandoCodigo 
+                ? planifEditandoCodigo.split('-')[3]
+                : getNextCorrelativo(cedula, codAsig, codSec);
+            
+            const codigo = cedula + '-' + codAsig + '-' + codSec + '-' + correlativo;
+            document.getElementById('codigoPreview').textContent = codigo;
+        }
+        
+        function toggleFormulario() {
+            const form = document.getElementById('formPlanif');
+            const isVisible = form.style.display !== 'none';
+            form.style.display = isVisible ? 'none' : 'block';
+            
+            if (isVisible) {
+                // Limpiar formulario
+                document.getElementById('planif-cedula').value = '';
+                document.getElementById('planif-nombre').value = '';
+                document.getElementById('planif-asignatura').value = '';
+                document.getElementById('planif-seccion').value = '';
+                document.getElementById('planif-carrera').value = '';
+                document.getElementById('planif-fecha-inicio').value = '';
+                document.getElementById('planif-fecha-cierre').value = '';
+                document.getElementById('codigoPreview').textContent = '---';
+                editandoIndex = -1;
+                planifEditandoCodigo = null;
+            }
+        }
+        
+        async function guardarPlanificacion() {
+            const cedula = document.getElementById('planif-cedula').value.trim();
+            const nombre = document.getElementById('planif-nombre').value.trim().toUpperCase();
+            const asignatura = document.getElementById('planif-asignatura').value;
+            const seccion = document.getElementById('planif-seccion').value;
+            const carrera = document.getElementById('planif-carrera').value;
+            const fechaInicio = document.getElementById('planif-fecha-inicio').value;
+            const fechaCierre = document.getElementById('planif-fecha-cierre').value;
+            
+            if (!cedula || !nombre || !asignatura || !seccion || !carrera || !fechaInicio || !fechaCierre) {
+                alert('Complete todos los campos obligatorios.');
+                return;
+            }
+            
+            const codAsig = asignatura.split('-')[0];
+            const codSec = seccion.split('-')[0];
+            
+            let codigo;
+            if (planifEditandoCodigo) {
+                codigo = planifEditandoCodigo;
+            } else {
+                const correlativo = getNextCorrelativo(cedula, codAsig, codSec);
+                codigo = cedula + '-' + codAsig + '-' + codSec + '-' + correlativo;
+            }
+            
+            const status = document.getElementById('statusPlanif');
+            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando en Google Sheets...';
+            
+            try {
+                // Enviar a Google Apps Script via POST
+                const params = new URLSearchParams();
+                params.append('modo', 'planificacion');
+                params.append('apiKey', apiKey);
+                params.append('codigo', codigo);
+                params.append('cedula', cedula);
+                params.append('nombre', nombre);
+                params.append('codAsignatura', asignatura);
+                params.append('codSeccion', seccion);
+                params.append('codCarrera', carrera);
+                params.append('fechaInicio', fechaInicio);
+                params.append('fechaCierre', fechaCierre);
+                
+                const resp = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params.toString()
+                });
+                
+                const result = await resp.json();
+                
+                if (result.ok) {
+                    status.innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> Guardado en Google Sheets correctamente';
+                    // Recargar desde API
+                    await cargarPlanificaciones();
+                    toggleFormulario();
+                } else {
+                    throw new Error(result.error || 'Error desconocido');
+                }
+            } catch (err) {
+                console.error('Error guardando:', err);
+                status.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#dc3545;"></i> Error: ' + err.message;
+                
+                // Fallback: guardar solo en localStorage
+                const planif = {
+                    codigo: codigo,
+                    cedula: cedula,
+                    nombre: nombre,
+                    codAsignatura: asignatura,
+                    codSeccion: seccion,
+                    codCarrera: carrera,
+                    fechaInicio: fechaInicio,
+                    fechaCierre: fechaCierre
+                };
+                
+                if (editandoIndex >= 0) {
+                    planificaciones[editandoIndex] = planif;
+                } else {
+                    planificaciones.push(planif);
+                }
+                localStorage.setItem('planificaciones_centuria', JSON.stringify(planificaciones));
+                renderizarTabla();
+                toggleFormulario();
+            }
+            
+            setTimeout(() => status.textContent = '', 5000);
+        }
+        
+        function renderizarTabla() {
+            const tbody = document.getElementById('tbodyPlanif');
+            
+            if (planificaciones.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#999;"><i class="fas fa-inbox" style="font-size:24px;display:block;margin-bottom:10px;"></i>No hay planificaciones registradas</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            planificaciones.forEach((p, index) => {
+                html += '<tr>';
+                html += '<td class="codigo-cell">' + (p.CODIGO || p.codigo || '') + '</td>';
+                html += '<td>' + (p.Cedula || p.cedula || '') + '</td>';
+                html += '<td>' + (p['Nombre y Apellido'] || p.nombre || '') + '</td>';
+                html += '<td>' + (p.COD_ASIGNATURA || p.codAsignatura || '') + '</td>';
+                html += '<td>' + (p.COD_SECCION || p.codSeccion || '') + '</td>';
+                html += '<td>' + (p.COD_CARRERA || p.codCarrera || '') + '</td>';
+                html += '<td>' + formatearFecha(p['Fecha de Inicio'] || p.fechaInicio || '') + '</td>';
+                html += '<td>' + formatearFecha(p['Fecha de Cierre'] || p.fechaCierre || '') + '</td>';
+                html += '<td class="acciones-cell">';
+                html += '<button class="btn-small btn-copy" onclick="copiarCodigo(\'' + (p.CODIGO || p.codigo) + '\')" title="Copiar código"><i class="fas fa-copy"></i></button>';
+                html += '<button class="btn-small btn-edit" onclick="editarPlanif(' + index + ')" title="Editar"><i class="fas fa-edit"></i></button>';
+                html += '<button class="btn-small btn-delete" onclick="eliminarPlanif(' + index + ')" title="Eliminar"><i class="fas fa-trash"></i></button>';
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        function formatearFecha(fechaStr) {
+            if (!fechaStr) return '';
+            // Si ya viene en formato DD/MM/YYYY desde Sheets
+            if (fechaStr.includes('/')) return fechaStr;
+            const partes = fechaStr.split('-');
+            if (partes.length === 3) {
+                return partes[2] + '/' + partes[1] + '/' + partes[0];
+            }
+            return fechaStr;
+        }
+        
+        function copiarCodigo(codigo) {
+            navigator.clipboard.writeText(codigo).then(() => {
+                alert('Código copiado: ' + codigo);
+            });
+        }
+        
+        function editarPlanif(index) {
+            const p = planificaciones[index];
+            editandoIndex = index;
+            planifEditandoCodigo = p.CODIGO || p.codigo;
+            
+            document.getElementById('planif-cedula').value = p.Cedula || p.cedula || '';
+            document.getElementById('planif-nombre').value = p['Nombre y Apellido'] || p.nombre || '';
+            document.getElementById('planif-asignatura').value = p.COD_ASIGNATURA || p.codAsignatura || '';
+            document.getElementById('planif-seccion').value = p.COD_SECCION || p.codSeccion || '';
+            document.getElementById('planif-carrera').value = p.COD_CARRERA || p.codCarrera || '';
+            document.getElementById('planif-fecha-inicio').value = p['Fecha de Inicio'] || p.fechaInicio || '';
+            document.getElementById('planif-fecha-cierre').value = p['Fecha de Cierre'] || p.fechaCierre || '';
+            document.getElementById('codigoPreview').textContent = p.CODIGO || p.codigo || '';
+            
+            document.getElementById('formPlanif').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+        
+        function eliminarPlanif(index) {
+            if (!confirm('¿Eliminar esta planificación?\n\nNota: Esto solo elimina del almacenamiento local. Para eliminar de Google Sheets, debe hacerlo manualmente desde la planilla.')) return;
+            planificaciones.splice(index, 1);
+            localStorage.setItem('planificaciones_centuria', JSON.stringify(planificaciones));
+            renderizarTabla();
+        }
+        
+        function exportarPlanificacion() {
+            if (planificaciones.length === 0) {
+                alert('No hay datos para exportar');
+                return;
+            }
+            
+            let csv = 'CODIGO,Cedula,Nombre y Apellido,COD_ASIGNATURA,COD_SECCION,COD_CARRERA,Fecha de Inicio,Fecha de Cierre\n';
+            planificaciones.forEach(p => {
+                csv += (p.CODIGO || p.codigo || '') + ',' + (p.Cedula || p.cedula || '') + ',' + (p['Nombre y Apellido'] || p.nombre || '') + ',' + (p.COD_ASIGNATURA || p.codAsignatura || '') + ',' + (p.COD_SECCION || p.codSeccion || '') + ',' + (p.COD_CARRERA || p.codCarrera || '') + ',' + (p['Fecha de Inicio'] || p.fechaInicio || '') + ',' + (p['Fecha de Cierre'] || p.fechaCierre || '') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'planificacion_centuria_' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+        }
+        
+        function sincronizarConAsistencia() {
+            if (planificaciones.length === 0) {
+                alert('No hay planificaciones para vincular');
+                return;
+            }
+            
+            localStorage.setItem('planificaciones_activas', JSON.stringify(planificaciones));
+            
+            document.getElementById('statusPlanif').innerHTML = '<i class="fas fa-check-circle" style="color:#28a745;"></i> ' + planificaciones.length + ' planificaciones vinculadas con Asistencia';
+            setTimeout(() => document.getElementById('statusPlanif').textContent = '', 5000);
+        }
+        
+        // Inicializar
+        cargarPlanificaciones();
+    </script>
+</body>
+</html>

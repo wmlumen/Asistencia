@@ -8613,6 +8613,7 @@ function renderTeacherLoginOverlay(containerId, onSuccess) {
     container.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;padding:20px;">
             <div style="background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:16px;padding:32px;max-width:400px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+                <img src="logo_centuria.png" alt="Logo Centuria" style="height:70px;margin-bottom:12px;">
                 <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:white;font-size:22px;">
                     <i class="fas fa-lock"></i>
                 </div>
@@ -8668,6 +8669,88 @@ function addTeacherLogoutButton(targetSelector) {
     });
     target.appendChild(btn);
 }
+
+/* ============================================================
+   FUNCIONES DE PLANIFICACIÓN (planificacion.html)
+   ============================================================ */
+
+function loadPlanificaciones() {
+    try {
+        return JSON.parse(localStorage.getItem('planificaciones_centuria') || '[]');
+    } catch (e) {
+        return [];
+    }
+}
+
+function buscarPlanificacionPorCodigo(codigo) {
+    const planifs = loadPlanificaciones();
+    return planifs.find(p => p.codigo === codigo) || null;
+}
+
+function buscarPlanificacionPorCedula(cedula) {
+    const planifs = loadPlanificaciones();
+    const cedulaLimpia = cedula.toString().replace(/\./g, '').trim();
+    return planifs.filter(p => p.cedula === cedulaLimpia);
+}
+
+function autocompletarDesdePlanificacion(codigo, campos) {
+    const planif = buscarPlanificacionPorCodigo(codigo);
+    if (!planif) return false;
+    
+    // campos = { cedula: 'id-cedula', nombre: 'id-nombre', carrera: 'id-carrera', seccion: 'id-seccion', asignatura: 'id-asignatura' }
+    let completados = [];
+    
+    if (campos.cedula && planif.cedula) {
+        const el = document.getElementById(campos.cedula);
+        if (el) { el.value = planif.cedula; completados.push('Cédula'); }
+    }
+    if (campos.nombre && planif.nombre) {
+        const el = document.getElementById(campos.nombre);
+        if (el) { el.value = planif.nombre; completados.push('Nombre'); }
+    }
+    if (campos.carrera && planif.codCarrera) {
+        const el = document.getElementById(campos.carrera);
+        if (el) { 
+            // Extraer solo el nombre sin el código
+            const nombreCarrera = planif.codCarrera.split('-').slice(1).join('-').trim();
+            el.value = nombreCarrera; 
+            completados.push('Carrera'); 
+        }
+    }
+    if (campos.seccion && planif.codSeccion) {
+        const el = document.getElementById(campos.seccion);
+        if (el) { 
+            const nombreSeccion = planif.codSeccion.split('-').slice(1).join('-').trim();
+            el.value = nombreSeccion; 
+            completados.push('Sección'); 
+        }
+    }
+    if (campos.asignatura && planif.codAsignatura) {
+        const el = document.getElementById(campos.asignatura);
+        if (el) { 
+            const nombreAsig = planif.codAsignatura.split('-').slice(1).join('-').trim();
+            el.value = nombreAsig; 
+            completados.push('Asignatura'); 
+        }
+    }
+    
+    return completados;
+}
+
+function extraerCodigoPlanif(codigoCompleto) {
+    // Formato: CEDULA-COD_ASIG-COD_SEC-CORRELATIVO
+    const partes = codigoCompleto.split('-');
+    if (partes.length >= 4) {
+        return {
+            cedula: partes[0],
+            codAsig: partes[1],
+            codSec: partes[2],
+            correlativo: partes[3]
+        };
+    }
+    return null;
+}
+
 
 
 

@@ -19,6 +19,7 @@
 const SPREADSHEET_ID = '1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA';
 const SHEET_REGISTRO = 'Registro';
 const SHEET_RESUMEN = 'Resumen';
+const SHEET_PLANIFICACION = 'Planificacion';
 
 // CAMBIAR ESTA CLAVE Y MANTENERLA EN SECRETO
 const API_SECRET = 'CenturiaApi2024!';
@@ -37,6 +38,8 @@ function getSheet_(name) {
       sheet.getRange('A:A').setNumberFormat('dd/MM/yyyy');
     } else if (name === SHEET_RESUMEN) {
       sheet.appendRow(['Cedula','Nombre','Carrera','TotalClases','Presentes','Tardanzas','AusJustificadas','Ausencias','Porcentaje']);
+    } else if (name === SHEET_PLANIFICACION) {
+      sheet.appendRow(['CODIGO','Cedula','Nombre y Apellido','COD_ASIGNATURA','COD_SECCION','COD_CARRERA','Fecha de Inicio','Fecha de Cierre']);
     }
   }
   return sheet;
@@ -123,6 +126,22 @@ function doGet(e) {
       return jsonResponse({ registros, total: registros.length });
     }
 
+    if (modo === 'planificaciones') {
+      const sheet = getSheet_(SHEET_PLANIFICACION);
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) return jsonResponse({ planificaciones: [] });
+      
+      const headers = values[0];
+      const planificaciones = values.slice(1).map(row => {
+        return headers.reduce((acc, h, i) => { 
+          acc[h] = row[i]; 
+          return acc; 
+        }, {});
+      });
+      
+      return jsonResponse({ planificaciones, total: planificaciones.length });
+    }
+
     // modo = 'registro' por defecto
     const sheet = getSheet_(SHEET_REGISTRO);
     const values = sheet.getDataRange().getValues();
@@ -166,6 +185,45 @@ function doPost(e) {
     const key = (data.apiKey || data.api_secret || '').trim();
     if (key !== API_SECRET) {
       return jsonResponse({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
+    }
+
+    // Modo planificación — guarda en hoja Planificacion
+    if (data.modo === 'planificacion') {
+      const sheet = getSheet_(SHEET_PLANIFICACION);
+      
+      const codigo = (data.codigo || '').trim();
+      const cedula = (data.cedula || '').toString().replace(/\./g, '').trim();
+      const nombre = (data.nombre || '').trim().toUpperCase();
+      const codAsignatura = (data.codAsignatura || '').trim();
+      const codSeccion = (data.codSeccion || '').trim();
+      const codCarrera = (data.codCarrera || '').trim();
+      const fechaInicio = (data.fechaInicio || '').trim();
+      const fechaCierre = (data.fechaCierre || '').trim();
+      
+      if (!codigo || !cedula || !nombre || !codAsignatura || !codSeccion || !codCarrera || !fechaInicio || !fechaCierre) {
+        return jsonResponse({ ok: false, error: 'Faltan datos requeridos para planificación' });
+      }
+      
+      // Verificar si ya existe el código (editar) o es nuevo
+      const valores = sheet.getDataRange().getValues();
+      let filaEditar = -1;
+      
+      for (let i = 1; i < valores.length; i++) {
+        if (valores[i][0] === codigo) {
+          filaEditar = i + 1; // +1 porque Sheets es 1-based
+          break;
+        }
+      }
+      
+      if (filaEditar > 0) {
+        // Editar fila existente
+        sheet.getRange(filaEditar, 1, 1, 8).setValues([[codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre]]);
+        return jsonResponse({ ok: true, mensaje: 'Planificación actualizada correctamente', codigo: codigo });
+      } else {
+        // Nueva fila
+        sheet.appendRow([codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre]);
+        return jsonResponse({ ok: true, mensaje: 'Planificación guardada correctamente', codigo: codigo });
+      }
     }
 
     // Modo justificación de ausencia — guarda en Registro con estado "Ausencia Justificada"
