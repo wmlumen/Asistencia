@@ -594,8 +594,8 @@
 
 async function cargarCalendarioDocente() {
     try {
-        const apiUrl = typeof getApiUrl === 'function' ? getApiUrl() : '';
-        const apiKey = typeof getApiKeyLocal === 'function' ? getApiKeyLocal() : '';
+        const apiUrl = typeof getAttendanceApiUrl === 'function' ? getAttendanceApiUrl() : '';
+        const apiKey = typeof getApiKey === 'function' ? getApiKey() : '';
         
         if (!apiUrl || !apiKey) {
             console.error('API no configurada');
@@ -968,96 +968,6 @@ function toggleRightSidebar() {
     }
 }
 
-async function cargarPlanificacionesDocente() {
-    try {
-        const apiUrl = typeof getApiUrl === 'function' ? getApiUrl() : '';
-        const apiKey = typeof getApiKeyLocal === 'function' ? getApiKeyLocal() : '';
-        const cedulaDocente = typeof CONFIG !== 'undefined' && CONFIG.cedula_docente ? CONFIG.cedula_docente : '';
-        
-        if (!apiUrl || !apiKey) {
-            mostrarPlanificacionesDocente([]);
-            return;
-        }
-        
-        const url = apiUrl + '?modo=planificaciones&apiKey=' + encodeURIComponent(apiKey);
-        const resp = await fetch(url);
-        const data = await resp.json();
-        
-        if (!data.planificaciones) {
-            mostrarPlanificacionesDocente([]);
-            return;
-        }
-        
-        // Filtrar planificaciones del docente actual
-        const planifsDocente = cedulaDocente 
-            ? data.planificaciones.filter(p => {
-                const cedula = (p.Cedula || p.cedula || '').toString().replace(/\./g, '').trim();
-                return cedula === cedulaDocente;
-              })
-            : data.planificaciones;
-        
-        mostrarPlanificacionesDocente(planifsDocente);
-        
-    } catch (err) {
-        console.error('Error cargando planificaciones del docente:', err);
-        mostrarPlanificacionesDocente([]);
-    }
-}
-
-function mostrarPlanificacionesDocente(planificaciones) {
-    const container = document.getElementById('right-sidebar-content');
-    if (!container) return;
-    
-    if (planificaciones.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-8">
-                <i class="fas fa-book-open text-3xl text-slate-300 mb-2"></i>
-                <p class="text-xs text-slate-500">No hay planificaciones vinculadas.</p>
-                <a href="planificacion.html" class="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block">Crear planificación</a>
-            </div>
-        `;
-        return;
-    }
-    
-    const hoy = new Date();
-    let html = '<div class="space-y-2">';
-    
-    planificaciones.forEach(p => {
-        const fechaInicio = new Date(p['Fecha de Inicio'] || p.fechaInicio);
-        const fechaCierre = new Date(p['Fecha de Cierre'] || p.fechaCierre);
-        
-        if (isNaN(fechaInicio) || isNaN(fechaCierre)) return;
-        
-        const esActiva = hoy >= fechaInicio && hoy <= fechaCierre;
-        const esProxima = fechaInicio > hoy;
-        const esFinalizada = fechaCierre < hoy;
-        
-        let estadoColor = 'bg-slate-100 text-slate-600';
-        let estadoTexto = 'Finalizada';
-        if (esActiva) {
-            estadoColor = 'bg-emerald-100 text-emerald-700';
-            estadoTexto = 'Activa';
-        } else if (esProxima) {
-            estadoColor = 'bg-blue-100 text-blue-700';
-            estadoTexto = 'Próxima';
-        }
-        
-        html += '<div class="border rounded-lg p-3 bg-white hover:bg-slate-50 transition-all cursor-pointer" onclick="window.location.href=\'planificacion.html\'">';
-        html += '<div class="flex justify-between items-start mb-1">';
-        html += '<strong class="text-xs text-slate-800">' + (p.COD_ASIGNATURA || p.codAsignatura || 'Sin asignatura') + '</strong>';
-        html += '<span class="text-[10px] font-medium px-2 py-0.5 rounded-full ' + estadoColor + '">' + estadoTexto + '</span>';
-        html += '</div>';
-        html += '<p class="text-[10px] text-slate-500">' + (p.COD_CARRERA || p.codCarrera || '') + ' | ' + (p.COD_SECCION || p.codSeccion || '') + '</p>';
-        html += '<div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-100">';
-        html += '<span class="text-[10px] text-slate-400">' + fechaInicio.toLocaleDateString('es-PY') + '</span>';
-        html += '<span class="text-[10px] text-slate-400">' + fechaCierre.toLocaleDateString('es-PY') + '</span>';
-        html += '</div>';
-        html += '</div>';
-    });
-    
-    html += '</div>';
-    container.innerHTML = html;
-}
 
 function mostrarInfoDocente() {
     const nombreEl = document.getElementById('docente-nombre');
@@ -1070,6 +980,112 @@ function mostrarInfoDocente() {
     if (typeof CONFIG !== 'undefined') {
         nombre = CONFIG.name_docente || CONFIG.nombre_docente || '';
         cedula = CONFIG.cedula_docente || CONFIG.cedula || '';
+    }
+    
+    // Fallback a localStorage
+    const stored = localStorage.getItem('teacher_session_data');
+    if (stored) {
+        try {
+            const data = JSON.parse(stored);
+            nombre = nombre || data.nombre || '';
+            cedula = cedula || data.cedula || '';
+        } catch (e) {}
+    }
+    
+    // Guardar cedula en un lugar accesible para planificaciones
+    if (cedula) {
+        localStorage.setItem('teacher_cedula', cedula);
+    }
+    
+    if (nombreEl) {
+        nombreEl.textContent = nombre || 'Docente';
+    }
+    if (cedulaEl) {
+        if (cedula) {
+            cedulaEl.textContent = 'C.I.: ' + cedula;
+        } else {
+            // Mostrar opción para configurar cédula
+            cedulaEl.innerHTML = `
+                <span class="text-amber-600">Sin configurar</span>
+                <button onclick="configurarCedulaDocente()" class="text-blue-600 hover:text-blue-800 ml-1 text-[10px] font-medium">
+                    <i class="fas fa-pen"></i>
+                </button>
+            `;
+        }
+    }
+}
+
+function configurarCedulaDocente() {
+    const cedula = prompt('Ingrese su número de cédula (sin puntos):');
+    if (cedula && cedula.trim()) {
+        const limpia = cedula.replace(/\./g, '').trim();
+        localStorage.setItem('teacher_cedula', limpia);
+        mostrarInfoDocente();
+        cargarPlanificacionesDocente();
+    }
+}
+
+async function cargarPlanificacionesDocente() {
+    try {
+        const apiUrl = typeof getAttendanceApiUrl === 'function' ? getAttendanceApiUrl() : '';
+        const apiKey = typeof getApiKey === 'function' ? getApiKey() : '';
+        const cedulaDocente = localStorage.getItem('teacher_cedula') || 
+            (typeof CONFIG !== 'undefined' ? (CONFIG.cedula_docente || CONFIG.cedula || '') : '');
+        
+        if (!apiUrl || !apiKey) {
+            mostrarPlanificacionesDocente([], false);
+            return;
+        }
+        
+        const url = apiUrl + '?modo=planificaciones&apiKey=' + encodeURIComponent(apiKey);
+        const resp = await fetch(url);
+        const data = await resp.json();
+        
+        if (!data.planificaciones) {
+            mostrarPlanificacionesDocente([], !!cedulaDocente);
+            return;
+        }
+        
+        const planifsDocente = cedulaDocente 
+            ? data.planificaciones.filter(p => {
+                const cedula = (p.Cedula || p.cedula || '').toString().replace(/\./g, '').trim();
+                return cedula === cedulaDocente;
+              })
+            : data.planificaciones;
+        
+        mostrarPlanificacionesDocente(planifsDocente, !!cedulaDocente);
+        
+    } catch (err) {
+        console.error('Error cargando planificaciones del docente:', err);
+        mostrarPlanificacionesDocente([], false);
+    }
+}
+
+function mostrarPlanificacionesDocente(planificaciones, tieneCedula) {
+    const container = document.getElementById('right-sidebar-content');
+    if (!container) return;
+    
+    if (planificaciones.length === 0) {
+        if (!tieneCedula) {
+            container.innerHTML = `
+                <div class="text-center py-6">
+                    <i class="fas fa-user-cog text-3xl text-slate-300 mb-2"></i>
+                    <p class="text-xs text-slate-500 mb-3">Configure su cédula para ver sus planificaciones.</p>
+                    <button onclick="configurarCedulaDocente()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-medium">
+                        <i class="fas fa-id-card"></i> Ingresar Cédula
+                    </button>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-book-open text-3xl text-slate-300 mb-2"></i>
+                    <p class="text-xs text-slate-500">No hay planificaciones vinculadas a su cédula.</p>
+                    <a href="planificacion.html" class="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block">Crear planificación</a>
+                </div>
+            `;
+        }
+        return;
     }
     
     // Si no hay datos en CONFIG, intentar desde localStorage guardado al loguearse
