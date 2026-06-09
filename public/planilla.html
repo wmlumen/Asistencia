@@ -7,712 +7,401 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="script.js?v=2"></script>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --primary: #0366d6;
-            --primary-dark: #0255a3;
-            --primary-light: #e8f0fe;
-            --success: #28a745;
-            --bg: #f0f4f8;
-            --card-bg: #ffffff;
-            --text: #1a202c;
-            --text-secondary: #4a5568;
-            --text-muted: #718096;
-            --border: #e2e8f0;
-            --border-light: #edf2f7;
-            --shadow: 0 4px 12px rgba(0,0,0,0.1);
-            --radius: 12px;
-            --radius-sm: 8px;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
-            color: var(--text);
-            line-height: 1.5;
-            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
         }
-
-        /* === Login Screen === */
+        
+        .planilla-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border: 2px solid #333;
+        }
+        
+        /* Encabezado del instituto */
+        .header-instituto {
+            text-align: center;
+            padding: 15px;
+            border-bottom: 2px solid #333;
+            background: white;
+        }
+        
+        .header-instituto h1 {
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+        
+        /* Fila de información */
+        .info-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            border-bottom: 1px solid #333;
+        }
+        
+        .info-cell {
+            padding: 8px 12px;
+            border-right: 1px solid #333;
+            font-size: 11px;
+        }
+        
+        .info-cell:last-child {
+            border-right: none;
+        }
+        
+        .info-cell label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 2px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+        
+        .info-cell .value {
+            min-height: 16px;
+            border-bottom: 1px solid #999;
+        }
+        
+        /* Tabla de asistencia */
+        .tabla-asistencia {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        
+        .tabla-asistencia th,
+        .tabla-asistencia td {
+            border: 1px solid #333;
+            padding: 6px 4px;
+            text-align: center;
+        }
+        
+        .tabla-asistencia th {
+            background: #e8e8e8;
+            font-weight: bold;
+            font-size: 10px;
+        }
+        
+        .tabla-asistencia th:first-child,
+        .tabla-asistencia td:first-child {
+            text-align: left;
+            padding-left: 8px;
+        }
+        
+        .tabla-asistencia th:nth-child(2),
+        .tabla-asistencia td:nth-child(2) {
+            text-align: left;
+            padding-left: 8px;
+            min-width: 180px;
+        }
+        
+        .col-cedula {
+            width: 100px;
+        }
+        
+        .col-nombre {
+            width: 200px;
+        }
+        
+        .col-fecha {
+            width: 50px;
+            min-width: 40px;
+        }
+        
+        /* Estados */
+        .presente {
+            color: #0066cc;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .ausente {
+            color: #cc0000;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .ausencia-justificada {
+            color: #ff6600;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        /* Login overlay */
         .login-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(30,58,95,0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.8);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            transition: opacity 0.5s, visibility 0.5s;
         }
-
+        
         .login-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+            display: none;
         }
-
+        
         .login-box {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 40px 32px;
-            width: 100%;
-            max-width: 400px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
             text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            max-width: 350px;
+            width: 90%;
         }
-
-        .login-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin: 0 auto 20px;
-            box-shadow: 0 8px 20px rgba(3,102,214,0.3);
-        }
-
+        
         .login-box h2 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: var(--text);
+            margin-bottom: 20px;
         }
-
-        .login-box p {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-        }
-
+        
         .login-input {
             width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
             font-size: 16px;
-            text-align: center;
-            letter-spacing: 4px;
-            margin-bottom: 16px;
-            transition: all 0.3s;
         }
-
-        .login-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px var(--primary-light);
-        }
-
+        
         .login-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: #0066cc;
             color: white;
             border: none;
-            border-radius: var(--radius-sm);
-            font-size: 15px;
-            font-weight: 700;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            font-size: 14px;
         }
-
+        
         .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(3,102,214,0.3);
+            background: #0052a3;
         }
-
+        
         .login-error {
-            color: #dc3545;
-            font-size: 12px;
-            font-weight: 600;
+            color: #cc0000;
             margin-top: 10px;
             display: none;
         }
-
-        .login-error.show { display: block; }
-
-        /* === Data Source Selector === */
-        .source-bar {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            margin-bottom: 20px;
+        
+        .login-error.show {
+            display: block;
+        }
+        
+        /* Controles */
+        .controles {
+            margin-bottom: 15px;
             display: flex;
+            gap: 10px;
             align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            box-shadow: var(--shadow);
-        }
-
-        .source-bar label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .source-options {
-            display: flex;
-            gap: 8px;
             flex-wrap: wrap;
         }
-
-        .source-btn {
-            padding: 8px 14px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ccc;
             background: white;
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .source-btn:hover { border-color: var(--primary); background: var(--primary-light); }
-        .source-btn.active {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, var(--primary-light) 0%, #dbeafe 100%);
-            color: #174ea6;
-        }
-
-        .source-btn i { font-size: 12px; }
-
-        .source-status {
-            margin-left: auto;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--success);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* === Main Content === */
-        .main-content {
-            padding: 20px;
-            max-width: 1600px;
-            margin: 0 auto;
-            display: none;
-        }
-
-        .main-content.visible { display: block; }
-
-        .header {
-            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
-            border-radius: var(--radius);
-            padding: 20px 28px;
-            color: white;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header h1 {
-            font-size: 22px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .header h1 i {
-            background: rgba(255,255,255,0.2);
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .header-info {
-            text-align: right;
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .header-info .inst {
-            font-weight: 700;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            opacity: 0.8;
-            margin-bottom: 4px;
-        }
-
-        .summary-bar {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .summary-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: var(--shadow);
-            flex: 1;
-            min-width: 180px;
-        }
-
-        .summary-card i {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            background: var(--primary-light);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .summary-card .label {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .summary-card .value {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--text);
-        }
-
-        .career-section {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .career-header {
-            background: linear-gradient(135deg, var(--primary-light) 0%, #d1e3fc 100%);
-            padding: 14px 20px;
-            border-bottom: 2px solid #aecbfa;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .career-header h2 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #174ea6;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .career-header i {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            background: #174ea6;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        .career-count {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--primary-dark);
-            background: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-            position: relative;
-        }
-
-        .table-wrap::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .table-wrap::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .table-wrap::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
             border-radius: 4px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            font-size: 11px;
-            min-width: 600px;
-        }
-
-        thead th {
-            position: sticky;
-            top: 0;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-bottom: 2px solid var(--border);
-            padding: 10px 8px;
-            text-align: center;
-            font-weight: 700;
-            color: var(--text-muted);
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            z-index: 2;
-            white-space: nowrap;
-            min-width: 38px;
-        }
-
-        thead th:first-child {
-            text-align: left;
-            min-width: 80px;
-        }
-
-        thead th:nth-child(2) {
-            text-align: left;
-            min-width: 160px;
-        }
-
-        thead th:last-child {
-            background: #e8f0fe;
-            color: #174ea6;
-            min-width: 50px;
-        }
-
-        tbody td {
-            border-bottom: 1px solid var(--border-light);
-            padding: 8px 6px;
-            text-align: center;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-
-        tbody td:first-child {
-            text-align: left;
-            font-weight: 600;
-            font-size: 10px;
-        }
-
-        tbody td:nth-child(2) {
-            text-align: left;
-            font-weight: 700;
-            font-size: 11px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 180px;
-        }
-
-        tbody tr {
-            transition: background 0.2s;
-        }
-
-        tbody tr:hover {
-            background: #f8fafc;
-        }
-
-        tbody tr:nth-child(even) {
-            background: #fafbfc;
-        }
-
-        tbody tr:nth-child(even):hover {
-            background: #f0f4f8;
-        }
-
-        .presente {
-            color: var(--success);
-            font-weight: 800;
             font-size: 12px;
         }
-
-        .ausente {
-            color: #d1d5da;
-            font-size: 10px;
+        
+        .btn.active {
+            background: #0066cc;
+            color: white;
+            border-color: #0066cc;
         }
-
-        .ausencia-justificada {
-            color: #d97706;
-            font-weight: 800;
+        
+        .btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .btn.active:hover {
+            background: #0052a3;
+        }
+        
+        /* Leyenda */
+        .leyenda {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
             font-size: 11px;
         }
-
-        .pct-cell {
-            font-weight: 800;
-            font-size: 12px;
+        
+        .leyenda-item {
+            display: inline-block;
+            margin-right: 20px;
         }
-
-        .pct-baja { color: #dc3545; }
-        .pct-media { color: #ffc107; }
-        .pct-alta { color: var(--success); }
-
-        .empty-state {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-muted);
+        
+        .leyenda-item strong {
+            margin-right: 5px;
         }
-
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 40px;
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .loading i {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
+        
+        /* Responsive */
         @media print {
             body { background: white; padding: 0; }
-            .login-overlay, .source-bar { display: none !important; }
-            .header { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .career-header { background: #e8f0fe !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .career-section { break-inside: avoid; margin-bottom: 10px; }
-            .summary-bar { display: none; }
+            .controles, .login-overlay { display: none !important; }
+            .planilla-container { border: 1px solid #333; }
+        }
+        
+        @media (max-width: 768px) {
+            .tabla-asistencia { font-size: 9px; }
+            .tabla-asistencia th, .tabla-asistencia td { padding: 3px 2px; }
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
+    <!-- Login -->
     <div class="login-overlay" id="loginOverlay">
         <div class="login-box">
-            <div class="login-icon">
-                <i class="fas fa-lock"></i>
-            </div>
-            <h2>Planilla de Asistencia</h2>
-            <p>Instituto Superior Centuria<br>Ingrese la contraseña para acceder</p>
-            <input type="password" class="login-input" id="loginPassword" placeholder="••••" maxlength="20" onkeypress="if(event.key==='Enter')checkLogin()">
+            <h2><i class="fas fa-lock"></i> Planilla de Asistencia</h2>
+            <p>Instituto Superior Centuria</p>
+            <input type="password" class="login-input" id="loginPassword" placeholder="Contraseña" onkeypress="if(event.key==='Enter')checkLogin()">
             <button class="login-btn" onclick="checkLogin()">
-                <i class="fas fa-unlock"></i> Desbloquear
+                <i class="fas fa-unlock"></i> Acceder
             </button>
             <div class="login-error" id="loginError">Contraseña incorrecta</div>
-            <a href="index.html" style="display:block;margin-top:16px;color:var(--text-muted);font-size:13px;text-decoration:none;transition:color 0.3s;" onmouseover="this.style.color='var(--primary)';" onmouseout="this.style.color='var(--text-muted)';">
-                <i class="fas fa-home" style="margin-right:4px;"></i> Volver al inicio
+            <a href="index.html" style="display:block;margin-top:15px;color:#666;font-size:12px;">
+                <i class="fas fa-home"></i> Volver al inicio
             </a>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <div class="header">
-            <h1><i class="fas fa-clipboard-list"></i> Planilla de Asistencia</h1>
-            <div style="display:flex;align-items:center;gap:12px;">
-                <a href="index.html" style="color:white;font-size:12px;text-decoration:none;background:rgba(255,255,255,0.15);padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:6px;backdrop-filter:blur(10px);transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)';" onmouseout="this.style.background='rgba(255,255,255,0.15)';">
-                    <i class="fas fa-home" style="font-size:11px;"></i> Volver al inicio
-                </a>
-                <div class="header-info">
-                    <div class="inst">Instituto Superior Centuria</div>
-                    <div id="total-dias-clase">Días de clase: --</div>
-                    <div id="fecha-generacion"></div>
-                </div>
-            </div>
+    <!-- Contenido principal -->
+    <div id="mainContent" style="display:none;">
+        <div class="controles">
+            <a href="index.html" class="btn">
+                <i class="fas fa-home"></i> Inicio
+            </a>
+            <button class="btn" data-source="api" onclick="setDataSource('api')">
+                <i class="fas fa-cloud"></i> API
+            </button>
+            <button class="btn" data-source="csv" onclick="setDataSource('csv')">
+                <i class="fas fa-file-csv"></i> CSV
+            </button>
+            <button class="btn" data-source="local" onclick="setDataSource('local')">
+                <i class="fas fa-hdd"></i> Local
+            </button>
+            <button class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            <span id="statusText" style="font-size:12px;color:#666;"></span>
         </div>
 
-        <div class="source-bar">
-            <label><i class="fas fa-database"></i> Fuente de datos</label>
-            <div class="source-options">
-                <button class="source-btn" data-source="api" onclick="setDataSource('api')">
-                    <i class="fas fa-cloud"></i> API Remota
-                </button>
-                <button class="source-btn" data-source="csv" onclick="setDataSource('csv')">
-                    <i class="fas fa-file-csv"></i> CSV Público
-                </button>
-                <button class="source-btn" data-source="local" onclick="setDataSource('local')">
-                    <i class="fas fa-hdd"></i> Almacenamiento Local
-                </button>
+        <div class="planilla-container" id="planillaContainer">
+            <div class="header-instituto">
+                <h1>INSTITUTO SUPERIOR CENTURIA</h1>
             </div>
-            <div class="source-status" id="sourceStatus">
-                <i class="fas fa-check-circle"></i> <span id="sourceText">Seleccione una fuente</span>
+            
+            <div class="info-row">
+                <div class="info-cell">
+                    <label>CARRERA</label>
+                    <div class="value" id="info-carrera"></div>
+                </div>
+                <div class="info-cell">
+                    <label>SECCION</label>
+                    <div class="value" id="info-seccion"></div>
+                </div>
+                <div class="info-cell">
+                    <label>PERIODO</label>
+                    <div class="value" id="info-periodo"></div>
+                </div>
+                <div class="info-cell">
+                    <label>MES</label>
+                    <div class="value" id="info-mes"></div>
+                </div>
+                <div class="info-cell">
+                    <label>PROFESOR</label>
+                    <div class="value" id="info-profesor"></div>
+                </div>
             </div>
+            
+            <table class="tabla-asistencia" id="tablaAsistencia">
+                <thead>
+                    <tr>
+                        <th class="col-cedula">CEDULA</th>
+                        <th class="col-nombre">NOMBRE Y APELLIDO</th>
+                        <!-- Las fechas se generan dinámicamente -->
+                        <th id="th-fechas"></th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-asistencia">
+                    <!-- Los datos se cargan dinámicamente -->
+                </tbody>
+            </table>
         </div>
-
-        <div class="summary-bar">
-            <div class="summary-card">
-                <i class="fas fa-users"></i>
-                <div>
-                    <div class="label">Total Alumnos</div>
-                    <div class="value" id="total-alumnos">0</div>
-                </div>
-            </div>
-            <div class="summary-card">
-                <i class="fas fa-calendar-check"></i>
-                <div>
-                    <div class="label">Días de Clase</div>
-                    <div class="value" id="total-dias">0</div>
-                </div>
-            </div>
-            <div class="summary-card">
-                <i class="fas fa-user-check"></i>
-                <div>
-                    <div class="label">Asistencia Promedio</div>
-                    <div class="value" id="promedio-pct">0%</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="planilla-container">
-            <div class="loading"><i class="fas fa-spinner"></i> Seleccione una fuente de datos para generar la planilla</div>
+        
+        <div class="leyenda">
+            <span class="leyenda-item"><strong class="presente">P</strong> = Presente</span>
+            <span class="leyenda-item"><strong class="ausente">A</strong> = Ausente</span>
+            <span class="leyenda-item"><strong class="ausencia-justificada">AJ</strong> = Ausencia Justificada</span>
         </div>
     </div>
 
     <script>
         let dataSource = localStorage.getItem('planilla_fuente') || '';
-
-        function escapeHtml(text) {
-            if (text == null) return '';
-            return String(text)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
+        
         function checkLogin() {
             const input = document.getElementById('loginPassword');
             const error = document.getElementById('loginError');
-            const valor = input.value.trim();
-            const result = loginTeacher(valor);
+            const result = loginTeacher(input.value.trim());
             if (result.ok) {
                 document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('mainContent').classList.add('visible');
-                if (dataSource) {
-                    setDataSource(dataSource);
-                }
+                document.getElementById('mainContent').style.display = 'block';
+                if (dataSource) setDataSource(dataSource);
             } else {
                 error.classList.add('show');
                 input.value = '';
                 input.focus();
             }
         }
-
+        
         function setDataSource(source) {
             dataSource = source;
             localStorage.setItem('planilla_fuente', source);
-
-            document.querySelectorAll('.source-btn').forEach(function(btn) {
+            document.querySelectorAll('.btn[data-source]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.source === source);
             });
-
-            const statusMap = {
-                api: 'Conectando a API Remota...',
-                csv: 'Leyendo CSV Público...',
-                local: 'Usando datos locales...'
-            };
-            document.getElementById('sourceText').textContent = statusMap[source] || 'Seleccione una fuente';
-            document.getElementById('sourceStatus').style.color = '#0366d6';
-
             cargarPlanilla();
         }
-
+        
         async function cargarPlanilla() {
-            const container = document.getElementById('planilla-container');
-            const totalAlumnosEl = document.getElementById('total-alumnos');
-            const totalDiasEl = document.getElementById('total-dias');
-            const promedioEl = document.getElementById('promedio-pct');
-            const diasClaseHeader = document.getElementById('total-dias-clase');
-            const fechaGen = document.getElementById('fecha-generacion');
-
-            fechaGen.textContent = 'Generado: ' + new Date().toLocaleString('es-PY');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Cargando datos desde ' + (dataSource || '...') + '...</div>';
-
+            const statusText = document.getElementById('statusText');
+            const tbody = document.getElementById('tbody-asistencia');
+            const thFechas = document.getElementById('th-fechas');
+            
+            statusText.textContent = 'Cargando...';
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Cargando datos...</td></tr>';
+            
             let records = [];
-            let justificacionesAPI = [];
-
+            let justificaciones = [];
+            
             try {
                 if (dataSource === 'api') {
                     const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
                     if (apiUrl) {
-                        // Cargar registros de asistencia
-                        const resp = await fetch(apiUrl, { method: 'GET' });
+                        const resp = await fetch(apiUrl + '?modo=registro&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
                         if (resp.ok) {
-                            const payload = await resp.json();
-                            const source = Array.isArray(payload) ? payload : (Array.isArray(payload?.records) ? payload.records : (Array.isArray(payload?.registros) ? payload.registros : []));
-                            if (source && source.length) {
-                                records = source.map(function(r) {
-                                    const mt = r.marcaTemporal || r.MarcaTemporal || r['Marca Temporal'] || r.Fecha || '';
-                                    let fecha = '', hora = '';
-                                    const str = String(mt).trim();
-                                    const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
-                                    if (isoMatch) {
-                                        fecha = isoMatch[1] + '-' + isoMatch[2] + '-' + isoMatch[3];
-                                    } else if (str.includes(' ')) {
-                                        fecha = str.split(' ')[0];
-                                    } else { fecha = str; }
-                                    return {
-                                        fecha: fecha,
-                                        nombre: (r.nombre || r.Nombre || r.studentName || '').toUpperCase().trim(),
-                                        cedula: (r.cedula || r.Cedula || r.studentId || '').toString().replace(/\./g, '').trim(),
-                                        carrera: r.carrera || r.Carrera || r.career || ''
-                                    };
-                                }).filter(function(r) { return r.nombre || r.cedula; });
-                            }
+                            const data = await resp.json();
+                            records = data.registros || [];
                         }
-
-                        // Cargar justificaciones desde API
-                        try {
-                            const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
-                            const urlJ = apiUrl + '?modo=justificaciones' + (apiKey ? '&apiKey=' + encodeURIComponent(apiKey) : '');
-                            const respJ = await fetch(urlJ, { method: 'GET' });
-                            if (respJ.ok) {
-                                const payloadJ = await respJ.json();
-                                const sourceJ = Array.isArray(payloadJ) ? payloadJ : (Array.isArray(payloadJ?.justificaciones) ? payloadJ.justificaciones : []);
-                                if (sourceJ && sourceJ.length) {
-                                    justificacionesAPI = sourceJ.map(function(j) {
-                                        return {
-                                            cedula: (j.Cedula || j.cedula || '').toString().replace(/\./g, '').trim(),
-                                            nombre: (j.Nombre || j.nombre || '').toUpperCase().trim(),
-                                            carrera: (j.Carrera || j.carrera || '').toUpperCase().trim(),
-                                            fecha: (j.FechaAusencia || j.fechaAusencia || j.fecha || ''),
-                                            motivo: j.Motivo || j.motivo || '',
-                                            observacion: j.Observacion || j.observacion || ''
-                                        };
-                                    }).filter(function(j) { return j.cedula && j.fecha; });
-                                }
-                            }
-                        } catch(eJ) { console.error('Error cargando justificaciones API:', eJ); }
+                        
+                        // Cargar justificaciones
+                        const respJ = await fetch(apiUrl + '?modo=justificaciones&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
+                        if (respJ.ok) {
+                            const dataJ = await respJ.json();
+                            justificaciones = dataJ.justificaciones || [];
+                        }
                     }
-                    document.getElementById('sourceText').textContent = records.length ? 'API Remota (' + records.length + ' registros)' : 'API Remota (sin datos)';
+                    statusText.textContent = records.length + ' registros (API)';
                 }
-
                 else if (dataSource === 'csv') {
                     const csvUrl = (typeof getAttendanceCsvUrl === 'function') ? getAttendanceCsvUrl() : '';
                     if (csvUrl) {
@@ -724,38 +413,45 @@
                             }
                         }
                     }
-                    document.getElementById('sourceText').textContent = records.length ? 'CSV Público (' + records.length + ' registros)' : 'CSV Público (sin datos)';
+                    statusText.textContent = records.length + ' registros (CSV)';
                 }
-
                 else if (dataSource === 'local') {
                     if (typeof loadAttendanceRecords === 'function') {
                         records = loadAttendanceRecords();
                     }
-                    document.getElementById('sourceText').textContent = records.length ? 'Almacenamiento Local (' + records.length + ' registros)' : 'Local (sin datos)';
+                    // Cargar justificaciones locales
+                    try {
+                        const jRaw = localStorage.getItem('justificaciones_ausencias');
+                        if (jRaw) justificaciones = JSON.parse(jRaw);
+                    } catch(e) {}
+                    statusText.textContent = records.length + ' registros (Local)';
                 }
             } catch(err) {
-                console.error('Error cargando planilla:', err);
-                document.getElementById('sourceText').textContent = 'Error al cargar datos';
+                console.error('Error:', err);
+                statusText.textContent = 'Error al cargar';
             }
-
-            if (!records || !records.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox" style="font-size:32px;display:block;margin-bottom:12px;color:#d1d5da;"></i>No hay datos de asistencia disponibles para esta fuente.<br><br><button class="source-btn" onclick="setDataSource(\'api\')">Reintentar API</button> <button class="source-btn" onclick="setDataSource(\'csv\')">Reintentar CSV</button> <button class="source-btn" onclick="setDataSource(\'local\')">Reintentar Local</button></div>';
-                totalAlumnosEl.textContent = '0';
-                totalDiasEl.textContent = '0';
-                promedioEl.textContent = '0%';
-                diasClaseHeader.textContent = 'Días de clase: 0';
+            
+            if (!records.length && !justificaciones.length) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;">No hay datos disponibles</td></tr>';
                 return;
             }
-
-            // Extraer y normalizar fechas de asistencia
-            records.forEach(function(r) {
-                const mt = r.marcaTemporal || r['Marca Temporal'] || r.timestamp || r.Fecha || r.fecha || '';
+            
+            // Procesar registros
+            const datosProcesados = {};
+            const fechasSet = new Set();
+            
+            // Procesar asistencias
+            records.forEach(r => {
+                const cedula = (r.cedula || r.Cedula || r.studentId || '').toString().replace(/\./g, '').trim();
+                const nombre = (r.nombre || r.Nombre || r.studentName || '').toUpperCase().trim();
+                const carrera = (r.carrera || r.Carrera || r.career || '').toUpperCase().trim();
+                const seccion = (r.seccion || r.Seccion || r.section || '').toUpperCase().trim();
+                const estado = (r.estado || r.Estado || 'Presente').trim();
+                
                 let fecha = '';
+                const mt = r.marcaTemporal || r.MarcaTemporal || r.Fecha || r.fecha || '';
                 const str = String(mt).trim();
-                const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
-                if (isoMatch) {
-                    fecha = isoMatch[3] + '/' + isoMatch[2] + '/' + isoMatch[1];
-                } else if (str.includes('/')) {
+                if (str.includes('/')) {
                     fecha = str.split(' ')[0];
                 } else if (str.includes('-')) {
                     const p = str.split(' ')[0].split('-');
@@ -765,169 +461,100 @@
                         fecha = p[0] + '/' + p[1] + '/' + p[2];
                     }
                 }
-                r._fecha = fecha;
-                r._cedula = (r.cedula || r._cedula || '').toString().replace(/\./g, '').trim();
-                r._nombre = (r.nombre || r._nombre || '').toUpperCase().trim();
-                r._carrera = (r.carrera || r._carrera || '').toUpperCase().trim();
-            });
-
-            // Cargar y normalizar justificaciones (API + localStorage)
-            let justificacionesRaw = [];
-            // Agregar primero las de la API (si las hay)
-            if (justificacionesAPI && justificacionesAPI.length) {
-                justificacionesRaw = justificacionesRaw.concat(justificacionesAPI);
-            }
-            try {
-                const jRaw = localStorage.getItem('justificaciones_ausencias');
-                if (jRaw) justificacionesRaw = justificacionesRaw.concat(JSON.parse(jRaw));
-            } catch(e) {}
-            if (!Array.isArray(justificacionesRaw)) justificacionesRaw = [];
-
-            const justificacionesPorCedula = {};
-            justificacionesRaw.forEach(function(j) {
-                const cedula = (j.cedula || j.Cedula || '').toString().replace(/\./g, '').trim();
-                if (!cedula) return;
-                const fechaRaw = j.fecha || j.Fecha || j.fechaAusencia || '';
-                let fechaJ = '';
-                const fj = String(fechaRaw).trim();
-                const isoJ = fj.match(/^(\d{4})-(\d{2})-(\d{2})/);
-                if (isoJ) {
-                    fechaJ = isoJ[3] + '/' + isoJ[2] + '/' + isoJ[1];
-                } else if (fj.includes('/')) {
-                    fechaJ = fj;
-                }
-                if (!fechaJ) return;
-                if (!justificacionesPorCedula[cedula]) justificacionesPorCedula[cedula] = new Set();
-                justificacionesPorCedula[cedula].add(fechaJ);
-            });
-
-            // Fechas unicas ordenadas (asistencia + justificaciones)
-            const fechasSet = new Set();
-            records.forEach(function(r) { if (r._fecha) fechasSet.add(r._fecha); });
-            Object.keys(justificacionesPorCedula).forEach(function(ced) {
-                justificacionesPorCedula[ced].forEach(function(f) { fechasSet.add(f); });
-            });
-            const fechasOrdenadas = Array.from(fechasSet).sort();
-            diasClaseHeader.textContent = 'Días de clase: ' + fechasOrdenadas.length;
-            totalDiasEl.textContent = fechasOrdenadas.length;
-
-            // Agrupar por carrera -> cedula -> {nombre, fechas[]}
-            const porCarrera = {};
-            records.forEach(function(r) {
-                if (!r._cedula) return;
-                const car = r._carrera || 'SIN CARRERA';
-                if (!porCarrera[car]) porCarrera[car] = {};
-                if (!porCarrera[car][r._cedula]) {
-                    porCarrera[car][r._cedula] = { nombre: r._nombre || '', fechas: new Set() };
-                }
-                if (r._fecha) porCarrera[car][r._cedula].fechas.add(r._fecha);
-            });
-
-            // Incluir alumnos que solo aparecen en justificaciones (para que figuren en la planilla)
-            justificacionesRaw.forEach(function(j) {
-                const cedula = (j.cedula || j.Cedula || '').toString().replace(/\./g, '').trim();
-                if (!cedula) return;
-                const car = (j.carrera || j.Carrera || 'SIN CARRERA').toUpperCase().trim();
-                const nombre = (j.nombre || j.Nombre || '').toUpperCase().trim();
-                if (!porCarrera[car]) porCarrera[car] = {};
-                if (!porCarrera[car][cedula]) {
-                    porCarrera[car][cedula] = { nombre: nombre, fechas: new Set() };
-                }
-                if (nombre && !porCarrera[car][cedula].nombre) porCarrera[car][cedula].nombre = nombre;
-            });
-
-            let totalAlumnos = 0;
-            let sumaPct = 0;
-            let conteoPct = 0;
-
-            let html = '';
-            Object.keys(porCarrera).sort().forEach(function(carrera) {
-                const alumnos = porCarrera[carrera];
-                const cedulas = Object.keys(alumnos).sort();
-                totalAlumnos += cedulas.length;
-
-                html += '<div class="career-section">';
-                html += '<div class="career-header">';
-                html += '<h2><i class="fas fa-graduation-cap"></i> ' + escapeHtml(carrera) + '</h2>';
-                html += '<span class="career-count">' + cedulas.length + ' alumnos</span>';
-                html += '</div>';
-                html += '<div class="table-wrap">';
-                html += '<table>';
-
-                html += '<thead><tr>';
-                html += '<th>Cédula</th>';
-                html += '<th>Nombre</th>';
-                fechasOrdenadas.forEach(function(f) {
-                    html += '<th>' + f + '</th>';
-                });
-                html += '<th>%</th>';
-                html += '</tr></thead>';
-
-                html += '<tbody>';
-                cedulas.forEach(function(cedula) {
-                    const info = alumnos[cedula];
-                    const justFechas = justificacionesPorCedula[cedula] || new Set();
-                    let puntos = 0;
-                    fechasOrdenadas.forEach(function(f) {
-                        if (info.fechas.has(f)) {
-                            puntos += 1;
-                        } else if (justFechas.has(f)) {
-                            puntos += 0.5;
-                        }
-                    });
-                    const pct = fechasOrdenadas.length > 0 ? Math.round((puntos / fechasOrdenadas.length) * 100) : 0;
-                    sumaPct += pct;
-                    conteoPct++;
-
-                    let pctClass = 'pct-alta';
-                    if (pct < 60) pctClass = 'pct-baja';
-                    else if (pct < 80) pctClass = 'pct-media';
-
-                    html += '<tr>';
-                    html += '<td>' + escapeHtml(cedula) + '</td>';
-                    html += '<td>' + escapeHtml(info.nombre) + '</td>';
-                    fechasOrdenadas.forEach(function(f) {
-                        if (info.fechas.has(f)) {
-                            html += '<td class="presente">P</td>';
-                        } else if (justFechas.has(f)) {
-                            html += '<td class="ausencia-justificada">AJ</td>';
-                        } else {
-                            html += '<td class="ausente">A</td>';
-                        }
-                    });
-                    html += '<td class="pct-cell ' + pctClass + '">' + pct + '%</td>';
-                    html += '</tr>';
-                });
-                html += '</tbody></table></div></div>';
-            });
-
-            container.innerHTML = html;
-            totalAlumnosEl.textContent = totalAlumnos;
-            if (conteoPct > 0) promedioEl.textContent = Math.round(sumaPct / conteoPct) + '%';
-        }
-
-        // Verificar sesión docente al cargar
-        (function() {
-            if (isTeacherSessionActive()) {
-                document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('mainContent').classList.add('visible');
-                // Botón cerrar sesión docente
-                const headerDiv = document.querySelector('.header > div[style*="display:flex"]');
-                if (headerDiv) {
-                    const logoutBtn = document.createElement('button');
-                    logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Cerrar sesión';
-                    logoutBtn.style.cssText = 'background:rgba(255,255,255,0.15);color:white;border:none;padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;margin-left:8px;';
-                    logoutBtn.onmouseover = function() { this.style.background='rgba(255,255,255,0.3)'; };
-                    logoutBtn.onmouseout = function() { this.style.background='rgba(255,255,255,0.15)'; };
-                    logoutBtn.onclick = function() {
-                        logoutTeacher();
-                        window.location.reload();
+                
+                if (!cedula || !fecha) return;
+                
+                if (!datosProcesados[cedula]) {
+                    datosProcesados[cedula] = {
+                        nombre: nombre,
+                        carrera: carrera,
+                        seccion: seccion,
+                        fechas: {}
                     };
-                    headerDiv.appendChild(logoutBtn);
                 }
-                if (dataSource) {
-                    setDataSource(dataSource);
+                
+                datosProcesados[cedula].fechas[fecha] = estado === 'Ausencia Justificada' ? 'AJ' : 'P';
+                fechasSet.add(fecha);
+            });
+            
+            // Procesar justificaciones
+            justificaciones.forEach(j => {
+                const cedula = (j.cedula || j.Cedula || '').toString().replace(/\./g, '').trim();
+                const nombre = (j.nombre || j.Nombre || '').toUpperCase().trim();
+                const carrera = (j.carrera || j.Carrera || '').toUpperCase().trim();
+                const seccion = (j.seccion || j.Seccion || '').toUpperCase().trim();
+                let fecha = j.fecha || j.Fecha || j.fechaAusencia || '';
+                
+                if (!cedula || !fecha) return;
+                
+                if (!datosProcesados[cedula]) {
+                    datosProcesados[cedula] = {
+                        nombre: nombre,
+                        carrera: carrera,
+                        seccion: seccion,
+                        fechas: {}
+                    };
                 }
+                
+                // Solo marcar como AJ si no hay asistencia ese día
+                if (!datosProcesados[cedula].fechas[fecha]) {
+                    datosProcesados[cedula].fechas[fecha] = 'AJ';
+                }
+                fechasSet.add(fecha);
+            });
+            
+            // Ordenar fechas
+            const fechasOrdenadas = Array.from(fechasSet).sort();
+            
+            // Actualizar info
+            const cedulas = Object.keys(datosProcesados);
+            if (cedulas.length > 0) {
+                const primero = datosProcesados[cedulas[0]];
+                document.getElementById('info-carrera').textContent = primero.carrera || '';
+                document.getElementById('info-seccion').textContent = primero.seccion || '';
+            }
+            document.getElementById('info-periodo').textContent = new Date().getFullYear();
+            document.getElementById('info-mes').textContent = new Date().toLocaleString('es-PY', { month: 'long' }).toUpperCase();
+            document.getElementById('info-profesor').textContent = (typeof CONFIG !== 'undefined' && CONFIG.name_docente) ? CONFIG.name_docente : '';
+            
+            // Generar encabezados de fechas
+            let fechasHTML = '';
+            fechasOrdenadas.forEach((f, index) => {
+                fechasHTML += '<th class="col-fecha">FECHA ' + (index + 1) + '<br><small>' + f + '</small></th>';
+            });
+            thFechas.outerHTML = fechasHTML;
+            
+            // Generar filas
+            let tbodyHTML = '';
+            cedulas.sort().forEach(cedula => {
+                const info = datosProcesados[cedula];
+                tbodyHTML += '<tr>';
+                tbodyHTML += '<td>' + cedula + '</td>';
+                tbodyHTML += '<td>' + info.nombre + '</td>';
+                
+                fechasOrdenadas.forEach(fecha => {
+                    const estado = info.fechas[fecha];
+                    if (estado === 'P') {
+                        tbodyHTML += '<td class="presente">P</td>';
+                    } else if (estado === 'AJ') {
+                        tbodyHTML += '<td class="ausencia-justificada">AJ</td>';
+                    } else {
+                        tbodyHTML += '<td class="ausente">A</td>';
+                    }
+                });
+                
+                tbodyHTML += '</tr>';
+            });
+            
+            tbody.innerHTML = tbodyHTML;
+        }
+        
+        // Verificar sesión al cargar
+        (function() {
+            if (typeof isTeacherSessionActive === 'function' && isTeacherSessionActive()) {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainContent').style.display = 'block';
+                if (dataSource) setDataSource(dataSource);
             }
         })();
     </script>
