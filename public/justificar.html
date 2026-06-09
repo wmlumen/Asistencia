@@ -597,8 +597,11 @@
                     </div>
 
                     <div class="form-group">
-                        <label><i class="fas fa-file-alt" style="color:var(--text-muted)"></i> Documento de Respaldo <span style="font-weight:normal;color:var(--text-muted)">(Opcional)</span></label>
-                        <input id="justificar-doc" type="text" placeholder="Ej: Certificado médico N° 123, Memo interno, etc.">
+                        <label><i class="fas fa-file-upload" style="color:var(--text-muted)"></i> Adjuntar Documento de Respaldo <span style="font-weight:normal;color:var(--text-muted)">(Opcional - PDF, JPG, PNG)</span></label>
+                        <input id="justificar-file" type="file" accept=".pdf,.jpg,.jpeg,.png" style="padding:4px;font-size:11px;">
+                        <div id="file-preview" style="font-size:10px;color:var(--text-muted);margin-top:4px;display:none;">
+                            <i class="fas fa-paperclip"></i> <span id="file-name"></span> (<span id="file-size"></span>)
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -751,8 +754,31 @@
             }
         }
 
+        // Preview de archivo seleccionado
+        document.getElementById('justificar-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('file-preview');
+            if (file) {
+                document.getElementById('file-name').textContent = file.name;
+                document.getElementById('file-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // Función para convertir archivo a base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
         // Enviar justificación
-        document.getElementById('justificar-form').addEventListener('submit', function(e) {
+        document.getElementById('justificar-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const status = document.getElementById('justificar-status');
             const id = document.getElementById('justificar-id').value.trim();
@@ -761,8 +787,9 @@
             const section = document.getElementById('justificar-section').value;
             const fecha = document.getElementById('justificar-fecha').value;
             const motivo = document.getElementById('justificar-motivo').value;
-            const doc = document.getElementById('justificar-doc').value.trim();
             const obs = document.getElementById('justificar-obs').value.trim();
+            const fileInput = document.getElementById('justificar-file');
+            const file = fileInput.files[0];
 
             // Validación
             const faltantes = [];
@@ -779,6 +806,27 @@
                 return;
             }
 
+            status.className = 'status-msg info';
+            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Preparando envío...</span>';
+
+            // Preparar datos del archivo si existe
+            let fileData = '';
+            let fileName = '';
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    status.className = 'status-msg error';
+                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>El archivo es muy grande. Máximo 5MB.</span>';
+                    return;
+                }
+                try {
+                    fileData = await fileToBase64(file);
+                    fileName = file.name;
+                    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Subiendo archivo...</span>';
+                } catch (err) {
+                    console.error('Error al leer archivo:', err);
+                }
+            }
+
             const record = {
                 cedula: id,
                 nombre: name,
@@ -786,7 +834,6 @@
                 seccion: section,
                 fecha: fecha,
                 motivo: motivo,
-                documento: doc,
                 observacion: obs,
                 marcaTemporal: new Date().toISOString()
             };
@@ -812,8 +859,11 @@
                 params.append('seccion', section);
                 params.append('fechaAusencia', fecha);
                 params.append('motivo', motivo);
-                params.append('documento', doc);
                 params.append('notes', obs);
+                if (fileData) {
+                    params.append('fileData', fileData);
+                    params.append('fileName', fileName);
+                }
                 if (apiKey) params.append('apiKey', apiKey);
 
                 fetch(apiUrl + '?' + params.toString(), {
@@ -822,8 +872,12 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.ok) {
+                        let msg = 'Justificación registrada en la planilla correctamente.';
+                        if (data.fileUrl) {
+                            msg += ' <a href="' + data.fileUrl + '" target="_blank" style="color:#155724;text-decoration:underline;"><i class="fas fa-external-link-alt"></i> Ver documento</a>';
+                        }
                         status.className = 'status-msg success';
-                        status.innerHTML = '<i class="fas fa-check-circle"></i><span>Justificación registrada en la planilla correctamente.</span>';
+                        status.innerHTML = '<i class="fas fa-check-circle"></i><span>' + msg + '</span>';
                     } else {
                         status.className = 'status-msg error';
                         status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. Error en planilla: ' + (data.error || data.mensaje || 'Error desconocido') + '</span>';
@@ -839,6 +893,7 @@
             }
 
             this.reset();
+            document.getElementById('file-preview').style.display = 'none';
         });
 
         renderJustificaciones();

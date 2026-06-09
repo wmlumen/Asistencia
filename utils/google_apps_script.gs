@@ -151,8 +151,9 @@ function doPost(e) {
       const seccion = (data.seccion || data.section || '').trim();
       const fechaAusencia = (data.fechaAusencia || data.fecha || '').trim();
       const motivo = (data.motivo || '').trim();
-      const documento = (data.documento || '').trim();
       const observacion = (data.notes || data.observacion || '').trim();
+      const fileData = data.fileData || '';
+      const fileName = data.fileName || '';
 
       if (!nombre || !cedula || !carrera || !seccion || !fechaAusencia) {
         return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera, seccion o fecha de ausencia' });
@@ -173,14 +174,29 @@ function doPost(e) {
         return jsonResponse({ ok: false, error: 'Carrera no válida: ' + carrera });
       }
 
-      // Construir observación combinada: motivo + documento + observación original
+      // Subir archivo a Drive si se proporcionó
+      let fileUrl = '';
+      if (fileData && fileName) {
+        try {
+          const folderId = '1mpEs3pytsFEWsb1esJRRay9fiktBh8e0';
+          const folder = DriveApp.getFolderById(folderId);
+          const blob = Utilities.newBlob(Utilities.base64Decode(fileData), getMimeType_(fileName), fileName);
+          const file = folder.createFile(blob);
+          file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+          fileUrl = file.getUrl();
+        } catch (driveError) {
+          console.error('Error al subir a Drive:', driveError);
+        }
+      }
+
+      // Construir observación combinada: motivo + link + observación original
       let obsCombinada = motivo ? 'Motivo: ' + motivo : '';
-      if (documento) obsCombinada += (obsCombinada ? ' | ' : '') + 'Doc: ' + documento;
+      if (fileUrl) obsCombinada += (obsCombinada ? ' | ' : '') + 'Doc: ' + fileUrl;
       if (observacion) obsCombinada += (obsCombinada ? ' | ' : '') + 'Obs: ' + observacion;
 
       sheet.appendRow([fechaAusencia, nombre, cedula, carreraValida, seccion, obsCombinada, 'Ausencia Justificada', marcaTemporal]);
       recalcularResumen_();
-      return jsonResponse({ ok: true, mensaje: 'Ausencia justificada registrada correctamente en la planilla de asistencia' });
+      return jsonResponse({ ok: true, mensaje: 'Ausencia justificada registrada correctamente en la planilla de asistencia', fileUrl: fileUrl });
     }
 
     // Modo asistencia (default)
@@ -400,4 +416,22 @@ function probarEscrituraManual() {
     console.error('ERROR:', error.message);
     console.error('Stack:', error.stack);
   }
+}
+
+/* ============================================================
+   UTILIDAD: Determinar MIME type por extension de archivo
+   ============================================================ */
+
+function getMimeType_(fileName) {
+  const ext = (fileName.split('.').pop() || '').toLowerCase();
+  const mimeTypes = {
+    'pdf': 'application/pdf',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'doc': 'application/msword',
+    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  };
+  return mimeTypes[ext] || 'application/octet-stream';
 }
