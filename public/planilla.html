@@ -563,15 +563,21 @@
             <h3><i class="fas fa-cog"></i> Configuración de la Planilla</h3>
             <div class="config-row">
                 <label>Carrera:</label>
-                <input type="text" id="config-carrera" placeholder="Ej: CONTABILIDAD" style="width:200px;">
+                <select id="config-carrera" style="width:220px;padding:6px;border:2px solid #ddd;border-radius:4px;">
+                    <option value="">-- Seleccione --</option>
+                </select>
             </div>
             <div class="config-row">
                 <label>Sección:</label>
-                <input type="text" id="config-seccion" placeholder="Ej: S026" style="width:100px;">
+                <select id="config-seccion" style="width:150px;padding:6px;border:2px solid #ddd;border-radius:4px;">
+                    <option value="">-- Seleccione --</option>
+                </select>
             </div>
             <div class="config-row">
                 <label>Asignatura:</label>
-                <input type="text" id="config-asignatura" placeholder="Ej: SOCIOLOGIA" style="width:200px;">
+                <select id="config-asignatura" style="width:220px;padding:6px;border:2px solid #ddd;border-radius:4px;">
+                    <option value="">-- Seleccione --</option>
+                </select>
             </div>
             <div class="config-row">
                 <label>Periodo:</label>
@@ -727,6 +733,7 @@
                 document.getElementById('loginOverlay').classList.add('hidden');
                 document.getElementById('mainContent').style.display = 'block';
                 document.getElementById('planilla-header').style.display = 'block';
+                cargarCatalogosPlanilla();
                 cargarConfigGuardada();
                 if (dataSource) setDataSource(dataSource);
             } else {
@@ -734,6 +741,32 @@
                 input.value = '';
                 input.focus();
             }
+        }
+        
+        // Cargar catálogos sincronizados en los selects
+        async function cargarCatalogosPlanilla() {
+            await inicializarCatalogos();
+            
+            const carreras = JSON.parse(localStorage.getItem('cat_carreras') || '[]');
+            const secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
+            const asignaturas = JSON.parse(localStorage.getItem('cat_asignaturas') || '[]');
+            
+            const llenarSelect = (id, items) => {
+                const select = document.getElementById(id);
+                if (!select) return;
+                select.innerHTML = '<option value="">-- Seleccione --</option>';
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    const partes = item.split('-');
+                    option.textContent = partes.length >= 2 ? partes.slice(1).join('-') : item;
+                    select.appendChild(option);
+                });
+            };
+            
+            llenarSelect('config-carrera', carreras);
+            llenarSelect('config-seccion', secciones);
+            llenarSelect('config-asignatura', asignaturas);
         }
         
         function toggleConfig() {

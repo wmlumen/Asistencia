@@ -119,12 +119,17 @@
    <i class="fas fa-chart-pie text-base" :class="activeTab === 'analytics' ? 'text-violet-400' : ''"></i>
    <span>Métricas y Carreras</span>
   </button>
-  <button @click="activeTab = 'attendance'" :class="activeTab === 'attendance' ? 'bg-white/10 text-white font-semibold shadow-inner' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm">
-   <i class="fas fa-clipboard-list text-base" :class="activeTab === 'attendance' ? 'text-amber-400' : ''"></i>
-   <span>Control de Asistencia</span>
-   <span class="ml-auto bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm" id="sidebar-attendance-badge">0</span>
-  </button>
-  </nav>
+   <button @click="activeTab = 'attendance'" :class="activeTab === 'attendance' ? 'bg-white/10 text-white font-semibold shadow-inner' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm">
+    <i class="fas fa-clipboard-list text-base" :class="activeTab === 'attendance' ? 'text-amber-400' : ''"></i>
+    <span>Control de Asistencia</span>
+    <span class="ml-auto bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm" id="sidebar-attendance-badge">0</span>
+   </button>
+   <button @click="activeTab = 'calendar'" :class="activeTab === 'calendar' ? 'bg-white/10 text-white font-semibold shadow-inner' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm">
+    <i class="fas fa-calendar-alt text-base" :class="activeTab === 'calendar' ? 'text-cyan-400' : ''"></i>
+    <span>Calendario Docente</span>
+    <span class="ml-auto bg-cyan-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm" id="sidebar-calendar-badge">0</span>
+   </button>
+   </nav>
  </div>
  <div class="p-4 border-t border-white/10">
   <button onclick="location.href='index.html'" class="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all text-xs py-3 rounded-xl border border-white/10 font-medium">
@@ -408,11 +413,56 @@
    </tbody>
    </table>
    </div>
-   </div>
+    </div>
 
-   </div>
+    <!-- CALENDARIO DOCENTE -->
+    <div x-show="activeTab === 'calendar'" class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden animate-fade">
+    <div class="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+    <div class="bg-cyan-50 text-cyan-600 p-1.5 rounded-lg text-xs"><i class="fas fa-calendar-alt"></i></div>
+    <h3 class="font-bold text-sm text-slate-900">Calendario Docente</h3>
+    </div>
+    <button onclick="cargarCalendarioDocente()" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-semibold transition-all">
+    <i class="fas fa-sync-alt"></i> Actualizar
+    </button>
+    </div>
+    
+    <div class="p-5 space-y-4">
+    <!-- Clases Activas -->
+    <div>
+    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Clases Activas
+    </h4>
+    <div id="clases-activas" class="space-y-2">
+    <p class="text-xs text-slate-400 py-4 text-center">Cargando planificaciones...</p>
+    </div>
+    </div>
+    
+    <!-- Confirmados Mes Siguiente -->
+    <div>
+    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-blue-500"></span> Confirmados - Mes Siguiente
+    </h4>
+    <div id="clases-confirmadas" class="space-y-2">
+    <p class="text-xs text-slate-400 py-4 text-center">Cargando...</p>
+    </div>
+    </div>
+    
+    <!-- Pendientes a Cerrar -->
+    <div>
+    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-amber-500"></span> Pendientes a Cerrar
+    </h4>
+    <div id="clases-pendientes" class="space-y-2">
+    <p class="text-xs text-slate-400 py-4 text-center">Cargando...</p>
+    </div>
+    </div>
+    </div>
+    </div>
 
-   <!-- Right panel: exam detail slide-in -->
+    </div>
+
+    <!-- Right panel: exam detail slide-in -->
    <div id="exam-detail-panel" class="hidden w-[420px] flex-shrink-0">
    <div class="bg-white rounded-2xl border border-slate-100 shadow-lg overflow-hidden sticky top-24">
    <div class="px-5 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-800 to-slate-900 text-white flex items-center justify-between">
@@ -474,6 +524,165 @@
         initAuth();
     }
 })();
+
+// ============================================================
+// CALENDARIO DOCENTE
+// ============================================================
+
+async function cargarCalendarioDocente() {
+    try {
+        const apiUrl = typeof getApiUrl === 'function' ? getApiUrl() : '';
+        const apiKey = typeof getApiKeyLocal === 'function' ? getApiKeyLocal() : '';
+        
+        if (!apiUrl || !apiKey) {
+            console.error('API no configurada');
+            return;
+        }
+        
+        const url = apiUrl + '?modo=planificaciones&apiKey=' + encodeURIComponent(apiKey);
+        const resp = await fetch(url);
+        const data = await resp.json();
+        
+        if (!data.planificaciones) {
+            mostrarCalendarioVacio();
+            return;
+        }
+        
+        const hoy = new Date();
+        const mesActual = hoy.getMonth();
+        const anioActual = hoy.getFullYear();
+        const mesSiguiente = (mesActual + 1) % 12;
+        const anioSiguiente = mesSiguiente === 0 ? anioActual + 1 : anioActual;
+        
+        const activas = [];
+        const confirmadas = [];
+        const pendientes = [];
+        
+        data.planificaciones.forEach(p => {
+            const fechaInicio = new Date(p['Fecha de Inicio'] || p.fechaInicio);
+            const fechaCierre = new Date(p['Fecha de Cierre'] || p.fechaCierre);
+            
+            if (isNaN(fechaInicio) || isNaN(fechaCierre)) return;
+            
+            const planif = {
+                codigo: p.CODIGO || p.codigo,
+                asignatura: p.COD_ASIGNATURA || p.codAsignatura,
+                seccion: p.COD_SECCION || p.codSeccion,
+                carrera: p.COD_CARRERA || p.codCarrera,
+                inicio: fechaInicio,
+                cierre: fechaCierre,
+                sala: p.SALA || p.sala,
+                sede: p.SEDE || p.sede
+            };
+            
+            // Clases activas: hoy está entre inicio y cierre
+            if (hoy >= fechaInicio && hoy <= fechaCierre) {
+                activas.push(planif);
+            }
+            
+            // Confirmadas mes siguiente: inicio en mes siguiente
+            if (fechaInicio.getMonth() === mesSiguiente && fechaInicio.getFullYear() === anioSiguiente) {
+                confirmadas.push(planif);
+            }
+            
+            // Pendientes a cerrar: cierre en este mes o mes siguiente
+            if ((fechaCierre.getMonth() === mesActual && fechaCierre.getFullYear() === anioActual) ||
+                (fechaCierre.getMonth() === mesSiguiente && fechaCierre.getFullYear() === anioSiguiente)) {
+                pendientes.push(planif);
+            }
+        });
+        
+        renderizarClases('clases-activas', activas, 'emerald');
+        renderizarClases('clases-confirmadas', confirmadas, 'blue');
+        renderizarClases('clases-pendientes', pendientes, 'amber');
+        
+        // Actualizar badge
+        const badge = document.getElementById('sidebar-calendar-badge');
+        if (badge) badge.textContent = activas.length;
+        
+    } catch (err) {
+        console.error('Error cargando calendario:', err);
+        mostrarCalendarioVacio();
+    }
+}
+
+function renderizarClases(containerId, clases, color) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    if (clases.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">No hay planificaciones en esta categoría.</p>';
+        return;
+    }
+    
+    const colorClasses = {
+        emerald: 'border-emerald-200 bg-emerald-50',
+        blue: 'border-blue-200 bg-blue-50',
+        amber: 'border-amber-200 bg-amber-50'
+    };
+    
+    let html = '';
+    clases.forEach(c => {
+        const inicioStr = c.inicio.toLocaleDateString('es-PY');
+        const cierreStr = c.cierre.toLocaleDateString('es-PY');
+        const diasRestantes = Math.ceil((c.cierre - new Date()) / (1000 * 60 * 60 * 24));
+        
+        html += '<div class="border rounded-lg p-3 ' + (colorClasses[color] || 'border-slate-200 bg-slate-50') + '">';
+        html += '<div class="flex justify-between items-start">';
+        html += '<div>';
+        html += '<strong class="text-xs text-slate-800">' + (c.asignatura || 'Sin asignatura') + '</strong>';
+        html += '<p class="text-[10px] text-slate-500 mt-0.5">' + (c.carrera || '') + ' | ' + (c.seccion || '') + '</p>';
+        html += '</div>';
+        html += '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full ';
+        if (diasRestantes <= 7) html += 'bg-rose-100 text-rose-700';
+        else if (diasRestantes <= 14) html += 'bg-amber-100 text-amber-700';
+        else html += 'bg-emerald-100 text-emerald-700';
+        html += '">' + diasRestantes + ' días</span>';
+        html += '</div>';
+        html += '<div class="flex justify-between items-center mt-2 pt-2 border-t border-white/50">';
+        html += '<span class="text-[10px] text-slate-500"><i class="fas fa-calendar-day mr-1"></i>' + inicioStr + ' - ' + cierreStr + '</span>';
+        if (c.sala) html += '<span class="text-[10px] text-slate-500"><i class="fas fa-door-open mr-1"></i>' + c.sala + '</span>';
+        html += '</div>';
+        html += '</div>';
+    });
+    
+    container.innerHTML = html;
+}
+
+function mostrarCalendarioVacio() {
+    ['clases-activas', 'clases-confirmadas', 'clases-pendientes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">No se pudieron cargar las planificaciones.</p>';
+    });
+}
+
+// Cargar calendario al iniciar si estamos en esa pestaña
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(cargarCalendarioDocente, 2000);
+    cargarFiltroCarreras();
+});
+
+// Cargar filtro de carreras desde catálogos sincronizados
+async function cargarFiltroCarreras() {
+    await inicializarCatalogos();
+    
+    const carreras = JSON.parse(localStorage.getItem('cat_carreras') || '[]');
+    const select = document.getElementById('career-filter');
+    if (!select || carreras.length === 0) return;
+    
+    // Mantener primera opción
+    const primera = select.options[0];
+    select.innerHTML = '';
+    select.appendChild(primera);
+    
+    carreras.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c;
+        const partes = c.split('-');
+        option.textContent = partes.length >= 2 ? partes.slice(1).join('-') : c;
+        select.appendChild(option);
+    });
+}
 </script>
 
 </body>
