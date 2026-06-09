@@ -666,10 +666,10 @@
             localStorage.setItem(JUSTIFICAR_KEY, JSON.stringify(list));
         }
 
-        function renderJustificaciones() {
+        function renderJustificaciones(lista) {
             const tbody = document.getElementById('justificar-body');
             const counter = document.getElementById('justificar-count');
-            const list = loadJustificaciones();
+            const list = lista || loadJustificaciones();
             if (counter) counter.textContent = String(list.length);
             if (!list.length) {
                 tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i>Aún no hay justificaciones</td></tr>';
@@ -683,6 +683,47 @@
                     '<td>' + (j.motivo || '') + '</td>' +
                 '</tr>';
             }).join('');
+        }
+
+        // Cargar justificaciones desde la API al iniciar
+        async function cargarJustificacionesDesdeAPI() {
+            const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
+            const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
+            
+            if (!apiUrl) {
+                console.log('No hay URL de API configurada');
+                renderJustificaciones();
+                return;
+            }
+            
+            try {
+                const response = await fetch(apiUrl + '?modo=registro&apiKey=' + encodeURIComponent(apiKey || 'CenturiaApi2024!'));
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.registros && data.registros.length > 0) {
+                        // Filtrar solo ausencias justificadas
+                        const justificaciones = data.registros.filter(r => r.Estado === 'Ausencia Justificada' || r.estado === 'Ausencia Justificada');
+                        if (justificaciones.length > 0) {
+                            // Guardar en localStorage y mostrar
+                            saveJustificaciones(justificaciones.map(j => ({
+                                cedula: j.Cedula || j.cedula || '',
+                                nombre: j.Nombre || j.nombre || '',
+                                carrera: j.Carrera || j.carrera || '',
+                                fecha: j.Fecha || j.fecha || '',
+                                motivo: j.Observacion || j.observacion || '',
+                                marcaTemporal: j.MarcaTemporal || j.marcaTemporal || ''
+                            })));
+        // Cargar justificaciones al iniciar
+        cargarJustificacionesDesdeAPI();
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Error al cargar desde API:', error);
+            }
+            
+            // Siempre renderizar lo que haya en localStorage
+            renderJustificaciones();
         }
 
         // Variable para controlar el timeout de búsqueda
@@ -898,10 +939,19 @@
                 }
                 if (apiKey) params.append('apiKey', apiKey);
 
+                // Usar un timeout más largo para archivos grandes
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+                
                 fetch(apiUrl + '?' + params.toString(), {
-                    method: 'POST'
+                    method: 'POST',
+                    signal: controller.signal
                 })
-                .then(r => r.json())
+                .then(r => {
+                    clearTimeout(timeoutId);
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
                 .then(data => {
                     if (data.ok) {
                         let msg = 'Justificación registrada en la planilla correctamente.';
@@ -910,14 +960,22 @@
                         }
                         status.className = 'status-msg success';
                         status.innerHTML = '<i class="fas fa-check-circle"></i><span>' + msg + '</span>';
+                        // Recargar lista desde API
+                        setTimeout(() => cargarJustificacionesDesdeAPI(), 1000);
                     } else {
                         status.className = 'status-msg error';
                         status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. Error en planilla: ' + (data.error || data.mensaje || 'Error desconocido') + '</span>';
                     }
                 })
                 .catch(err => {
+                    clearTimeout(timeoutId);
+                    console.error('Error de conexión:', err);
                     status.className = 'status-msg error';
-                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. No se pudo conectar con la planilla: ' + err.message + '</span>';
+                    if (err.name === 'AbortError') {
+                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. La conexión tardó demasiado. Intente nuevamente.</span>';
+                    } else {
+                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Guardado localmente. Error de conexión: ' + err.message + '</span>';
+                    }
                 });
             } else {
                 status.className = 'status-msg success';
