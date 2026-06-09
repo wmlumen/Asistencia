@@ -6294,6 +6294,7 @@ function normalizeAttendanceRecord(record) {
         nombre: record.nombre || record.studentName || '',
         cedula: (record.cedula || record.studentId || '').toString().replace(/\./g, '').trim(),
         carrera: record.carrera || record.career || '',
+        seccion: record.seccion || record.section || '',
         observacion: record.observacion || record.notes || '',
         estado: record.estado || 'Presente'
     };
