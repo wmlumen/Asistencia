@@ -122,6 +122,12 @@ function doPost(e) {
   try {
     let data = {};
     
+    // Si se ejecuta manualmente desde el editor, e es undefined
+    if (!e) {
+      console.log('doPost ejecutado manualmente sin evento HTTP');
+      return jsonResponse({ ok: false, error: 'Ejecutar via Web App, no manualmente' });
+    }
+    
     // Intentar leer body JSON
     if (e.postData && e.postData.contents) {
       try {
@@ -359,4 +365,18 @@ function inicializarHojas() {
   getSheet_(SHEET_REGISTRO);
   getSheet_(SHEET_RESUMEN);
   console.log('Hojas inicializadas correctamente');
+}
+
+/* ============================================================
+   PRUEBA MANUAL DE ESCRITURA (ejecutar desde el editor)
+   ============================================================ */
+
+function probarEscrituraManual() {
+  const sheet = getSheet_(SHEET_REGISTRO);
+  const now = new Date();
+  const fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
+  const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
+  
+  sheet.appendRow([fechaStr, 'TEST MANUAL', '9999999', 'CONTABILIDAD', 'S026', '', 'Presente', marcaTemporal]);
+  console.log('Registro de prueba insertado en hoja Registro');
 }
