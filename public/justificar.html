@@ -636,15 +636,17 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Carrera</th>
+                            <th>Sección</th>
                             <th>Fecha</th>
-                            <th>Alumno</th>
-                            <th>Doc.</th>
                             <th>Motivo</th>
                         </tr>
                     </thead>
                     <tbody id="justificar-body">
                         <tr>
-                            <td colspan="4" class="empty-state">
+                            <td colspan="6" class="empty-state">
                                 <i class="fas fa-inbox"></i>
                                 Aún no hay justificaciones
                             </td>
@@ -672,14 +674,16 @@
             const list = lista || loadJustificaciones();
             if (counter) counter.textContent = String(list.length);
             if (!list.length) {
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i>Aún no hay justificaciones</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-inbox"></i>Aún no hay justificaciones</td></tr>';
                 return;
             }
             tbody.innerHTML = list.slice().reverse().map(j => {
                 return '<tr>' +
-                    '<td>' + (j.fecha || '') + '</td>' +
+                    '<td><strong>' + (j.cedula || '') + '</strong></td>' +
                     '<td>' + (j.nombre || '').toUpperCase() + '</td>' +
-                    '<td>' + (j.cedula || '') + '</td>' +
+                    '<td>' + (j.carrera || '') + '</td>' +
+                    '<td>' + (j.seccion || '') + '</td>' +
+                    '<td>' + (j.fecha || '') + '</td>' +
                     '<td>' + (j.motivo || '') + '</td>' +
                 '</tr>';
             }).join('');
@@ -709,12 +713,12 @@
                                 cedula: j.Cedula || j.cedula || '',
                                 nombre: j.Nombre || j.nombre || '',
                                 carrera: j.Carrera || j.carrera || '',
+                                seccion: j.Seccion || j.seccion || '',
                                 fecha: j.Fecha || j.fecha || '',
                                 motivo: j.Observacion || j.observacion || '',
                                 marcaTemporal: j.MarcaTemporal || j.marcaTemporal || ''
                             })));
-        // Cargar justificaciones al iniciar
-        cargarJustificacionesDesdeAPI();
+                            renderJustificaciones();
                         }
                     }
                 }
@@ -725,6 +729,9 @@
             // Siempre renderizar lo que haya en localStorage
             renderJustificaciones();
         }
+
+        // Cargar justificaciones al iniciar
+        cargarJustificacionesDesdeAPI();
 
         // Variable para controlar el timeout de búsqueda
         let busquedaTimeout;
