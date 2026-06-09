@@ -1344,23 +1344,23 @@
 
             <div class="form-card animate-in animate-in-delay-2">
                 <h2><i class="fas fa-clipboard-check"></i> Registrar Asistencia</h2>
-                <form id="attendance-registration-form">
+                <form id="attendance-registration-form" onsubmit="return validarFormularioAsistencia(this);">
                     <div class="form-row">
                         <div class="form-group">
                             <label><i class="fas fa-user"></i> Nombre y Apellido <span style="font-size:10px;color:var(--text-muted)">(en MAYÚSCULA)</span></label>
-                            <input id="attendance-name" type="text" required placeholder="Ej: JUAN PÉREZ" oninput="this.value = this.value.toUpperCase()">
+                            <input id="attendance-name" type="text" required placeholder="Ej: JUAN PÉREZ" oninput="this.value = this.value.toUpperCase(); this.style.borderColor='';" onchange="this.style.borderColor='';">
                         </div>
 
                         <div class="form-group">
                             <label><i class="fas fa-id-card"></i> Cédula de Identidad <span style="font-size:10px;color:var(--text-muted)">(sin puntos)</span></label>
-                            <input id="attendance-id" type="text" required placeholder="Ej: 1234567" oninput="this.value = this.value.replace(/\./g, '')">
+                            <input id="attendance-id" type="text" required placeholder="Ej: 1234567" oninput="this.value = this.value.replace(/\./g, ''); this.style.borderColor='';" onchange="this.style.borderColor='';">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label><i class="fas fa-graduation-cap"></i> Seleccione su Carrera</label>
-                            <select id="attendance-career" required>
+                            <select id="attendance-career" required onchange="this.style.borderColor='';">
                                 <option value="">-- Seleccione --</option>
                                 <option value="LICENCIATURA EN ADMINISTRACION DE EMPRESAS">Licenciatura en Administración de Empresas</option>
                                 <option value="LICENCIATURA EN CONTABILIDAD">Licenciatura en Contabilidad</option>
@@ -1374,7 +1374,7 @@
 
                         <div class="form-group">
                             <label><i class="fas fa-users"></i> Sección</label>
-                            <select id="attendance-section" required>
+                            <select id="attendance-section" required onchange="this.style.borderColor='';">
                                 <option value="">-- Seleccione --</option>
                                 <option value="VL 026">VL 026</option>
                                 <option value="S026">S026</option>
@@ -1398,6 +1398,51 @@
                     </div>
                 </form>
             </div>
+
+            <script>
+                function validarFormularioAsistencia(form) {
+                    const campos = {
+                        'attendance-name': 'Nombre y Apellido',
+                        'attendance-id': 'Cédula de Identidad',
+                        'attendance-career': 'Carrera',
+                        'attendance-section': 'Sección'
+                    };
+                    
+                    const faltantes = [];
+                    let primerCampo = null;
+                    
+                    for (const [id, label] of Object.entries(campos)) {
+                        const el = document.getElementById(id);
+                        const val = el.value.trim();
+                        if (!val) {
+                            faltantes.push(label);
+                            el.style.borderColor = '#dc3545';
+                            el.style.boxShadow = '0 0 0 3px rgba(220,53,69,0.25)';
+                            if (!primerCampo) primerCampo = el;
+                        } else {
+                            el.style.borderColor = '';
+                            el.style.boxShadow = '';
+                        }
+                    }
+                    
+                    const status = document.getElementById('attendance-form-status');
+                    
+                    if (faltantes.length > 0) {
+                        status.className = 'status-msg error';
+                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span><strong>Faltan campos obligatorios:</strong> ' + faltantes.join(', ') + '</span>';
+                        if (primerCampo) {
+                            primerCampo.focus();
+                            primerCampo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        return false; // Evitar envío
+                    }
+                    
+                    // Si todo OK, dejar que el handler de script.js procese el submit
+                    status.className = 'status-msg info';
+                    status.innerHTML = '<i class="fas fa-info-circle"></i><span>Enviando asistencia...</span>';
+                    return true;
+                }
+            </script>
 
         </div>
 
