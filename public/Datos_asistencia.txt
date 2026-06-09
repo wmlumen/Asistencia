@@ -23,7 +23,7 @@ api.secret=CenturiaApi2024!
 # URL publica de la pagina de asistencia (GitHub Pages)
 asistencia.public.url=https://wmlumen.github.io/Asistencia/asistencia.html
 # Web App de Google Apps Script (para escritura POST directa)
-asistencia.api.url=https://script.google.com/macros/s/AKfycbyjarDakw3ICJAKg8OOalR27WBj5zrfQO0MIJAnfXjvpkeO8niEMz0qvz05OWDUF-DLLQ/exec
+asistencia.api.url=https://script.google.com/macros/s/AKfycbz5MUkxeYtwzDt3x-mMSImyQl7EjAUCzgvxTwCZbjmIkzszRQsSDaFfjgcXzheZ9XXdGw/exec
 # Link de Google Sheets asistencia (PLANILLA OFICIAL)
 link.asistencia=https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA/edit?resourcekey=&gid=1228582985#gid=1228582985
 # CSV publico de la hoja de asistencia (para lectura/sincronizacion)
