@@ -97,6 +97,32 @@ function doGet(e) {
       return jsonResponse({ justificaciones, total: justificaciones.length });
     }
 
+    if (modo === 'buscar') {
+      const cedula = (data.cedula || '').toString().replace(/\./g, '').trim();
+      if (!cedula) return jsonResponse({ registros: [] });
+      
+      const sheet = getSheet_(SHEET_REGISTRO);
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) return jsonResponse({ registros: [] });
+      
+      const headers = values[0];
+      const registros = values.slice(1)
+        .filter(row => {
+          const rowCedula = (row[2] || '').toString().replace(/\./g, '').trim();
+          return rowCedula === cedula;
+        })
+        .reverse()
+        .map(row => {
+          return headers.reduce((acc, h, i) => { 
+            acc[h] = row[i]; 
+            return acc; 
+          }, {});
+        });
+      
+      console.log('Buscar cedula:', cedula, '- Encontrados:', registros.length);
+      return jsonResponse({ registros, total: registros.length });
+    }
+
     // modo = 'registro' por defecto
     const sheet = getSheet_(SHEET_REGISTRO);
     const values = sheet.getDataRange().getValues();
