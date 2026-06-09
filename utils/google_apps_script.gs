@@ -35,9 +35,6 @@ function getSheet_(name) {
     if (name === SHEET_REGISTRO) {
       sheet.appendRow(['Fecha','Nombre','Cedula','Carrera','Seccion','Observacion','Estado','MarcaTemporal']);
       sheet.getRange('A:A').setNumberFormat('dd/MM/yyyy');
-    } else if (name === SHEET_JUSTIFICACIONES) {
-      sheet.appendRow(['FechaAusencia','Cedula','Nombre','Carrera','Motivo','Observacion','MarcaTemporal']);
-      sheet.getRange('A:A').setNumberFormat('dd/MM/yyyy');
     } else if (name === SHEET_RESUMEN) {
       sheet.appendRow(['Cedula','Nombre','Carrera','TotalClases','Presentes','Tardanzas','AusJustificadas','Ausencias','Porcentaje']);
     }
