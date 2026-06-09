@@ -422,41 +422,39 @@
     <div class="bg-cyan-50 text-cyan-600 p-1.5 rounded-lg text-xs"><i class="fas fa-calendar-alt"></i></div>
     <h3 class="font-bold text-sm text-slate-900">Calendario Docente</h3>
     </div>
-    <button onclick="cargarCalendarioDocente()" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-semibold transition-all">
-    <i class="fas fa-sync-alt"></i> Actualizar
+    <div class="flex items-center gap-2">
+    <button onclick="cambiarVistaCalendario('lista')" id="btn-vista-lista" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-cyan-100 text-cyan-700">
+    <i class="fas fa-list mr-1"></i> Lista
+    </button>
+    <button onclick="cambiarVistaCalendario('mes')" id="btn-vista-mes" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+    <i class="fas fa-calendar mr-1"></i> Mes
+    </button>
+    <button onclick="cambiarVistaCalendario('semana')" id="btn-vista-semana" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+    <i class="fas fa-columns mr-1"></i> Semana
+    </button>
+    <button onclick="cambiarVistaCalendario('dia')" id="btn-vista-dia" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+    <i class="fas fa-square mr-1"></i> Día
+    </button>
+    <button onclick="cargarCalendarioDocente()" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ml-2">
+    <i class="fas fa-sync-alt"></i>
+    </button>
+    </div>
+    </div>
+    
+    <!-- Navegación de fechas -->
+    <div class="px-5 py-3 border-b border-slate-100 bg-white flex items-center justify-between">
+    <button onclick="navegarFecha(-1)" class="p-2 hover:bg-slate-100 rounded-lg transition-all text-slate-600">
+    <i class="fas fa-chevron-left"></i>
+    </button>
+    <h4 id="calendario-titulo" class="text-sm font-bold text-slate-800">Planificaciones</h4>
+    <button onclick="navegarFecha(1)" class="p-2 hover:bg-slate-100 rounded-lg transition-all text-slate-600">
+    <i class="fas fa-chevron-right"></i>
     </button>
     </div>
     
-    <div class="p-5 space-y-4">
-    <!-- Clases Activas -->
-    <div>
-    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Clases Activas
-    </h4>
-    <div id="clases-activas" class="space-y-2">
-    <p class="text-xs text-slate-400 py-4 text-center">Cargando planificaciones...</p>
-    </div>
-    </div>
-    
-    <!-- Confirmados Mes Siguiente -->
-    <div>
-    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-    <span class="w-2 h-2 rounded-full bg-blue-500"></span> Confirmados - Mes Siguiente
-    </h4>
-    <div id="clases-confirmadas" class="space-y-2">
-    <p class="text-xs text-slate-400 py-4 text-center">Cargando...</p>
-    </div>
-    </div>
-    
-    <!-- Pendientes a Cerrar -->
-    <div>
-    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-    <span class="w-2 h-2 rounded-full bg-amber-500"></span> Pendientes a Cerrar
-    </h4>
-    <div id="clases-pendientes" class="space-y-2">
-    <p class="text-xs text-slate-400 py-4 text-center">Cargando...</p>
-    </div>
-    </div>
+    <!-- Contenido del calendario -->
+    <div id="calendario-contenido" class="p-5">
+    <!-- Se renderiza dinámicamente -->
     </div>
     </div>
 
@@ -592,46 +590,131 @@ async function cargarCalendarioDocente() {
             }
         });
         
-        renderizarClases('clases-activas', activas, 'emerald');
-        renderizarClases('clases-confirmadas', confirmadas, 'blue');
-        renderizarClases('clases-pendientes', pendientes, 'amber');
+        // Guardar planificaciones globalmente
+        window.planificacionesCalendario = planificaciones;
         
         // Actualizar badge
         const badge = document.getElementById('sidebar-calendar-badge');
         if (badge) badge.textContent = activas.length;
         
+        // Renderizar vista actual
+        renderizarVistaCalendario();
+        
     } catch (err) {
         console.error('Error cargando calendario:', err);
-        mostrarCalendarioVacio();
+        document.getElementById('calendario-contenido').innerHTML = '<p class="text-xs text-slate-400 py-8 text-center">No se pudieron cargar las planificaciones.</p>';
     }
 }
 
-function renderizarClases(containerId, clases, color) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
+// Variables globales del calendario
+let vistaCalendarioActual = 'lista';
+let fechaCalendario = new Date();
+
+function cambiarVistaCalendario(vista) {
+    vistaCalendarioActual = vista;
     
-    if (clases.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">No hay planificaciones en esta categoría.</p>';
+    // Actualizar botones
+    ['lista', 'mes', 'semana', 'dia'].forEach(v => {
+        const btn = document.getElementById('btn-vista-' + v);
+        if (btn) {
+            if (v === vista) {
+                btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-cyan-100 text-cyan-700';
+            } else {
+                btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200';
+            }
+        }
+    });
+    
+    renderizarVistaCalendario();
+}
+
+function navegarFecha(direccion) {
+    if (vistaCalendarioActual === 'mes') {
+        fechaCalendario.setMonth(fechaCalendario.getMonth() + direccion);
+    } else if (vistaCalendarioActual === 'semana') {
+        fechaCalendario.setDate(fechaCalendario.getDate() + (direccion * 7));
+    } else if (vistaCalendarioActual === 'dia') {
+        fechaCalendario.setDate(fechaCalendario.getDate() + direccion);
+    }
+    renderizarVistaCalendario();
+}
+
+function renderizarVistaCalendario() {
+    const planificaciones = window.planificacionesCalendario || [];
+    const titulo = document.getElementById('calendario-titulo');
+    const contenido = document.getElementById('calendario-contenido');
+    
+    if (!contenido) return;
+    
+    if (planificaciones.length === 0) {
+        contenido.innerHTML = '<p class="text-xs text-slate-400 py-8 text-center">No hay planificaciones cargadas.</p>';
         return;
     }
     
+    if (vistaCalendarioActual === 'lista') {
+        if (titulo) titulo.textContent = 'Planificaciones';
+        renderizarVistaLista(planificaciones, contenido);
+    } else if (vistaCalendarioActual === 'mes') {
+        if (titulo) titulo.textContent = fechaCalendario.toLocaleDateString('es-PY', { month: 'long', year: 'numeric' });
+        renderizarVistaMensual(planificaciones, contenido);
+    } else if (vistaCalendarioActual === 'semana') {
+        if (titulo) titulo.textContent = 'Semana del ' + fechaCalendario.toLocaleDateString('es-PY');
+        renderizarVistaSemanal(planificaciones, contenido);
+    } else if (vistaCalendarioActual === 'dia') {
+        if (titulo) titulo.textContent = fechaCalendario.toLocaleDateString('es-PY', { weekday: 'long', day: 'numeric', month: 'long' });
+        renderizarVistaDiaria(planificaciones, contenido);
+    }
+}
+
+function renderizarVistaLista(planificaciones, contenido) {
+    const hoy = new Date();
+    
+    const activas = planificaciones.filter(p => hoy >= p.inicio && hoy <= p.cierre);
+    const confirmadas = planificaciones.filter(p => p.inicio > hoy);
+    const pendientes = planificaciones.filter(p => p.cierre < hoy);
+    
+    let html = '<div class="space-y-4">';
+    
+    // Activas
+    html += '<div><h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Activas (' + activas.length + ')</h4>';
+    if (activas.length === 0) html += '<p class="text-xs text-slate-400 py-2">No hay clases activas.</p>';
+    else html += renderizarCardsPlanif(activas, 'emerald');
+    html += '</div>';
+    
+    // Confirmadas
+    html += '<div><h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Próximas (' + confirmadas.length + ')</h4>';
+    if (confirmadas.length === 0) html += '<p class="text-xs text-slate-400 py-2">No hay clases próximas.</p>';
+    else html += renderizarCardsPlanif(confirmadas, 'blue');
+    html += '</div>';
+    
+    // Pendientes
+    html += '<div><h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Finalizadas (' + pendientes.length + ')</h4>';
+    if (pendientes.length === 0) html += '<p class="text-xs text-slate-400 py-2">No hay clases finalizadas.</p>';
+    else html += renderizarCardsPlanif(pendientes, 'amber');
+    html += '</div>';
+    
+    html += '</div>';
+    contenido.innerHTML = html;
+}
+
+function renderizarCardsPlanif(planifs, color) {
     const colorClasses = {
         emerald: 'border-emerald-200 bg-emerald-50',
         blue: 'border-blue-200 bg-blue-50',
         amber: 'border-amber-200 bg-amber-50'
     };
     
-    let html = '';
-    clases.forEach(c => {
-        const inicioStr = c.inicio.toLocaleDateString('es-PY');
-        const cierreStr = c.cierre.toLocaleDateString('es-PY');
-        const diasRestantes = Math.ceil((c.cierre - new Date()) / (1000 * 60 * 60 * 24));
+    let html = '<div class="space-y-2">';
+    planifs.forEach(p => {
+        const inicioStr = p.inicio.toLocaleDateString('es-PY');
+        const cierreStr = p.cierre.toLocaleDateString('es-PY');
+        const diasRestantes = Math.ceil((p.cierre - new Date()) / (1000 * 60 * 60 * 24));
         
         html += '<div class="border rounded-lg p-3 ' + (colorClasses[color] || 'border-slate-200 bg-slate-50') + '">';
         html += '<div class="flex justify-between items-start">';
         html += '<div>';
-        html += '<strong class="text-xs text-slate-800">' + (c.asignatura || 'Sin asignatura') + '</strong>';
-        html += '<p class="text-[10px] text-slate-500 mt-0.5">' + (c.carrera || '') + ' | ' + (c.seccion || '') + '</p>';
+        html += '<strong class="text-xs text-slate-800">' + (p.asignatura || 'Sin asignatura') + '</strong>';
+        html += '<p class="text-[10px] text-slate-500 mt-0.5">' + (p.carrera || '') + ' | ' + (p.seccion || '') + '</p>';
         html += '</div>';
         html += '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full ';
         if (diasRestantes <= 7) html += 'bg-rose-100 text-rose-700';
@@ -641,19 +724,144 @@ function renderizarClases(containerId, clases, color) {
         html += '</div>';
         html += '<div class="flex justify-between items-center mt-2 pt-2 border-t border-white/50">';
         html += '<span class="text-[10px] text-slate-500"><i class="fas fa-calendar-day mr-1"></i>' + inicioStr + ' - ' + cierreStr + '</span>';
-        if (c.sala) html += '<span class="text-[10px] text-slate-500"><i class="fas fa-door-open mr-1"></i>' + c.sala + '</span>';
+        if (p.sala) html += '<span class="text-[10px] text-slate-500"><i class="fas fa-door-open mr-1"></i>' + p.sala + '</span>';
         html += '</div>';
         html += '</div>';
     });
-    
-    container.innerHTML = html;
+    html += '</div>';
+    return html;
 }
 
-function mostrarCalendarioVacio() {
-    ['clases-activas', 'clases-confirmadas', 'clases-pendientes'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">No se pudieron cargar las planificaciones.</p>';
+function renderizarVistaMensual(planificaciones, contenido) {
+    const anio = fechaCalendario.getFullYear();
+    const mes = fechaCalendario.getMonth();
+    
+    const primerDia = new Date(anio, mes, 1);
+    const ultimoDia = new Date(anio, mes + 1, 0);
+    const diaSemanaInicio = primerDia.getDay(); // 0=Domingo
+    
+    const diasMes = ultimoDia.getDate();
+    const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    
+    let html = '<div class="space-y-3">';
+    
+    // Encabezado de días
+    html += '<div class="grid grid-cols-7 gap-1">';
+    diasSemana.forEach(d => {
+        html += '<div class="text-center text-[10px] font-bold text-slate-500 py-1">' + d + '</div>';
     });
+    html += '</div>';
+    
+    // Días del mes
+    html += '<div class="grid grid-cols-7 gap-1">';
+    
+    // Espacios vacíos antes del primer día
+    for (let i = 0; i < diaSemanaInicio; i++) {
+        html += '<div class="min-h-[60px] bg-slate-50 rounded"></div>';
+    }
+    
+    // Días
+    for (let dia = 1; dia <= diasMes; dia++) {
+        const fechaDia = new Date(anio, mes, dia);
+        const planifsDia = planificaciones.filter(p => fechaDia >= p.inicio && fechaDia <= p.cierre);
+        
+        let bgClass = 'bg-white';
+        if (planifsDia.length > 0) bgClass = 'bg-cyan-50 border-cyan-200';
+        if (fechaDia.toDateString() === new Date().toDateString()) bgClass = 'bg-emerald-50 border-emerald-300';
+        
+        html += '<div class="min-h-[60px] border rounded p-1 ' + bgClass + '">';
+        html += '<div class="text-[10px] font-bold text-slate-700">' + dia + '</div>';
+        
+        planifsDia.slice(0, 2).forEach(p => {
+            html += '<div class="text-[8px] truncate mt-0.5 px-1 py-0.5 rounded bg-cyan-100 text-cyan-800">' + (p.asignatura || 'Clase') + '</div>';
+        });
+        
+        if (planifsDia.length > 2) {
+            html += '<div class="text-[8px] text-slate-400 mt-0.5">+' + (planifsDia.length - 2) + ' más</div>';
+        }
+        
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    html += '</div>';
+    
+    contenido.innerHTML = html;
+}
+
+function renderizarVistaSemanal(planificaciones, contenido) {
+    const inicioSemana = new Date(fechaCalendario);
+    inicioSemana.setDate(fechaCalendario.getDate() - fechaCalendario.getDay());
+    
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    
+    let html = '<div class="space-y-2">';
+    
+    for (let i = 0; i < 7; i++) {
+        const fechaDia = new Date(inicioSemana);
+        fechaDia.setDate(inicioSemana.getDate() + i);
+        
+        const planifsDia = planificaciones.filter(p => fechaDia >= p.inicio && fechaDia <= p.cierre);
+        const esHoy = fechaDia.toDateString() === new Date().toDateString();
+        
+        html += '<div class="border rounded-lg p-3 ' + (esHoy ? 'bg-emerald-50 border-emerald-200' : 'bg-white') + '">';
+        html += '<div class="flex items-center justify-between mb-2">';
+        html += '<strong class="text-xs ' + (esHoy ? 'text-emerald-700' : 'text-slate-700') + '">' + diasSemana[i] + ' ' + fechaDia.getDate() + '/' + (fechaDia.getMonth() + 1) + '</strong>';
+        if (esHoy) html += '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Hoy</span>';
+        html += '</div>';
+        
+        if (planifsDia.length === 0) {
+            html += '<p class="text-[10px] text-slate-400">Sin clases</p>';
+        } else {
+            planifsDia.forEach(p => {
+                html += '<div class="flex items-center gap-2 py-1">';
+                html += '<span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>';
+                html += '<span class="text-[11px] text-slate-700">' + (p.asignatura || 'Clase') + ' - ' + (p.seccion || '') + '</span>';
+                html += '</div>';
+            });
+        }
+        
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    contenido.innerHTML = html;
+}
+
+function renderizarVistaDiaria(planificaciones, contenido) {
+    const planifsDia = planificaciones.filter(p => fechaCalendario >= p.inicio && fechaCalendario <= p.cierre);
+    
+    let html = '<div class="space-y-3">';
+    
+    if (planifsDia.length === 0) {
+        html += '<div class="text-center py-8">';
+        html += '<i class="fas fa-calendar-day text-3xl text-slate-300 mb-2"></i>';
+        html += '<p class="text-xs text-slate-500">No hay clases programadas para este día.</p>';
+        html += '</div>';
+    } else {
+        planifsDia.forEach(p => {
+            const diasRestantes = Math.ceil((p.cierre - fechaCalendario) / (1000 * 60 * 60 * 24));
+            
+            html += '<div class="border rounded-lg p-4 bg-white">';
+            html += '<div class="flex justify-between items-start">';
+            html += '<div>';
+            html += '<h5 class="text-sm font-bold text-slate-800">' + (p.asignatura || 'Sin asignatura') + '</h5>';
+            html += '<p class="text-xs text-slate-500 mt-1">' + (p.carrera || '') + '</p>';
+            html += '<p class="text-xs text-slate-500">Sección: ' + (p.seccion || '') + '</p>';
+            html += '</div>';
+            html += '<span class="text-xs font-bold px-2 py-1 rounded-full bg-cyan-100 text-cyan-700">' + diasRestantes + ' días restantes</span>';
+            html += '</div>';
+            html += '<div class="mt-3 pt-3 border-t border-slate-100 flex gap-4">';
+            html += '<span class="text-xs text-slate-500"><i class="fas fa-calendar mr-1"></i>' + p.inicio.toLocaleDateString('es-PY') + ' - ' + p.cierre.toLocaleDateString('es-PY') + '</span>';
+            if (p.sala) html += '<span class="text-xs text-slate-500"><i class="fas fa-door-open mr-1"></i>' + p.sala + '</span>';
+            if (p.sede) html += '<span class="text-xs text-slate-500"><i class="fas fa-map-marker-alt mr-1"></i>' + p.sede + '</span>';
+            html += '</div>';
+            html += '</div>';
+        });
+    }
+    
+    html += '</div>';
+    contenido.innerHTML = html;
 }
 
 // Cargar calendario al iniciar si estamos en esa pestaña
