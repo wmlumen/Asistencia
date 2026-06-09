@@ -1,7 +1,6 @@
 /**
  * ASISTENCIA CENTURIA - Google Apps Script
  * ==========================================
- * Proyecto: https://script.google.com/home/projects/1hJhNk5IlDLqQuNa9Xoy3pmsm2nmVZjzoEJO9462n6ZpQMoc8GCAiSJp4/edit
  * Planilla: https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA/edit
  * 
  * INSTRUCCIONES:
@@ -43,19 +42,76 @@ function getSheet_(name) {
   return sheet;
 }
 
-function json_(payload) {
+function jsonResponse(data) {
   return ContentService
-    .createTextOutput(JSON.stringify(payload))
+    .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function validarApiKey_(data, e) {
-  // Permitir validación tanto en body (POST) como en query params (GET)
-  const key = (data?.apiKey || data?.api_secret || e?.parameter?.apiKey || e?.parameter?.api_secret || '').trim();
-  if (key !== API_SECRET) {
-    return json_({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
+/* ============================================================
+   CORS - Manejar peticiones OPTIONS (preflight)
+   ============================================================ */
+
+function doOptions(e) {
+  return jsonResponse({});
+}
+
+/* ============================================================
+   LEER ASISTENCIA (GET)
+   ============================================================ */
+
+function doGet(e) {
+  try {
+    const data = e?.parameter || {};
+    
+    // Validar API key
+    const key = (data.apiKey || data.api_secret || '').trim();
+    if (key !== API_SECRET) {
+      return jsonResponse({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
+    }
+    
+    const modo = data.modo || 'registro';
+
+    if (modo === 'resumen') {
+      return jsonResponse({ resumen: obtenerResumen_() });
+    }
+
+    if (modo === 'csv') {
+      return exportarCSV_();
+    }
+
+    if (modo === 'justificaciones') {
+      const sheet = getSheet_(SHEET_JUSTIFICACIONES);
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) return jsonResponse({ justificaciones: [] });
+      const headers = values[0];
+      const justificaciones = values.slice(1).reverse().map(row => {
+        return headers.reduce((acc, h, i) => { 
+          acc[h] = row[i]; 
+          return acc; 
+        }, {});
+      });
+      return jsonResponse({ justificaciones, total: justificaciones.length });
+    }
+
+    // modo = 'registro' por defecto
+    const sheet = getSheet_(SHEET_REGISTRO);
+    const values = sheet.getDataRange().getValues();
+
+    if (values.length <= 1) return jsonResponse({ registros: [] });
+
+    const headers = values[0];
+    const registros = values.slice(1).reverse().map(row => {
+      return headers.reduce((acc, h, i) => { 
+        acc[h] = row[i]; 
+        return acc; 
+      }, {});
+    });
+
+    return jsonResponse({ registros, total: registros.length });
+  } catch (error) {
+    return jsonResponse({ ok: false, error: error.message });
   }
-  return null; // null = validación OK
 }
 
 /* ============================================================
@@ -84,8 +140,11 @@ function doPost(e) {
     
     console.log('doPost recibido. Keys:', Object.keys(data).join(', '));
 
-    const auth = validarApiKey_(data, e);
-    if (auth) return auth;
+    // Validar API key
+    const key = (data.apiKey || data.api_secret || '').trim();
+    if (key !== API_SECRET) {
+      return jsonResponse({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
+    }
 
     // Modo justificación de ausencia
     if (data.modo === 'justificar') {
@@ -101,7 +160,7 @@ function doPost(e) {
       const observacion = (data.notes || data.observacion || '').trim();
 
       if (!nombre || !cedula || !carrera || !fechaAusencia) {
-        return json_({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o fecha de ausencia' });
+        return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o fecha de ausencia' });
       }
 
       const carrerasValidas = [
@@ -116,11 +175,11 @@ function doPost(e) {
       const carreraNormalizada = carrera.toUpperCase().trim();
       const carreraValida = carrerasValidas.find(c => carreraNormalizada.includes(c));
       if (!carreraValida) {
-        return json_({ ok: false, error: 'Carrera no válida: ' + carrera });
+        return jsonResponse({ ok: false, error: 'Carrera no válida: ' + carrera });
       }
 
       sheet.appendRow([fechaAusencia, cedula, nombre, carreraValida, motivo, observacion, marcaTemporal]);
-      return json_({ ok: true, mensaje: 'Justificación registrada correctamente' });
+      return jsonResponse({ ok: true, mensaje: 'Justificación registrada correctamente' });
     }
 
     // Modo asistencia (default)
@@ -136,7 +195,7 @@ function doPost(e) {
     const observacion = (data.notes || data.observacion || '').trim();
 
     if (!nombre || !cedula || !carrera || !seccion) {
-      return json_({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o seccion' });
+      return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o seccion' });
     }
 
     // Evitar duplicados exactos en la misma fecha
@@ -147,68 +206,15 @@ function doPost(e) {
     });
 
     if (yaExiste) {
-      return json_({ ok: false, duplicado: true, mensaje: 'Ya existe un registro para esta cedula en la fecha actual' });
+      return jsonResponse({ ok: false, duplicado: true, mensaje: 'Ya existe un registro para esta cedula en la fecha actual' });
     }
 
     sheet.appendRow([fechaStr, nombre, cedula, carrera, seccion, observacion, 'Presente', marcaTemporal]);
     recalcularResumen_();
 
-    return json_({ ok: true, mensaje: 'Asistencia registrada correctamente', duplicado: false });
+    return jsonResponse({ ok: true, mensaje: 'Asistencia registrada correctamente', duplicado: false });
   } catch (error) {
-    return json_({ ok: false, error: error.message || 'Error desconocido' });
-  }
-}
-
-/* ============================================================
-   LEER ASISTENCIA (GET)
-   ============================================================ */
-
-function doGet(e) {
-  try {
-    const modo = e?.parameter?.modo || 'registro';
-
-    const auth = validarApiKey_({}, e);
-    if (auth) return auth;
-
-    if (modo === 'resumen') {
-      return json_({ resumen: obtenerResumen_() });
-    }
-
-    if (modo === 'csv') {
-      return exportarCSV_();
-    }
-
-    if (modo === 'justificaciones') {
-      const sheet = getSheet_(SHEET_JUSTIFICACIONES);
-      const values = sheet.getDataRange().getValues();
-      if (values.length <= 1) return json_({ justificaciones: [] });
-      const headers = values[0];
-      const justificaciones = values.slice(1).reverse().map(row => {
-        return headers.reduce((acc, h, i) => { 
-          acc[h] = row[i]; 
-          return acc; 
-        }, {});
-      });
-      return json_({ justificaciones, total: justificaciones.length });
-    }
-
-    // modo = 'registro' por defecto
-    const sheet = getSheet_(SHEET_REGISTRO);
-    const values = sheet.getDataRange().getValues();
-
-    if (values.length <= 1) return json_({ registros: [] });
-
-    const headers = values[0];
-    const registros = values.slice(1).reverse().map(row => {
-      return headers.reduce((acc, h, i) => { 
-        acc[h] = row[i]; 
-        return acc; 
-      }, {});
-    });
-
-    return json_({ registros, total: registros.length });
-  } catch (error) {
-    return json_({ ok: false, error: error.message });
+    return jsonResponse({ ok: false, error: error.message || 'Error desconocido' });
   }
 }
 
