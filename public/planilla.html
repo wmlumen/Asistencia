@@ -749,7 +749,12 @@
                 document.getElementById('planilla-header').style.display = 'block';
                 cargarCatalogosPlanilla();
                 cargarConfigGuardada();
-                if (dataSource) setDataSource(dataSource);
+                // Auto-detectar API si no hay fuente guardada
+                if (!dataSource && typeof getAttendanceApiUrl === 'function' && getAttendanceApiUrl()) {
+                    setDataSource('api');
+                } else if (dataSource) {
+                    setDataSource(dataSource);
+                }
             } else {
                 error.classList.add('show');
                 input.value = '';
@@ -1209,7 +1214,12 @@
                 document.getElementById('loginOverlay').classList.add('hidden');
                 document.getElementById('mainContent').style.display = 'block';
                 cargarConfigGuardada();
-                if (dataSource) setDataSource(dataSource);
+                // Auto-detectar API si no hay fuente guardada
+                if (!dataSource && typeof getAttendanceApiUrl === 'function' && getAttendanceApiUrl()) {
+                    setDataSource('api');
+                } else if (dataSource) {
+                    setDataSource(dataSource);
+                }
             }
         })();
     </script>
