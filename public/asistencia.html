@@ -1866,10 +1866,18 @@
             }
 
             const registrosMostrar = porFecha[fechaMostrar] || [];
-            const cedulasUnicas = new Set(registrosMostrar.map(r => r.cedula).filter(Boolean)).size;
+            // Filtrar cedulas duplicadas en el mismo dia (mostrar solo el primer registro de cada alumno)
+            const cedulasVistas = new Set();
+            const registrosUnicos = registrosMostrar.filter(r => {
+                if (!r.cedula) return true;
+                if (cedulasVistas.has(r.cedula)) return false;
+                cedulasVistas.add(r.cedula);
+                return true;
+            });
+            const cedulasUnicas = new Set(registrosUnicos.map(r => r.cedula).filter(Boolean)).size;
             if (counter) counter.textContent = String(cedulasUnicas);
 
-            if (!registrosMostrar.length) {
+            if (!registrosUnicos.length) {
                 tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><div class="empty-state-text">Aún no hay registros</div></td></tr>';
                 return;
             }
@@ -1892,7 +1900,7 @@
 
             if (showDetails) {
                 // Filas de cada registro (hora + datos) solo en modo docente
-                registrosMostrar.forEach(r => {
+                registrosUnicos.forEach(r => {
                     html += `<tr class="registro-row">
                         <td class="hora-cell">${r.hora || '--:--'}</td>
                         <td>${r.nombre}</td>
