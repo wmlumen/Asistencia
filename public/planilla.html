@@ -770,8 +770,8 @@
             let secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
             const asignaturas = JSON.parse(localStorage.getItem('cat_asignaturas') || '[]');
             
-            // Asegurar que existan VL 026 y OTRO en secciones (valores usados en los datos)
-            const extras = ['VL 026', 'OTRO'];
+            // Asegurar que existan las secciones exactas usadas en los datos
+            const extras = ['LV 026', 'MJ 026', 'S 026', 'Otro'];
             extras.forEach(e => {
                 if (!secciones.includes(e)) {
                     secciones.push(e);
