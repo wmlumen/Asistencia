@@ -986,7 +986,9 @@ async function inicializarCatalogos() {
                     { codigo: '03', nombre: 'M026 (Mañana)' },
                     { codigo: '04', nombre: 'T026 (Tarde)' },
                     { codigo: '05', nombre: 'N026 (Noche)' },
-                    { codigo: '06', nombre: 'VL026 (Virtual)' }
+                    { codigo: '06', nombre: 'VL026 (Virtual)' },
+                    { codigo: '07', nombre: 'VL 026' },
+                    { codigo: '08', nombre: 'OTRO' }
                 ],
                 carreras: [
                     { codigo: '01', nombre: 'Licenciatura Administración de Empresas' },
