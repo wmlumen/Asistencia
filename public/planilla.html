@@ -980,6 +980,18 @@
                 statusText.textContent = 'Error al cargar';
             }
             
+            // Aplicar filtros de carrera y sección
+            if (configPlanilla.carrera) {
+                const filtroCarrera = configPlanilla.carrera.toUpperCase().trim();
+                records = records.filter(r => (r.carrera || r.Carrera || r.career || '').toUpperCase().trim() === filtroCarrera);
+                justificaciones = justificaciones.filter(j => (j.carrera || j.Carrera || '').toUpperCase().trim() === filtroCarrera);
+            }
+            if (configPlanilla.seccion) {
+                const filtroSeccion = configPlanilla.seccion.toUpperCase().trim();
+                records = records.filter(r => (r.seccion || r.Seccion || r.section || r.grupo || r.Grupo || '').toUpperCase().trim() === filtroSeccion);
+                justificaciones = justificaciones.filter(j => (j.seccion || j.Seccion || j.grupo || j.Grupo || '').toUpperCase().trim() === filtroSeccion);
+            }
+            
             if (!records.length && !justificaciones.length) {
                 tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;">No hay datos disponibles</td></tr>';
                 return;
@@ -1149,6 +1161,16 @@
                 statusText.textContent = 'Error al cargar';
             }
             
+            // Aplicar filtros de carrera y sección
+            if (configPlanilla.carrera) {
+                const filtroCarrera = configPlanilla.carrera.toUpperCase().trim();
+                records = records.filter(r => (r.carrera || r.Carrera || r.career || '').toUpperCase().trim() === filtroCarrera);
+            }
+            if (configPlanilla.seccion) {
+                const filtroSeccion = configPlanilla.seccion.toUpperCase().trim();
+                records = records.filter(r => (r.seccion || r.Seccion || r.section || r.grupo || r.Grupo || '').toUpperCase().trim() === filtroSeccion);
+            }
+            
             if (!records.length) {
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">No hay datos disponibles</td></tr>';
                 return;
@@ -1217,10 +1239,16 @@
         })();
         
         // Verificar sesión al cargar
-        (function() {
+        (async function() {
             if (typeof isTeacherSessionActive === 'function' && isTeacherSessionActive()) {
                 document.getElementById('loginOverlay').classList.add('hidden');
                 document.getElementById('mainContent').style.display = 'block';
+                
+                // Cargar las opciones de los selects primero
+                if (typeof cargarCatalogosPlanilla === 'function') {
+                    await cargarCatalogosPlanilla();
+                }
+                
                 cargarConfigGuardada();
                 // Auto-detectar API si no hay fuente guardada
                 if (!dataSource && typeof getAttendanceApiUrl === 'function' && getAttendanceApiUrl()) {

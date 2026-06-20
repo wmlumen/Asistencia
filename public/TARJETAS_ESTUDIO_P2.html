@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            // U1 & U2
+            { q: "¿Quién propuso la 'Ley de los Tres Estados'?", a: "Augusto Comte (Teológico, Metafísico y Positivo)." },
+            { q: "¿Qué es la 'Incrustación Social' (Embeddedness)?", a: "La idea de que las transacciones económicas dependen de redes de confianza y lazos sociales." },
+            { q: "¿Qué autor estudia la 'Acción Social' y el método 'Verstehen'?", a: "Max Weber." },
+            { q: "¿En qué se diferencia el Homo Economicus del Sociologicus?", a: "El primero es una calculadora racional aislada; el segundo actúa movido por normas, estatus y valores." },
+            // U3
+            { q: "¿Qué es la Socialización Primaria?", a: "Internalización de normas básicas en la familia durante la niñez." },
+            { q: "¿Qué es el Etnocentrismo?", a: "Juzgar otras culturas bajo los estándares de la propia, asumiendo superioridad." },
+            { q: "¿Cuál es la diferencia entre cultura material e inmaterial?", a: "Material: objetos y tecnología. Inmaterial: valores, símbolos, normas y leyes." },
+            // U4
+            { q: "¿Qué es la Solidaridad Mecánica (Durkheim)?", a: "Cohesión por similitud, típica de sociedades tradicionales con poca división del trabajo." },
+            { q: "¿Qué es la Solidaridad Orgánica?", a: "Cohesión por interdependencia funcional, típica de sociedades modernas especializadas." },
+            { q: "¿Qué caracteriza a un Grupo Primario?", a: "Relaciones afectivas, íntimas y cara a cara (ej. la familia)." },
+            { q: "¿Qué es un Grupo Secundario?", a: "Relaciones formales, impersonales y utilitarias (ej. una empresa o sindicato)." },
+            { q: "¿En qué consiste la Anomia?", a: "Estado de confusión o falta de normas claras que regulen la conducta social." },
+            // U5
+            { q: "¿Qué es la 'Agencia Humana'?", a: "La capacidad de los individuos para tomar decisiones libres frente a las presiones del entorno." },
+            { q: "¿Qué significa el concepto de 'Mala Fe' en Sartre?", a: "Autoengaño para evadir la responsabilidad moral diciendo 'solo seguía órdenes' o 'el sistema me obligó'." },
+            { q: "¿Qué es la Libertad Negativa?", a: "La ausencia de interferencia u obstáculos externos para actuar ('Libertad de...')." },
+            { q: "¿Qué es la Libertad Positiva?", a: "La capacidad real de autodeterminación y cumplimiento de un proyecto de vida ('Libertad para...')." },
+            { q: "¿Qué condición social es vital para el mercado en la U5?", a: "La Seguridad Jurídica: normas claras y aplicadas equitativamente." },
+            // U6
+            { q: "¿Qué es la Estratificación Social?", a: "División de la sociedad en capas jerárquicas con desigual acceso a recursos y poder." },
+            { q: "¿Qué es la Movilidad Social?", a: "Capacidad de ascender o descender de clase social por mérito o educación." },
+            { q: "¿Cuál es el motor del cambio para Karl Marx?", a: "La lucha de clases y el conflicto por los medios de producción." },
+            { q: "¿Qué es la Modernización?", a: "Transición de sociedades tradicionales a industriales, tecnológicas y burocráticas." },
+            { q: "¿Qué impacto tiene la Globalización en los mercados locales?", a: "Genera interdependencia mundial y exige mayor relativismo cultural." },
+            { q: "¿Por qué surge la 'Resistencia al Cambio'?", a: "Por intereses creados (quienes se benefician del atraso) o inercia de la cultura antigua." },
+            // General
+            { q: "¿Qué estudia la Dinámica Social según Comte?", a: "El progreso y las leyes del cambio en la sociedad." },
+            { q: "¿Qué es el Capital Social?", a: "Recursos y favores obtenidos mediante redes de contactos y confianza." },
+            { q: "¿Qué autor analizó la Burocracia como forma racional?", a: "Max Weber." },
+            { q: "¿Qué es una Institución Social?", a: "Pautas estables de comportamiento que regulan la vida social (ej. el Estado)." },
+            { q: "¿Qué es el Relativismo Cultural?", a: "Comprender una cultura ajena desde sus propios términos, sin juzgarla." },
+            { q: "¿Qué es un Hecho Social (Durkheim)?", a: "Formas de actuar externas y coercitivas al individuo." },
+            { q: "¿Qué es la Socialización Secundaria?", a: "Aprendizaje de roles en instituciones específicas (ej. la universidad o el trabajo)." }
+        ];
+
+        let currentIndex = 0;
+        const cardElement = document.getElementById('flashcard');
+        const qText = document.getElementById('question-text');
+        const aText = document.getElementById('answer-text');
+        const counterText = document.getElementById('card-counter');
+        const previewText = document.getElementById('data-preview');
+
+        function updateCard() {
+            cardElement.classList.remove('flipped');
+            setTimeout(() => {
+                qText.textContent = cardsData[currentIndex].q;
+                aText.textContent = cardsData[currentIndex].a;
+                counterText.textContent = `Tarjeta ${currentIndex + 1} de ${cardsData.length}`;
+            }, 150);
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % cardsData.length;
+            updateCard();
+        }
+
+        function prevCard() {
+            currentIndex = (currentIndex - 1 + cardsData.length) % cardsData.length;
+            updateCard();
+        }
+
+        function initData() {
+            let text = "PREGUNTA\tRESPUESTA\n";
+            cardsData.forEach(c => { text += `${c.q}\t${c.a}\n`; });
+            previewText.value = text;
+        }
+
+        function copyToClipboard() {
+            previewText.select();
+            document.execCommand('copy');
+            alert('¡Copiado! Pégalo en Google Sheets para crear tu cuestionario.');
+        }
+
+        updateCard();
+        initData();
+    </script>
+</body>
+
+</html>
