@@ -990,6 +990,21 @@
             padding: 20px;
         }
 
+        .qr-top-card.active-double {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            z-index: 9999;
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--primary-light) 100%);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
+
         .qr-top-label {
             font-size: 9px;
             font-weight: 700;
@@ -1025,6 +1040,15 @@
         .qr-top-card.active .qr-top-wrap img,
         .qr-top-card.active .qr-top-wrap canvas {
             max-height: 200px;
+        }
+
+        .qr-top-card.active-double .qr-top-wrap {
+            height: 380px;
+        }
+
+        .qr-top-card.active-double .qr-top-wrap img,
+        .qr-top-card.active-double .qr-top-wrap canvas {
+            max-height: 360px;
         }
 
         .qr-top-hint {
@@ -1352,7 +1376,7 @@
                     <p>Complete el formulario para registrar su asistencia. También puede escanear el QR para acceder desde su celular.</p>
                 </div>
 
-                <div class="qr-top-card" onclick="this.classList.toggle('active')">
+                <div class="qr-top-card" id="qr-container" onclick="manejarClickQR(event)" oncontextmenu="manejarClickDerechoQR(event)">
                     <div class="qr-top-label">QR de acceso rápido</div>
                     <div class="qr-top-wrap"><div id="attendance-qr"></div></div>
                     <div class="qr-top-hint">Escanee para registrar desde el celular</div>
@@ -2040,6 +2064,24 @@
             initStudentAuth();
         }
     })();
+    </script>
+    <script>
+        function manejarClickQR(event) {
+            const qrCard = event.currentTarget;
+            if (qrCard.classList.contains('active-double') || qrCard.classList.contains('active')) {
+                qrCard.classList.remove('active-double');
+                qrCard.classList.remove('active');
+            } else {
+                qrCard.classList.add('active');
+            }
+        }
+
+        function manejarClickDerechoQR(event) {
+            event.preventDefault();
+            const qrCard = event.currentTarget;
+            qrCard.classList.remove('active');
+            qrCard.classList.add('active-double');
+        }
     </script>
 </body>
 </html>
