@@ -8610,6 +8610,7 @@ function initAttendanceRegistrationPage() {
             cedula: document.getElementById('attendance-id')?.value.trim() || '',
             carrera: document.getElementById('attendance-career')?.value || '',
             seccion: document.getElementById('attendance-section')?.value || '',
+            mes: document.getElementById('attendance-mes')?.value || '',
             observacion: obsFinal,
             estado: estado,
             fechaAusencia: fechaAusencia,

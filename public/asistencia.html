@@ -982,26 +982,32 @@
 
         .qr-top-card.active {
             position: absolute;
-            top: 24px;
+            top: 50%;
             right: 24px;
-            width: 280px;
+            transform: translateY(-50%);
+            width: 420px;
             z-index: 200;
             border-radius: var(--radius-lg);
-            padding: 20px;
+            padding: 30px;
         }
 
         .qr-top-card.active-double {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 450px;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            transform: none;
             z-index: 9999;
-            border-radius: var(--radius-lg);
-            padding: 30px;
-            border-color: var(--primary);
-            background: linear-gradient(135deg, var(--card-bg) 0%, var(--primary-light) 100%);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-radius: 0;
+            padding: 5vh;
+            border: none;
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,248,255,0.95) 100%);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
         }
 
@@ -1028,7 +1034,7 @@
         }
 
         .qr-top-card.active .qr-top-wrap {
-            height: 220px;
+            height: 330px;
         }
 
         .qr-top-wrap img, .qr-top-wrap canvas {
@@ -1039,16 +1045,22 @@
 
         .qr-top-card.active .qr-top-wrap img,
         .qr-top-card.active .qr-top-wrap canvas {
-            max-height: 200px;
+            max-height: 300px;
         }
 
         .qr-top-card.active-double .qr-top-wrap {
-            height: 380px;
+            height: auto;
+            width: 100%;
+            max-width: 80vh;
+            display: flex;
+            justify-content: center;
+            background: transparent;
         }
 
         .qr-top-card.active-double .qr-top-wrap img,
         .qr-top-card.active-double .qr-top-wrap canvas {
-            max-height: 360px;
+            max-height: 80vh;
+            width: auto;
         }
 
         .qr-top-hint {
@@ -1423,6 +1435,7 @@
                             </select>
                         </div>
 
+                    <div class="form-row">
                         <div class="form-group">
                             <label><i class="fas fa-users"></i> Sección</label>
                             <select id="attendance-section" required onchange="this.style.borderColor='';">
@@ -1431,6 +1444,25 @@
                                 <option value="VL 026">VL 026</option>
                                 <option value="S026">S026</option>
                                 <option value="OTRO">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Mes</label>
+                            <select id="attendance-mes" required onchange="this.style.borderColor='';">
+                                <option value="">-- Seleccione --</option>
+                                <option value="ENERO">Enero</option>
+                                <option value="FEBRERO">Febrero</option>
+                                <option value="MARZO">Marzo</option>
+                                <option value="ABRIL">Abril</option>
+                                <option value="MAYO">Mayo</option>
+                                <option value="JUNIO">Junio</option>
+                                <option value="JULIO">Julio</option>
+                                <option value="AGOSTO">Agosto</option>
+                                <option value="SEPTIEMBRE">Septiembre</option>
+                                <option value="OCTUBRE">Octubre</option>
+                                <option value="NOVIEMBRE">Noviembre</option>
+                                <option value="DICIEMBRE">Diciembre</option>
                             </select>
                         </div>
                     </div>
@@ -1546,7 +1578,8 @@
                         'attendance-id': 'Cédula de Identidad',
                         'attendance-name': 'Nombre y Apellido',
                         'attendance-career': 'Carrera',
-                        'attendance-section': 'Sección'
+                        'attendance-section': 'Sección',
+                        'attendance-mes': 'Mes'
                     };
                     
                     // Si es ausencia justificada, también validar fecha y motivo
