@@ -964,7 +964,8 @@ async function inicializarCatalogos() {
     if (!cargado) {
         // Si no se pudo, verificar si hay datos en localStorage
         const asignaturas = localStorage.getItem('cat_asignaturas');
-        if (!asignaturas) {
+        const carreras = localStorage.getItem('cat_carreras');
+        if (!asignaturas || asignaturas === '[]' || !carreras || carreras === '[]') {
             // Si no hay nada, cargar defaults
             console.log('No hay catálogos, cargando valores por defecto');
             const defaults = {
