@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabajo Práctico Completo - Sociología</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap');
+        :root { --color-primary: #28a745; --color-secondary: #1e1e1e; }
+        body { font-family: 'Open Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        
+        /* Estilos específicos para visualizar la página web */
+        #doc-content { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto; }
+        
+        /* Ocultar botones al imprimir */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            #doc-content { box-shadow: none; padding: 0; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center no-print">
+        <a href="index.html" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-primary transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
+        </a>
+        <button onclick="exportWord()" class="bg-primary text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition shadow-lg flex items-center gap-2">
+            <i class="fas fa-file-word"></i> Descargar en Word
+        </button>
+    </div>
+
+    <!-- Contenido que será exportado a Word -->
+    <div id="doc-content" style="font-family: Arial, sans-serif; color: #000;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h2 style="margin-bottom: 5px; font-size: 24px; color: #1e1e1e;">INSTITUTO SUPERIOR CENTURIA</h2>
+            <h3 style="margin-top: 0; font-size: 18px; color: #555;">Trabajo Práctico Completo - Sociología</h3>
+        </div>
+        
+        <div style="margin-bottom: 40px; line-height: 2; font-size: 14px;">
+            <p><strong>CARRERA:</strong> _______________________________________________________________</p>
+            <p><strong>ALUMNO/A:</strong> ______________________________________________________________</p>
+            <p><strong>C.I. N°:</strong> __________________________________________________________________</p>
+            <p><strong>FECHA:</strong> _____ / _____ / ________</p>
+            <p><strong>DOCENTE:</strong> Lic. Christhian Keim</p>
+        </div>
+
+        <hr style="border: 1px solid #ccc; margin-bottom: 30px;">
+        
+        <!-- Unidad 1 -->
+        <h3 style="color: #28a745; border-bottom: 1px solid #eee; padding-bottom: 5px;">UNIDAD 1: Introducción a la Sociología</h3>
+        <ol style="margin-bottom: 40px;">
+            <li style="margin-bottom: 80px;">¿Qué diferencias existen entre analizar un problema desde el sentido común y desde el pensamiento sociológico?</li>
+            <li style="margin-bottom: 80px;">Explique con sus propias palabras la diferencia entre la Estática y la Dinámica Social.</li>
+            <li style="margin-bottom: 80px;">¿Por qué Comte coloca a la sociología en la cima de la jerarquía de las ciencias?</li>
+            <li style="margin-bottom: 80px;"><strong>Análisis de Caso:</strong> ¿Qué factores sociales, económicos, institucionales o culturales investigaría para explicar el aumento de ventas sin factura en un mercado local mediante relaciones de causalidad?</li>
+        </ol>
+        
+        <br style="page-break-after: always; clear: both;">
+
+        <!-- Unidad 2 -->
+        <h3 style="color: #28a745; border-bottom: 1px solid #eee; padding-bottom: 5px;">UNIDAD 2: Definiciones y Campos de la Sociología</h3>
+        <ol style="margin-bottom: 40px;">
+            <li style="margin-bottom: 80px;">Explique por qué el "sentido común" dice que la informalidad existe porque "la gente no quiere pagar impuestos", mientras que la sociología pregunta por confianza institucional, desigualdad y cultura económica.</li>
+            <li style="margin-bottom: 80px;">Describa una situación contable donde la presión del grupo pueda llevar a una decisión antiética.</li>
+            <li style="margin-bottom: 80px;">Analice cómo el capital social puede ayudar o perjudicar una venta, una auditoría o una negociación comercial.</li>
+            <li style="margin-bottom: 80px;"><strong>Análisis de Caso:</strong> ¿Qué normas informales, presiones competitivas, desconfianza institucional y desigualdades económicas sostienen la informalidad? ¿Cómo proponer una transición viable hacia la formalización?</li>
+        </ol>
+
+        <br style="page-break-after: always; clear: both;">
+
+        <!-- Unidad 3 -->
+        <h3 style="color: #28a745; border-bottom: 1px solid #eee; padding-bottom: 5px;">UNIDAD 3: Conducta Humana y Cultura</h3>
+        <ol style="margin-bottom: 40px;">
+            <li style="margin-bottom: 80px;">¿Por qué el "sentido común" cree que las personas nacen con ciertos comportamientos sociales, mientras que la sociología argumenta que son producto de la socialización?</li>
+            <li style="margin-bottom: 80px;">Ejemplifique una "acción racional con arreglo a fines" dentro del ámbito comercial y contable.</li>
+            <li style="margin-bottom: 80px;"><strong>Análisis de Caso:</strong> En una negociación con Japón, ¿cómo la falta de comprensión de la "cultura inmaterial" está arruinando un acuerdo puramente económico?</li>
+        </ol>
+
+        <br style="page-break-after: always; clear: both;">
+
+        <!-- Unidad 4 -->
+        <h3 style="color: #28a745; border-bottom: 1px solid #eee; padding-bottom: 5px;">UNIDAD 4: El Hombre como Ser Social</h3>
+        <ol style="margin-bottom: 40px;">
+            <li style="margin-bottom: 80px;">¿Por qué el "sentido común" asume que el individualismo siempre es egoísmo, mientras que la sociología lo ve como un motor de especialización orgánica?</li>
+            <li style="margin-bottom: 80px;">Mencione una ventaja y una desventaja de implementar una cultura puramente colectivista en una empresa comercial o estudio contable.</li>
+            <li style="margin-bottom: 80px;"><strong>Análisis de Caso:</strong> ¿Cómo la falta de integración "democrática" y la represión del individualismo puede llevar a la empresa al colapso frente a cambios tecnológicos externos?</li>
+        </ol>
+
+        <br style="page-break-after: always; clear: both;">
+
+        <!-- Unidad 5 -->
+        <h3 style="color: #28a745; border-bottom: 1px solid #eee; padding-bottom: 5px;">UNIDAD 5: Libertad y Existencia Humana</h3>
+        <ol style="margin-bottom: 40px;">
+            <li style="margin-bottom: 80px;">¿Por qué el "sentido común" excusa a las personas diciendo "no tuvo otra opción", mientras que la perspectiva sociológica/ética exige responsabilidad sobre las acciones?</li>
+            <li style="margin-bottom: 80px;">Explique cómo una burocracia excesiva puede fomentar actos de "mala fe" en profesionales y colaboradores.</li>
+            <li style="margin-bottom: 80px;">Analice la frase: "En una empresa, la seguridad jurídica es la condición previa para que exista la libertad del profesional y del cliente".</li>
+            <li style="margin-bottom: 80px;">Diferencie entre "Libertad Negativa" y "Libertad Positiva" con ejemplos comerciales y contables.</li>
+            <li style="margin-bottom: 80px;">Analice cómo la "mala fe" se manifiesta cuando un contador dice: "Yo solo firmo lo que me traen, no reviso el contenido".</li>
+            <li style="margin-bottom: 80px;">Describa un escenario donde la falta de "pluralismo institucional" en empresas facilite actos de corrupción.</li>
+            <li style="margin-bottom: 80px;"><strong>Análisis de Caso:</strong> Situación de cierre contable irregular:<br>4.1 ¿Por qué este acto es un caso de "Mala Fe"?<br><br><br>4.2 Identifique las "condiciones sociales" violadas.<br><br><br>4.3 Como futuro licenciado, ¿qué haría usted?</li>
+        </ol>
+
+        <br style="page-break-after: always; clear: both;">
+
+        <!-- Unidad 6 -->
+        <h3 style="color: #28a745; border-bottom: 1px solid #eee; padding-bottom: 5px;">UNIDAD 6: Cambio y Conflicto Social</h3>
+        <ol style="margin-bottom: 40px;">
+            <li style="margin-bottom: 80px;">¿Por qué el "sentido común" corporativo intenta eliminar todo conflicto, mientras que la sociología sugiere "institucionalizarlo"?</li>
+            <li style="margin-bottom: 80px;">Mencione dos factores culturales que puedan generar resistencia a la implementación de un sistema comercial y contable 100% digitalizado.</li>
+            <li style="margin-bottom: 80px;"><strong>Análisis de Caso (Proyecto Final):</strong> Implementación de IA genera huelga laboral. ¿Cómo analizar este conflicto desde la tensión entre "Modernización" vs. "Estratificación Social"? ¿Cómo resolverlo sin represión institucional?</li>
+        </ol>
+    </div>
+
+    <script>
+        function exportWord() {
+            var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Trabajo Practico Completo</title></head><body>";
+            var footer = "</body></html>";
+            var sourceHTML = header + document.getElementById("doc-content").innerHTML + footer;
+            
+            var source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            var fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = 'Trabajo_Practico_Completo_Sociologia.doc';
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+        }
+    </script>
+</body>
+</html>
