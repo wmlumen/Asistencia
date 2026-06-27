@@ -146,6 +146,21 @@
             max-width: 900px;
         }
         
+        .login-prompt {
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .login-prompt-box {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            width: 340px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .login-prompt-box .show { display: block; }
+        
         .func-card {
             background: white;
             border-radius: 8px;
@@ -380,7 +395,15 @@
                             <h4>Validar</h4>
                             <p>Valide justificaciones y solicitudes</p>
                         </a>
-                        
+
+                        <a href="examen-parcial.html" class="func-card" id="link-examen">
+                            <div class="icon-circle" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <h4>Examen Parcial</h4>
+                            <p>Registre su examen parcial virtual</p>
+                        </a>
+
                         <a href="TARJETAS_ESTUDIO_P1.html" class="func-card">
                             <div class="icon-circle" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
                                 <i class="fas fa-brain"></i>
@@ -410,53 +433,82 @@
 
             <!-- DOCENTES -->
             <div id="seccion-docentes" class="welcome-section" style="display: none;">
-                <button onclick="mostrarSeccion('inicio')" class="back-btn">
-                    <i class="fas fa-arrow-left"></i> Volver
-                </button>
-                <h3 class="section-title">
-                    <i class="fas fa-chalkboard-teacher"></i> Portal de Docentes
-                </h3>
+                <div id="teacher-login-area">
+                    <button onclick="mostrarSeccion('inicio')" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                    <h3 class="section-title">
+                        <i class="fas fa-chalkboard-teacher"></i> Portal de Docentes
+                    </h3>
+                    
+                    <div class="login-prompt">
+                        <div class="login-prompt-box">
+                            <i class="fas fa-chalkboard-teacher" style="font-size: 36px; color: var(--primary-green); margin-bottom: 12px;"></i>
+                            <h3 style="font-size: 18px; margin-bottom: 4px;">Acceso Docente</h3>
+                            <p style="font-size: 13px; color: #888; margin-bottom: 20px;">Ingresá tu contraseña de docente</p>
+                            <input type="password" id="teacher-login-input" placeholder="Contraseña" style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; margin-bottom: 12px;" onkeypress="if(event.key==='Enter'){ this.style.borderColor='#e0e0e0'; document.getElementById('teacher-login-error').classList.remove('show'); loginTeacherFromIndex(); }">
+                            <button onclick="loginTeacherFromIndex()" style="width: 100%; padding: 12px; background: var(--primary-green); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-sign-in-alt"></i> Ingresar
+                            </button>
+                            <div id="teacher-login-error" style="color: #dc2626; font-size: 13px; margin-top: 12px; display: none;">Contraseña incorrecta</div>
+                        </div>
+                    </div>
+                </div>
                 
-                <div class="functions-grid docentes">
-                    <a href="planilla.html" class="func-card" id="link-planilla">
-                        <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
-                            <i class="fas fa-table"></i>
-                        </div>
-                        <h4>Planilla</h4>
-                        <p>Asistencia tradicional P/A/AJ</p>
-                    </a>
+                <div id="teacher-portal-area" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <button onclick="mostrarSeccion('inicio')" class="back-btn">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </button>
+                        <button onclick="logoutTeacher(); mostrarSeccion('inicio');" class="back-btn" style="border-color: #dc2626; color: #dc2626;">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                        </button>
+                    </div>
+                    <h3 class="section-title">
+                        <i class="fas fa-chalkboard-teacher"></i> Portal de Docentes
+                    </h3>
+                    
+                    <div class="functions-grid docentes">
+                        <a href="planilla.html" class="func-card" id="link-planilla">
+                            <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
+                                <i class="fas fa-table"></i>
+                            </div>
+                            <h4>Planilla</h4>
+                            <p>Asistencia tradicional P/A/AJ</p>
+                        </a>
 
-                    <a href="planificacion.html" class="func-card" id="link-planificacion">
-                        <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <h4>Planificación</h4>
-                        <p>Códigos de vinculación</p>
-                    </a>
+                        <a href="planificacion.html" class="func-card" id="link-planificacion">
+                            <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <h4>Planificación</h4>
+                            <p>Códigos de vinculación</p>
+                        </a>
 
-                    <a href="teacher_panel.html" class="func-card" id="link-teacher-panel">
-                        <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h4>Panel Docente</h4>
-                        <p>Estadísticas y gestión</p>
-                    </a>
+                        <a href="teacher_panel.html" class="func-card" id="link-teacher-panel">
+                            <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h4>Panel Docente</h4>
+                            <p>Estadísticas y gestión</p>
+                        </a>
 
-                    <a href="admin.html" class="func-card" id="link-admin">
-                        <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
-                            <i class="fas fa-cogs"></i>
-                        </div>
-                        <h4>Administración</h4>
-                        <p>Catálogos y estilos</p>
-                    </a>
+                        <a href="admin.html" class="func-card" id="link-admin">
+                            <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h4>Administración</h4>
+                            <p>Catálogos y estilos</p>
+                        </a>
 
-                    <a href="PROGRAMA_ESTUDIOS.html" class="func-card" id="link-programa-docente">
-                        <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
-                            <i class="fas fa-book-open"></i>
-                        </div>
-                        <h4>Programa Estudios</h4>
-                        <p>Syllabus de la asignatura</p>
-                    </a>
+                        <a href="PROGRAMA_ESTUDIOS.html" class="func-card" id="link-programa-docente">
+                            <div class="icon-circle" style="background: rgba(10, 77, 42, 0.1); color: var(--primary-green);">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <h4>Programa Estudios</h4>
+                            <p>Syllabus de la asignatura</p>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -504,6 +556,7 @@ function aplicarModulosEnIndex() {
             'link-asistencia': 'student_asistencia',
             'link-consultar': 'student_consultar',
             'link-validar': 'student_validar',
+            'link-examen': 'student_examen',
             'link-planilla': 'teacher_planilla',
             'link-planificacion': 'teacher_planificacion',
             'link-teacher-panel': 'teacher_panel',
@@ -540,6 +593,7 @@ function mostrarSeccion(seccion) {
         initStudentLogin();
     } else if (seccion === 'docentes') {
         document.getElementById('seccion-docentes').style.display = 'block';
+        initTeacherLogin();
     }
 }
 
@@ -567,6 +621,40 @@ function initStudentLogin() {
                     document.getElementById('student-portal-area').style.display = 'block';
                 });
             }
+        }
+    }
+    checkAndInit();
+}
+
+function loginTeacherFromIndex() {
+    const input = document.getElementById('teacher-login-input');
+    const error = document.getElementById('teacher-login-error');
+    const result = loginTeacher(input.value.trim());
+    if (result.ok) {
+        document.getElementById('teacher-login-area').style.display = 'none';
+        document.getElementById('teacher-portal-area').style.display = 'block';
+    } else {
+        error.style.display = 'block';
+        input.style.borderColor = '#dc2626';
+        input.value = '';
+        input.focus();
+    }
+}
+
+function initTeacherLogin() {
+    function checkAndInit() {
+        if (typeof isTeacherSessionActive !== 'function') {
+            setTimeout(checkAndInit, 100);
+            return;
+        }
+        if (isTeacherSessionActive()) {
+            document.getElementById('teacher-login-area').style.display = 'none';
+            document.getElementById('teacher-portal-area').style.display = 'block';
+        } else {
+            document.getElementById('teacher-login-area').style.display = 'block';
+            document.getElementById('teacher-portal-area').style.display = 'none';
+            const input = document.getElementById('teacher-login-input');
+            if (input) { input.value = ''; input.focus(); }
         }
     }
     checkAndInit();

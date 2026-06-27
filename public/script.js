@@ -8912,6 +8912,7 @@ const FEATURES_CONFIG_KEY = 'centuria_features_config';
 const SYSTEM_MODULES = {
     student_portal:       { label: 'Portal Estudiante',     icon: 'fa-user-graduate',     category: 'estudiante', desc: 'Acceso general al portal de estudiantes' },
     student_asistencia:   { label: 'Registrar Asistencia',  icon: 'fa-clipboard-check',   category: 'estudiante', desc: 'Formulario de registro de asistencia' },
+    student_examen:       { label: 'Examen Parcial',       icon: 'fa-file-alt',          category: 'estudiante', desc: 'Registro de examen parcial virtual' },
     student_consultar:    { label: 'Consultar Estado',      icon: 'fa-search',            category: 'estudiante', desc: 'Consulta de estado de asistencia' },
     student_validar:      { label: 'Validar',               icon: 'fa-check-double',      category: 'estudiante', desc: 'Validación de justificaciones' },
     teacher_portal:       { label: 'Portal Docente',        icon: 'fa-chalkboard-teacher',  category: 'docente',    desc: 'Acceso general al portal de docentes' },
