@@ -692,7 +692,7 @@
                 const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
                 if (!apiUrl) return;
 
-                const resp = await fetch(apiUrl + '?modo=examenes&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
+                const resp = await fetch(apiUrl + '?modo=examenes_999&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
                 if (!resp.ok) return;
 
                 const data = await resp.json();

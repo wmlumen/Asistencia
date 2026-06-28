@@ -163,6 +163,21 @@ function doGet(e) {
       return jsonResponse({ examenes, total: examenes.length });
     }
 
+    // Modo examenes_999 — obtener registros de Examen999 (prueba)
+    if (modo === 'examenes_999') {
+      const sheet = getSheet_(SHEET_EXAMEN_TEST);
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) return jsonResponse({ examenes: [] });
+      const headers = values[0];
+      const examenes = values.slice(1).reverse().map(row => {
+        return headers.reduce((acc, h, i) => { 
+          acc[h] = row[i]; 
+          return acc; 
+        }, {});
+      });
+      return jsonResponse({ examenes, total: examenes.length });
+    }
+
     // Modo catalogos — extrae asignaturas, secciones y carreras únicas de Planificacion
     if (modo === 'catalogos') {
       const sheet = getSheet_(SHEET_PLANIFICACION);
