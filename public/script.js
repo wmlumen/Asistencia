@@ -329,7 +329,7 @@ async function cargarConfiguracion() {
 
             link_respuestas: 'https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA',
             asistencia_public_url: 'https://wmlumen.github.io/Asistencia/asistencia.html',
-            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbxsU0tPhozo-vXjc01x_uEBuc0hVhqKTkFhJWrU0QJKNWTMWvbPj-sEYL49mOw4eAGnhA/exec',
+            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbwGi9YIcv-9j55YVZcDVUZ15Ue9mb5dpOpgUFnXrAzbIfAivnX87jQbvpbGZE5qKLqwOQ/exec',
             asistencia_csv_url: '',
             asistencia_carreras: 'LICENCIATURA EN ADMINISTRACION DE EMPRESAS|LICENCIATURA EN CONTABILIDAD|LICENCIATURA EN ADMINISTRACION ADUANERA|INGENIERIA COMERCIAL',
             api_secret: 'CenturiaApi2024!',
