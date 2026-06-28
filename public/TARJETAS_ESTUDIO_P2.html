@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarjetas Integradoras Finales - Centuria Premium</title>
+    <title>Tarjetas Final - Sociología - Centuria</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -28,15 +28,11 @@
             position: relative;
         }
 
-        /* Animated Mesh Gradient Background */
         .bg-mesh {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -1;
-            background: 
+            background:
                 radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.15), transparent 50%),
                 radial-gradient(circle at 85% 30%, rgba(4, 120, 87, 0.2), transparent 50%),
                 radial-gradient(circle at 50% 80%, rgba(6, 78, 59, 0.2), transparent 50%);
@@ -49,11 +45,8 @@
             100% { transform: scale(1); opacity: 0.8; }
         }
 
-        .font-title {
-            font-family: 'Outfit', sans-serif;
-        }
+        .font-title { font-family: 'Outfit', sans-serif; }
 
-        /* Glassmorphism Classes */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -63,12 +56,56 @@
             border-radius: 1.5rem;
         }
 
-        /* Flashcard Logic & 3D Effect */
+        /* Unit tabs */
+        .unit-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .unit-tab {
+            padding: 8px 18px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .unit-tab:hover {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+        .unit-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+        }
+
+        .unit-tab .unit-count {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 0 6px;
+            font-size: 10px;
+            margin-left: 4px;
+        }
+        .unit-tab.active .unit-count {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Flashcard */
         .card-container {
             perspective: 1500px;
             width: 100%;
-            max-width: 600px;
-            height: 380px;
+            max-width: 680px;
+            height: 400px;
             cursor: pointer;
             margin: 0 auto;
             position: relative;
@@ -87,8 +124,7 @@
             transform: rotateY(180deg);
         }
 
-        .card-front,
-        .card-back {
+        .card-front, .card-back {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -102,7 +138,6 @@
             transform-style: preserve-3d;
         }
 
-        /* Front Card */
         .card-front {
             background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -110,7 +145,7 @@
         }
 
         .card-front::before {
-            content: "\f059"; /* Question mark icon */
+            content: "\f059";
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             position: absolute;
@@ -122,7 +157,6 @@
             transform: rotate(15deg) translateZ(-50px);
         }
 
-        /* Back Card */
         .card-back {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             transform: rotateY(180deg);
@@ -130,23 +164,15 @@
             box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
-        .card-content {
-            transform: translateZ(60px);
-            z-index: 10;
-        }
+        .card-content { transform: translateZ(60px); z-index: 10; }
 
-        /* Floating Animation for the Card */
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-
+        .floating { animation: float 6s ease-in-out infinite; }
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0px); }
         }
 
-        /* Progress Bar */
         .progress-container {
             width: 100%;
             height: 6px;
@@ -155,7 +181,6 @@
             overflow: hidden;
             margin-bottom: 2rem;
         }
-
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #34d399, #059669);
@@ -165,13 +190,11 @@
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
         }
 
-        /* Custom Button Hover Effects */
         .btn-nav {
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
         }
-
         .btn-nav::after {
             content: '';
             position: absolute;
@@ -184,11 +207,8 @@
             transform: translate(-50%, -50%) scale(0);
             transition: transform 0.5s ease;
         }
+        .btn-nav:hover::after { transform: translate(-50%, -50%) scale(1); }
 
-        .btn-nav:hover::after {
-            transform: translate(-50%, -50%) scale(1);
-        }
-        
         .answer-label {
             font-size: 0.75rem;
             text-transform: uppercase;
@@ -199,21 +219,45 @@
             font-weight: 800;
         }
 
-        /* Responsive Tweaks for Mobile */
-        @media (max-width: 768px) {
-            .card-container {
-                height: 320px;
-            }
-            .card-front, .card-back {
-                padding: 1.5rem;
-            }
-            .card-front::before {
-                font-size: 6rem;
-                top: -10px;
-                right: -5px;
-            }
+        .unit-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 20;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #6ee7b7;
+            pointer-events: none;
         }
 
+        .shuffle-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .shuffle-toggle:hover { color: white; border-color: rgba(255,255,255,0.2); }
+        .shuffle-toggle.active { color: #34d399; border-color: rgba(16,185,129,0.3); }
+
+        @media (max-width: 768px) {
+            .card-container { height: 340px; }
+            .card-front, .card-back { padding: 1.5rem; }
+            .card-front::before { font-size: 6rem; top: -10px; right: -5px; }
+            .unit-tab { font-size: 11px; padding: 6px 12px; }
+        }
     </style>
 </head>
 
@@ -223,7 +267,7 @@
     <div class="max-w-5xl mx-auto px-4 py-12 relative z-10">
 
         <!-- Header -->
-        <header class="text-center mb-16">
+        <header class="text-center mb-10">
             <div class="inline-flex items-center justify-center space-x-3 mb-4">
                 <span class="w-12 h-[1px] bg-emerald-500/50"></span>
                 <span class="font-title font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200 tracking-widest text-sm uppercase">
@@ -235,21 +279,29 @@
                 Examen <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600">Final</span>
             </h1>
             <p class="text-lg text-slate-400 font-light max-w-2xl mx-auto">
-                Guía de repaso intensivo Unidades 1 a 6. Prepárate con excelencia.
+                Repaso por unidades &mdash; 10 preguntas por unidad
             </p>
         </header>
 
+        <!-- Unit Tabs -->
+        <div class="unit-tabs" id="unitTabs"></div>
+
         <!-- Main Workspace -->
         <main class="glass-panel p-6 md:p-12 mb-12">
-            
+
             <!-- Header of Card Area -->
             <div class="flex justify-between items-center mb-4">
                 <span id="card-counter" class="font-title font-bold text-slate-300 text-sm tracking-widest uppercase">
-                    Tarjeta 1 de 30
+                    Tarjeta 1 de 60
                 </span>
-                <span class="text-xs text-emerald-400 font-mono bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">
-                    <i class="fas fa-layer-group mr-1"></i> Sociología
-                </span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-emerald-400 font-mono bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">
+                        <i class="fas fa-layer-group mr-1"></i> <span id="unitLabel">Unidad I</span>
+                    </span>
+                    <span class="shuffle-toggle" id="shuffleToggle" onclick="toggleShuffle()">
+                        <i class="fas fa-random"></i> Aleatorio
+                    </span>
+                </div>
             </div>
 
             <!-- Progress -->
@@ -261,6 +313,7 @@
             <div class="card-container floating" id="flashcard" onclick="flipCard()">
                 <div class="card-inner">
                     <div class="card-front">
+                        <div class="unit-badge" id="cardUnitBadge">Unidad I</div>
                         <div class="card-content">
                             <p id="question-text" class="text-2xl md:text-3xl font-title font-bold leading-tight text-white mb-2">
                                 Cargando pregunta...
@@ -290,10 +343,8 @@
                     Siguiente Tarjeta <i class="fas fa-arrow-right ml-2"></i>
                 </button>
             </div>
-            
-        </main>
 
-        <!-- Removed Tools Area -->
+        </main>
 
         <!-- Footer -->
         <footer class="mt-16 text-center">
@@ -308,86 +359,269 @@
     </div>
 
     <script>
-        const cardsData = [
-            // U1 & U2
-            { q: "¿Quién propuso la 'Ley de los Tres Estados'?", a: "Augusto Comte (Teológico, Metafísico y Positivo)." },
-            { q: "¿Qué es la 'Incrustación Social' (Embeddedness)?", a: "La idea de que las transacciones económicas dependen de redes de confianza y lazos sociales." },
-            { q: "¿Qué autor estudia la 'Acción Social' y el método 'Verstehen'?", a: "Max Weber." },
-            { q: "¿En qué se diferencia el Homo Economicus del Sociologicus?", a: "El primero es una calculadora racional aislada; el segundo actúa movido por normas, estatus y valores." },
-            // U3
-            { q: "¿Qué es la Socialización Primaria?", a: "Internalización de normas básicas en la familia durante la niñez." },
-            { q: "¿Qué es el Etnocentrismo?", a: "Juzgar otras culturas bajo los estándares de la propia, asumiendo superioridad." },
-            { q: "¿Cuál es la diferencia entre cultura material e inmaterial?", a: "Material: objetos y tecnología. Inmaterial: valores, símbolos, normas y leyes." },
-            // U4
-            { q: "¿Qué es la Solidaridad Mecánica (Durkheim)?", a: "Cohesión por similitud, típica de sociedades tradicionales con poca división del trabajo." },
-            { q: "¿Qué es la Solidaridad Orgánica?", a: "Cohesión por interdependencia funcional, típica de sociedades modernas especializadas." },
-            { q: "¿Qué caracteriza a un Grupo Primario?", a: "Relaciones afectivas, íntimas y cara a cara (ej. la familia)." },
-            { q: "¿Qué es un Grupo Secundario?", a: "Relaciones formales, impersonales y utilitarias (ej. una empresa o sindicato)." },
-            { q: "¿En qué consiste la Anomia?", a: "Estado de confusión o falta de normas claras que regulen la conducta social." },
-            // U5
-            { q: "¿Qué es la 'Agencia Humana'?", a: "La capacidad de los individuos para tomar decisiones libres frente a las presiones del entorno." },
-            { q: "¿Qué significa el concepto de 'Mala Fe' en Sartre?", a: "Autoengaño para evadir la responsabilidad moral diciendo 'solo seguía órdenes' o 'el sistema me obligó'." },
-            { q: "¿Qué es la Libertad Negativa?", a: "La ausencia de interferencia u obstáculos externos para actuar ('Libertad de...')." },
-            { q: "¿Qué es la Libertad Positiva?", a: "La capacidad real de autodeterminación y cumplimiento de un proyecto de vida ('Libertad para...')." },
-            { q: "¿Qué condición social es vital para el mercado en la U5?", a: "La Seguridad Jurídica: normas claras y aplicadas equitativamente." },
-            // U6
-            { q: "¿Qué es la Estratificación Social?", a: "División de la sociedad en capas jerárquicas con desigual acceso a recursos y poder." },
-            { q: "¿Qué es la Movilidad Social?", a: "Capacidad de ascender o descender de clase social por mérito o educación." },
-            { q: "¿Cuál es el motor del cambio para Karl Marx?", a: "La lucha de clases y el conflicto por los medios de producción." },
-            { q: "¿Qué es la Modernización?", a: "Transición de sociedades tradicionales a industriales, tecnológicas y burocráticas." },
-            { q: "¿Qué impacto tiene la Globalización en los mercados locales?", a: "Genera interdependencia mundial y exige mayor relativismo cultural." },
-            { q: "¿Por qué surge la 'Resistencia al Cambio'?", a: "Por intereses creados (quienes se benefician del atraso) o inercia de la cultura antigua." },
-            // General
-            { q: "¿Qué estudia la Dinámica Social según Comte?", a: "El progreso y las leyes del cambio en la sociedad." },
-            { q: "¿Qué es el Capital Social?", a: "Recursos y favores obtenidos mediante redes de contactos y confianza." },
-            { q: "¿Qué autor analizó la Burocracia como forma racional?", a: "Max Weber." },
-            { q: "¿Qué es una Institución Social?", a: "Pautas estables de comportamiento que regulan la vida social (ej. el Estado)." },
-            { q: "¿Qué es el Relativismo Cultural?", a: "Comprender una cultura ajena desde sus propios términos, sin juzgarla." },
-            { q: "¿Qué es un Hecho Social (Durkheim)?", a: "Formas de actuar externas y coercitivas al individuo." },
-            { q: "¿Qué es la Socialización Secundaria?", a: "Aprendizaje de roles en instituciones específicas (ej. la universidad o el trabajo)." }
+        // ============================================================
+        // DATOS: 10 preguntas por unidad (6 unidades = 60+)
+        // ============================================================
+        const UNITS = [
+            {
+                id: 'I',
+                title: 'Unidad I: Orígenes, Autores y Doctrinas',
+                color: '#10b981',
+                cards: [
+                    { q: "¿Quién propuso la 'Ley de los Tres Estados'?", a: "Auguste Comte. Los tres estados son: Teológico (explicación divina), Metafísico (abstracciones) y Positivo (ciencia y observación)." },
+                    { q: "¿Qué es el Positivismo de Comte?", a: "Corriente que sostiene que el único conocimiento válido es el científico, basado en la observación empírica y la razón." },
+                    { q: "¿Cómo concibe Spencer la sociedad según el Organicismo?", a: "Como un organismo vivo donde cada parte (familia, Estado, economía) cumple una función específica para mantener el todo." },
+                    { q: "¿Qué es la 'Supervivencia del más apto' en Spencer?", a: "Principio inspirado en Darwin: las instituciones y sociedades que mejor se adaptan al entorno perduran." },
+                    { q: "¿Qué es un Hecho Social para Durkheim?", a: "Formas de actuar, pensar y sentir externas al individuo, que ejercen coerción sobre él (ej. leyes, costumbres, lenguaje)." },
+                    { q: "¿Qué diferencia a la Solidaridad Mecánica de la Orgánica?", a: "Mecánica: cohesión por similitud (sociedad tradicional). Orgánica: cohesión por interdependencia (sociedad moderna con división del trabajo)." },
+                    { q: "¿Qué es la Acción Social según Weber?", a: "Toda conducta humana con un sentido subjetivo intencionado que se orienta por la acción de otros." },
+                    { q: "¿Qué es el Materialismo Histórico de Marx?", a: "Teoría que sostiene que la infraestructura económica (relaciones de producción) determina la superestructura política, jurídica e ideológica." },
+                    { q: "¿Cómo explica Pareto las acciones no racionales?", a: "Mediante los 'residuos' (sentimientos profundos) y las 'derivaciones' (justificaciones racionales a posteriori de actos emocionales)." },
+                    { q: "¿Qué influencia tuvo Darwin en la sociología temprana?", a: "Su teoría de la evolución y selección natural fue adaptada por Spencer al darwinismo social, influyendo en el estudio del cambio social." }
+                ]
+            },
+            {
+                id: 'II',
+                title: 'Unidad II: Definiciones y Campos de la Sociología',
+                color: '#3b82f6',
+                cards: [
+                    { q: "¿Cuál es el objeto de estudio de la Sociología?", a: "La sociedad humana, las relaciones sociales, las instituciones y los patrones de comportamiento colectivo." },
+                    { q: "¿Qué diferencia a la Sociología de la Psicología?", a: "La Psicología estudia procesos mentales individuales; la Sociología analiza fenómenos colectivos y estructuras sociales." },
+                    { q: "¿Qué son las 'Tres tareas' de la Sociología según Wright Mills?", a: "1) Describir la realidad social, 2) Explicar sus causas y consecuencias, 3) Interpretar el sentido de las acciones humanas." },
+                    { q: "¿Qué es la 'Imaginación Sociológica'?", a: "Capacidad de conectar las experiencias individuales (biografía) con los procesos históricos y estructurales de la sociedad." },
+                    { q: "¿Cómo se relaciona la Sociología con la Economía?", a: "La Sociología estudia el contexto social de las actividades económicas: normas, instituciones, desigualdad y redes de confianza." },
+                    { q: "¿Qué es la Microsociología?", a: "Estudio de las interacciones cotidianas cara a cara (ej. conversaciones, rituales, gestos) desde la perspectiva de Goffman o la etnometodología." },
+                    { q: "¿Qué es la Macrosociología?", a: "Estudio de grandes estructuras sociales (Estado, clases sociales, religión, sistema económico) y procesos históricos de cambio." },
+                    { q: "¿Cuáles son las principales especialidades de la Sociología?", a: "Sociología política, económica, del trabajo, de la educación, de la familia, urbana, rural, del conocimiento, de la cultura, de la religión." },
+                    { q: "¿Qué son las 'Instituciones Sociales'?", a: "Pautas estables y duraderas de comportamiento que organizan la vida social (familia, educación, Estado, religión, economía)." },
+                    { q: "¿Por qué la Sociología es considerada una ciencia?", a: "Porque utiliza métodos sistemáticos de investigación empírica, formula teorías verificables y busca explicaciones objetivas de los fenómenos sociales." }
+                ]
+            },
+            {
+                id: 'III',
+                title: 'Unidad III: Objeto de la Sociología: La Conducta Humana',
+                color: '#f59e0b',
+                cards: [
+                    { q: "¿Qué es la 'Naturaleza Humana' desde la Sociología?", a: "No es fija ni universal; la conducta humana es moldeada por la cultura, la socialización y el contexto histórico-social." },
+                    { q: "¿Qué son los instintos según la sociología clásica?", a: "Pautas innatas de comportamiento. La sociología cuestiona que la conducta humana sea puramente instintiva, destacando el aprendizaje social." },
+                    { q: "¿Qué es la Socialización Primaria?", a: "Proceso en la niñez (principalmente en la familia) donde se internalizan normas, valores, lenguaje y roles fundamentales." },
+                    { q: "¿Qué es la Socialización Secundaria?", a: "Aprendizaje de roles específicos en instituciones como la escuela, el trabajo o el ejército, que moldean conductas especializadas." },
+                    { q: "¿Qué es la Cultura?", a: "Conjunto de conocimientos, creencias, arte, moral, leyes, costumbres y hábitos adquiridos por el ser humano como miembro de la sociedad." },
+                    { q: "¿Qué diferencia hay entre Cultura Material e Inmaterial?", a: "Material: objetos físicos (herramientas, tecnología, edificios). Inmaterial: valores, normas, símbolos, lenguaje, creencias." },
+                    { q: "¿Qué es el Etnocentrismo?", a: "Tendencia a juzgar otras culturas según los estándares de la propia, considerándola superior." },
+                    { q: "¿Qué es el Relativismo Cultural?", a: "Comprensión de una cultura desde sus propios términos y contexto, sin imponer juicios externos." },
+                    { q: "¿Qué son los 'Agentes de Socialización'?", a: "Grupos e instituciones que transmiten cultura: familia, escuela, grupo de pares, medios de comunicación, religión." },
+                    { q: "¿Qué es el 'Self' (sí mismo) según George Herbert Mead?", a: "La identidad personal se construye mediante la interacción social, a través del 'Yo' (impulsivo) y el 'Mí' (interiorización de los otros)." }
+                ]
+            },
+            {
+                id: 'IV',
+                title: 'Unidad IV: El Hombre como Ser Social',
+                color: '#8b5cf6',
+                cards: [
+                    { q: "¿Qué significa que el hombre es un 'ser social'?", a: "Que su supervivencia, identidad y desarrollo dependen de la interacción con otros y de su pertenencia a grupos y sociedades." },
+                    { q: "¿Qué es la 'Integración Social'?", a: "Proceso mediante el cual los individuos se vinculan a la sociedad a través de normas, valores, instituciones y redes de pertenencia." },
+                    { q: "¿Qué es el Individualismo?", a: "Doctrina o actitud que prioriza los intereses, derechos y libertades del individuo frente al colectivo. Puede generar aislamiento social." },
+                    { q: "¿Qué es el Colectivismo?", a: "Énfasis en el grupo como unidad principal: los intereses colectivos priman sobre los individuales. Puede derivar en masificación." },
+                    { q: "¿Qué es la Masificación?", a: "Pérdida de identidad individual en la masa, donde las personas actúan uniformemente sin pensamiento crítico (fenómeno analizado por Ortega y Gasset)." },
+                    { q: "¿Qué es una 'Relación Interpersonal'?", a: "Vínculo directo entre dos o más personas basado en comunicación, afecto, cooperación o conflicto. Es la base de la vida social." },
+                    { q: "¿Qué es la Democracia como forma de convivencia?", a: "Sistema basado en la participación, el respeto a los derechos humanos, la igualdad y la toma de decisiones colectivas mediante diálogo." },
+                    { q: "¿Qué papel juegan los Derechos Humanos en la integración social?", a: "Garantizan condiciones mínimas de dignidad, igualdad y libertad que permiten la participación plena en la vida social." },
+                    { q: "¿Qué diferencia hay entre Grupo Primario y Secundario?", a: "Primario: relaciones afectivas e íntimas (familia). Secundario: relaciones formales y utilitarias (empresa, sindicato)." },
+                    { q: "¿Qué es la Anomia según Durkheim?", a: "Estado de ausencia de normas claras que genera confusión, desorientación y debilitamiento de los lazos sociales." }
+                ]
+            },
+            {
+                id: 'V',
+                title: 'Unidad V: La Libertad y la Existencia Humana',
+                color: '#ec4899',
+                cards: [
+                    { q: "¿Qué es la Acción Humana según la sociología?", a: "Toda conducta consciente y voluntaria que busca un fin. Implica deliberación (evaluar opciones) y responsabilidad (asumir consecuencias)." },
+                    { q: "¿Qué es la Libertad Absoluta?", a: "Idea de que el ser humano puede decidir sin ningún condicionamiento externo. Criticada por la sociología porque toda acción está contextualizada." },
+                    { q: "¿Qué es la Libertad Condicionada?", a: "La libertad humana opera dentro de límites sociales, económicos, culturales e históricos que la facilitan o restringen." },
+                    { q: "¿Qué es la 'Agencia Humana'?", a: "Capacidad de los individuos para tomar decisiones intencionales y actuar con iniciativa frente a las estructuras sociales." },
+                    { q: "¿Qué es la Libertad Negativa?", a: "Ausencia de interferencia externa ('libertad de...'). Ejemplo: no ser obligado a realizar determinada acción." },
+                    { q: "¿Qué es la Libertad Positiva?", a: "Capacidad real de autodeterminación y de llevar adelante un proyecto de vida ('libertad para...')." },
+                    { q: "¿Qué es la 'Mala Fe' según Sartre?", a: "Autoengaño consistente en negar la propia libertad y responsabilidad, atribuyendo las acciones a determinismos externos ('el sistema me obligó')." },
+                    { q: "¿Por qué la Seguridad Jurídica es esencial para la libertad?", a: "Porque establece reglas claras y predecibles que protegen derechos y permiten planificar la vida sin arbitrariedad." },
+                    { q: "¿Cómo influyen las condiciones sociales en la libertad?", a: "Factores como pobreza, educación, género o clase social amplían o limitan las opciones reales disponibles para la persona." },
+                    { q: "¿Qué es la 'Realización Humana'?", a: "Proceso de desarrollar las propias capacidades y alcanzar metas valiosas en un contexto social que ofrece oportunidades y apoyo." }
+                ]
+            },
+            {
+                id: 'VI',
+                title: 'Unidad VI: Cambio y Conflicto Social. Dinámica Social',
+                color: '#ef4444',
+                cards: [
+                    { q: "¿Qué es el Cambio Social?", a: "Transformación de las estructuras, instituciones, relaciones y valores de una sociedad a lo largo del tiempo." },
+                    { q: "¿Cuál es el motor del cambio según Marx?", a: "La lucha de clases y el conflicto entre quienes poseen los medios de producción (burguesía) y quienes venden su fuerza de trabajo (proletariado)." },
+                    { q: "¿Qué es la Estratificación Social?", a: "División jerárquica de la sociedad en capas o estratos con desigual acceso a recursos, poder, prestigio y educación." },
+                    { q: "¿Qué es la Movilidad Social?", a: "Capacidad de individuos o grupos de ascender o descender en la escala social mediante educación, mérito, matrimonio o cambios económicos." },
+                    { q: "¿Qué es la Modernización?", a: "Proceso de transición de sociedades tradicionales a industriales, caracterizado por racionalización, burocratización, urbanización y avance tecnológico." },
+                    { q: "¿Qué efectos tuvo la Revolución Industrial en la sociedad?", a: "Urbanización masiva, nueva clase obrera, conflictos laborales, cambios en la familia y surgimiento de movimientos sociales." },
+                    { q: "¿Qué es el Reformismo Keynesiano?", a: "Política económica post-guerra donde el Estado interviene activamente para garantizar empleo, bienestar y estabilidad social." },
+                    { q: "¿Cómo impactó la Globalización en las sociedades contemporáneas?", a: "Interdependencia económica, flujos culturales globales, desigualdad entre países, migraciones y resurgimiento de identidades locales." },
+                    { q: "¿Qué es la Resistencia al Cambio?", a: "Fenómeno por el cual grupos o instituciones se oponen a transformaciones debido a intereses creados, inercia cultural o temor a lo desconocido." },
+                    { q: "¿Qué rol cumplen los Movimientos Sociales en el cambio?", a: "Son actores colectivos que impulsan transformaciones desde la base, visibilizando conflictos y demandando derechos (ej. feminismo, ecologismo)." }
+                ]
+            }
         ];
 
-        let currentIndex = 0;
+        // ============================================================
+        // LÓGICA DE LA APLICACIÓN
+        // ============================================================
+
+        // Snapshot del orden original de cada unidad para poder restaurar al desactivar shuffle
+        const ORIGINAL_UNITS = UNITS.map(unit => ({
+            ...unit,
+            cards: unit.cards.map(c => ({ ...c }))
+        }));
+
+        let currentUnitIndex = 0;
+        let currentCardIndex = 0;
+        let shuffled = false;
+
         const cardElement = document.getElementById('flashcard');
         const qText = document.getElementById('question-text');
         const aText = document.getElementById('answer-text');
         const counterText = document.getElementById('card-counter');
         const progressBar = document.getElementById('progress-bar');
+        const unitLabel = document.getElementById('unitLabel');
+        const cardUnitBadge = document.getElementById('cardUnitBadge');
+        const unitTabs = document.getElementById('unitTabs');
+        const shuffleToggle = document.getElementById('shuffleToggle');
 
-        // Optional: Simple soft tick sound for interactions
-        const flipSound = new Audio('data:audio/wav;base64,UklGRlQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTQAAAAA/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8=');
-        flipSound.volume = 0.1;
+        const totalCards = UNITS.reduce((sum, u) => sum + u.cards.length, 0);
+
+        // Build unit tabs
+        UNITS.forEach((unit, idx) => {
+            const tab = document.createElement('button');
+            tab.className = 'unit-tab' + (idx === 0 ? ' active' : '');
+            tab.dataset.index = idx;
+            tab.innerHTML = `U. ${unit.id} <span class="unit-count">${unit.cards.length}</span>`;
+            tab.onclick = () => selectUnit(idx);
+            unitTabs.appendChild(tab);
+        });
+
+        function selectUnit(idx) {
+            currentUnitIndex = idx;
+            currentCardIndex = 0;
+            // Update tabs
+            document.querySelectorAll('.unit-tab').forEach((t, i) => {
+                t.classList.toggle('active', i === idx);
+            });
+            updateCard();
+        }
+
+        function getCurrentUnit() {
+            return UNITS[currentUnitIndex];
+        }
+
+        function getCurrentCard() {
+            const unit = getCurrentUnit();
+            return unit.cards[currentCardIndex];
+        }
+
+        function getGlobalIndex() {
+            let globalIdx = 0;
+            for (let u = 0; u < currentUnitIndex; u++) {
+                globalIdx += UNITS[u].cards.length;
+            }
+            return globalIdx + currentCardIndex + 1;
+        }
 
         function flipCard() {
             cardElement.classList.toggle('flipped');
-            try { flipSound.play().catch(e => {}); } catch(e) {}
         }
 
         function updateCard() {
             cardElement.classList.remove('flipped');
-            
-            // Calculate progress
-            const progress = ((currentIndex + 1) / cardsData.length) * 100;
+
+            const unit = getCurrentUnit();
+            const card = getCurrentCard();
+            const global = getGlobalIndex();
+            const unitTotal = unit.cards.length;
+
+            const progress = (global / totalCards) * 100;
             progressBar.style.width = `${progress}%`;
 
             setTimeout(() => {
-                qText.textContent = cardsData[currentIndex].q;
-                aText.textContent = cardsData[currentIndex].a;
-                counterText.textContent = `Tarjeta ${currentIndex + 1} de ${cardsData.length}`;
-            }, 250); // Waited for flip animation to be mostly hidden
+                qText.textContent = card.q;
+                aText.textContent = card.a;
+                counterText.textContent = `Tarjeta ${global} de ${totalCards}`;
+                unitLabel.textContent = `Unidad ${unit.id}`;
+                cardUnitBadge.textContent = `Unidad ${unit.id} · ${currentCardIndex + 1}/${unitTotal}`;
+            }, 250);
         }
 
         function nextCard() {
-            currentIndex = (currentIndex + 1) % cardsData.length;
+            if (currentCardIndex + 1 < getCurrentUnit().cards.length) {
+                currentCardIndex++;
+            } else {
+                // Saltar a la siguiente unidad
+                if (currentUnitIndex + 1 < UNITS.length) {
+                    currentUnitIndex++;
+                    currentCardIndex = 0;
+                    document.querySelectorAll('.unit-tab').forEach((t, i) => {
+                        t.classList.toggle('active', i === currentUnitIndex);
+                    });
+                } else {
+                    // Vuelve al inicio
+                    currentUnitIndex = 0;
+                    currentCardIndex = 0;
+                    document.querySelectorAll('.unit-tab').forEach((t, i) => {
+                        t.classList.toggle('active', i === 0);
+                    });
+                }
+            }
             updateCard();
         }
 
         function prevCard() {
-            currentIndex = (currentIndex - 1 + cardsData.length) % cardsData.length;
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+            } else {
+                // Unidad anterior
+                if (currentUnitIndex > 0) {
+                    currentUnitIndex--;
+                    currentCardIndex = UNITS[currentUnitIndex].cards.length - 1;
+                    document.querySelectorAll('.unit-tab').forEach((t, i) => {
+                        t.classList.toggle('active', i === currentUnitIndex);
+                    });
+                } else {
+                    // Va a la última unidad
+                    currentUnitIndex = UNITS.length - 1;
+                    currentCardIndex = UNITS[currentUnitIndex].cards.length - 1;
+                    document.querySelectorAll('.unit-tab').forEach((t, i) => {
+                        t.classList.toggle('active', i === currentUnitIndex);
+                    });
+                }
+            }
             updateCard();
         }
 
-        // Add keyboard navigation
+        function toggleShuffle() {
+            shuffled = !shuffled;
+            shuffleToggle.classList.toggle('active', shuffled);
+            // Reordenar las cartas de la unidad actual
+            if (shuffled) {
+                const unit = getCurrentUnit();
+                const cardsCopy = [...unit.cards];
+                for (let i = cardsCopy.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [cardsCopy[i], cardsCopy[j]] = [cardsCopy[j], cardsCopy[i]];
+                }
+                unit.cards = cardsCopy;
+            } else {
+                // Restaurar orden original desde el snapshot
+                const unit = UNITS[currentUnitIndex];
+                unit.cards = ORIGINAL_UNITS[currentUnitIndex].cards.map(c => ({ ...c }));
+            }
+            currentCardIndex = 0;
+            updateCard();
+        }
+
+        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') nextCard();
             if (e.key === 'ArrowLeft') prevCard();
@@ -401,5 +635,4 @@
         updateCard();
     </script>
 </body>
-
 </html>
