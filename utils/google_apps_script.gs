@@ -21,6 +21,7 @@ const SHEET_REGISTRO = 'Registro';
 const SHEET_RESUMEN = 'Resumen';
 const SHEET_PLANIFICACION = 'Planificacion';
 const SHEET_EXAMEN = 'ExamenParcial';
+const SHEET_EXAMEN_TEST = 'Examen999';
 
 // CAMBIAR ESTA CLAVE Y MANTENERLA EN SECRETO
 const API_SECRET = 'CenturiaApi2024!';
@@ -42,6 +43,8 @@ function getSheet_(name) {
     } else if (name === SHEET_PLANIFICACION) {
       sheet.appendRow(['CODIGO','Cedula','Nombre y Apellido','COD_ASIGNATURA','COD_SECCION','COD_CARRERA','Fecha de Inicio','Fecha de Cierre','SALA','SEDE','Modalidad','Observaciones']);
     } else if (name === SHEET_EXAMEN) {
+      sheet.appendRow(['Fecha','Hora','Nombre','Cedula','Carrera','Seccion','Materia','Nota','TipoExamen','MarcaTemporal']);
+    } else if (name === SHEET_EXAMEN_TEST) {
       sheet.appendRow(['Fecha','Hora','Nombre','Cedula','Carrera','Seccion','Materia','Nota','TipoExamen','MarcaTemporal']);
     }
   }
@@ -343,6 +346,30 @@ function doPost(e) {
 
       sheet.appendRow([fecha, hora, nombre, cedula, carrera, seccion, materia, nota, tipoExamen, marcaTemporal]);
       return jsonResponse({ ok: true, mensaje: 'Examen registrado correctamente en la hoja ' + SHEET_EXAMEN });
+    }
+
+    // Modo guardar_examen_999 — registra examen en hoja Examen999 (prueba)
+    if (data.modo === 'guardar_examen_999') {
+      const sheet = getSheet_(SHEET_EXAMEN_TEST);
+      const now = new Date();
+      const fecha = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
+      const hora = Utilities.formatDate(now, 'America/Asuncion', 'HH:mm:ss');
+      const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
+
+      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
+      const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
+      const carrera = (data.career || data.carrera || '').trim();
+      const seccion = (data.seccion || data.section || '').trim();
+      const materia = (data.materia || '').trim();
+      const nota = (data.nota || '').trim();
+      const tipoExamen = (data.tipoExamen || 'Parcial').trim();
+
+      if (!nombre || !cedula || !carrera || !seccion || !materia) {
+        return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera, seccion o materia' });
+      }
+
+      sheet.appendRow([fecha, hora, nombre, cedula, carrera, seccion, materia, nota, tipoExamen, marcaTemporal]);
+      return jsonResponse({ ok: true, mensaje: 'Examen registrado correctamente en la hoja ' + SHEET_EXAMEN_TEST + ' (PRUEBA)' });
     }
 
     // Modo justificación de ausencia — guarda en Registro con estado "Ausencia Justificada"
