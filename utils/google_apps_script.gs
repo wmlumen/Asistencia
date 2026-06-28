@@ -22,6 +22,7 @@ const SHEET_RESUMEN = 'Resumen';
 const SHEET_PLANIFICACION = 'Planificacion';
 const SHEET_EXAMEN = 'ExamenParcial';
 const SHEET_EXAMEN_TEST = 'Examen999';
+const SHEET_PROGRESO = 'ProgresoGrupos';
 
 // CAMBIAR ESTA CLAVE Y MANTENERLA EN SECRETO
 const API_SECRET = 'CenturiaApi2024!';
@@ -46,6 +47,8 @@ function getSheet_(name) {
       sheet.appendRow(['Fecha','Hora','Nombre','Cedula','Carrera','Seccion','Materia','Nota','TipoExamen','MarcaTemporal']);
     } else if (name === SHEET_EXAMEN_TEST) {
       sheet.appendRow(['Fecha','Hora','Nombre','Cedula','Carrera','Seccion','Materia','Nota','TipoExamen','MarcaTemporal']);
+    } else if (name === SHEET_PROGRESO) {
+      sheet.appendRow(['CODIGO','CedulaDocente','Seccion','Asignatura','Unidad','Tema','Fecha','Observaciones','MarcaTemporal']);
     }
   }
   return sheet;
@@ -176,6 +179,29 @@ function doGet(e) {
         }, {});
       });
       return jsonResponse({ examenes, total: examenes.length });
+    }
+
+    // Modo progreso_grupo — obtener registros de ProgresoGrupos
+    if (modo === 'progreso_grupo') {
+      const sheet = getSheet_(SHEET_PROGRESO);
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) return jsonResponse({ progreso: [] });
+      const headers = values[0];
+      const cedulaFiltro = (data.cedula || '').toString().replace(/\./g, '').trim();
+      let progreso = values.slice(1).reverse().map(row => {
+        return headers.reduce((acc, h, i) => { 
+          acc[h] = row[i]; 
+          return acc; 
+        }, {});
+      });
+      // Filtrar por cédula docente si se especifica
+      if (cedulaFiltro) {
+        progreso = progreso.filter(p => {
+          const pCedula = (p.CedulaDocente || '').toString().replace(/\./g, '').trim();
+          return pCedula === cedulaFiltro;
+        });
+      }
+      return jsonResponse({ progreso, total: progreso.length });
     }
 
     // Modo catalogos — extrae asignaturas, secciones y carreras únicas de Planificacion
@@ -340,6 +366,43 @@ function doPost(e) {
         // Nueva fila
         sheet.appendRow([codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones]);
         return jsonResponse({ ok: true, mensaje: 'Planificación guardada correctamente', codigo: codigo });
+      }
+    }
+
+    // Modo progreso_grupo — guarda/actualiza progreso en ProgresoGrupos
+    if (data.modo === 'progreso_grupo') {
+      const sheet = getSheet_(SHEET_PROGRESO);
+      const now = new Date();
+      const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
+      const fecha = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
+
+      const codigo = (data.codigo || '').trim();
+      const cedulaDocente = (data.cedulaDocente || data.cedula || '').toString().replace(/\./g, '').trim();
+      const seccion = (data.seccion || '').trim();
+      const asignatura = (data.asignatura || '').trim();
+      const unidad = (data.unidad || '').trim();
+      const tema = (data.tema || '').trim();
+      const observaciones = (data.observaciones || '').trim();
+
+      if (!cedulaDocente || !seccion || !asignatura) {
+        return jsonResponse({ ok: false, error: 'Faltan datos requeridos: cedulaDocente, seccion, asignatura' });
+      }
+
+      if (codigo) {
+        // Editar registro existente
+        const valores = sheet.getDataRange().getValues();
+        for (let i = 1; i < valores.length; i++) {
+          if (valores[i][0] === codigo) {
+            sheet.getRange(i + 1, 1, 1, 9).setValues([[codigo, cedulaDocente, seccion, asignatura, unidad, tema, fecha, observaciones, marcaTemporal]]);
+            return jsonResponse({ ok: true, mensaje: 'Progreso actualizado correctamente', codigo: codigo });
+          }
+        }
+        return jsonResponse({ ok: false, error: 'Código de progreso no encontrado' });
+      } else {
+        // Nuevo registro — generar código
+        const codigoProgreso = 'PG-' + Utilities.formatDate(now, 'America/Asuncion', 'yyyyMMddHHmmss') + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+        sheet.appendRow([codigoProgreso, cedulaDocente, seccion, asignatura, unidad, tema, fecha, observaciones, marcaTemporal]);
+        return jsonResponse({ ok: true, mensaje: 'Progreso guardado correctamente', codigo: codigoProgreso });
       }
     }
 
@@ -701,6 +764,7 @@ function limpiarDatosDePrueba() {
 function inicializarHojas() {
   getSheet_(SHEET_REGISTRO);
   getSheet_(SHEET_RESUMEN);
+  getSheet_(SHEET_PROGRESO);
   console.log('Hojas inicializadas correctamente');
 }
 
