@@ -4,107 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Programa de Estudios - Sociología</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="student-premium.css">
     <style>
-        :root { 
-            --color-primary: #2563eb; 
-            --color-secondary: #0f172a;
-        }
-        
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            color: #1e293b; 
-            min-height: 100vh;
         }
         
-        .viewer-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
+        #doc-content {
+            padding: 2rem 2.5rem;
         }
         
-        .toolbar-glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border-radius: 1rem;
-            padding: 1rem 1.5rem;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 1rem;
-            z-index: 50;
-        }
-
-        .btn-export {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-export:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-        }
-
-        .btn-back {
-            color: #64748b;
-            font-weight: 600;
-            font-size: 0.875rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-        }
-
-        .btn-back:hover {
-            color: #0f172a;
-            background: rgba(15, 23, 42, 0.05);
-        }
-        
-        #doc-content { 
-            background: white; 
-            padding: 4rem 5rem; 
-            border-radius: 8px; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
-            margin: 0 auto;
-            position: relative;
-        }
-
-        #doc-content::before {
-            content: '';
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            right: -4px;
-            bottom: -4px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 8px;
-            z-index: -1;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Estilos del contenido del programa */
         .doc-section-title {
             color: #1e293b;
             font-size: 16px;
@@ -150,7 +61,7 @@
             color: #334155;
             margin-bottom: 15px;
         }
-
+        
         .doc-list li {
             margin-bottom: 6px;
         }
@@ -185,38 +96,32 @@
         }
 
         @media print {
-            .no-print { display: none !important; }
-            body { background: white; margin: 0; padding: 0; }
-            .viewer-container { padding: 0; max-width: 100%; }
-            #doc-content { box-shadow: none; padding: 0; }
-            #doc-content::before { display: none; }
+            #doc-content { padding: 0 !important; }
         }
         
         @media (max-width: 768px) {
-            #doc-content { padding: 2rem; }
+            #doc-content { padding: 1.5rem !important; }
         }
     </style>
 </head>
 <body>
 
-    <div class="viewer-container">
-        <!-- Toolbar con efecto glass -->
-        <div class="toolbar-glass no-print">
-            <a href="index.html" class="btn-back">
-                <i class="fas fa-arrow-left"></i> Volver al Inicio
-            </a>
-            <div class="flex items-center gap-4">
-                <div class="hidden sm:block text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-                    <i class="fas fa-file-alt mr-1"></i> Documento Oficial
-                </div>
-                <button onclick="exportWord()" class="btn-export">
-                    <i class="fas fa-file-word text-lg"></i> Exportar a Word
-                </button>
-            </div>
+    <header class="page-header">
+        <h1><i class="fas fa-graduation-cap"></i> Programa de Estudios</h1>
+        <p>Sociología — Instituto Superior Centuria</p>
+        <div class="header-nav">
+            <a href="index.html"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
+            <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 12px;border-radius:20px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);font-weight:600;">
+                <i class="fas fa-file-alt"></i> Documento Oficial
+            </span>
+            <button onclick="exportWord()"><i class="fas fa-file-word"></i> Exportar a Word</button>
         </div>
+    </header>
 
-        <!-- Contenido que será exportado a Word -->
-        <div id="doc-content" style="font-family: Arial, sans-serif; color: #000; background-color: #fff;">
+    <div class="premium-container">
+        <div class="premium-card" style="margin-bottom:24px;">
+            <div class="premium-card-body">
+                <div id="doc-content" style="font-family: Arial, sans-serif; color: #000;">
             
             <div style="text-align: center; margin-bottom: 30px;">
                 <h2 style="margin-bottom: 5px; font-size: 22px; color: #1e1e1e; font-weight: bold;">INSTITUTO SUPERIOR CENTURIA</h2>
@@ -229,7 +134,7 @@
                 <table>
                     <tr>
                         <td>ASIGNATURA</td>
-                        <td colspan="3">SOCIOLOGIA</td>
+                        <td colspan="3">SOCIOLOGÍA</td>
                     </tr>
                     <tr>
                         <td>CURSO</td>
@@ -376,19 +281,21 @@
             <ul class="doc-list" style="font-size: 13px;">
                 <li>Castells, Manuel 1942-, "La era de la información economía, sociedad y cultura", Madrid Alianza 2009</li>
                 <li>Chinoy, Ely: La sociedad, una introducción a la sociología, Fondo de Cultura Económica, México, 5ª. Edición, 1973.</li>
-                <li>Coreth, Emerich. “¿Qué es el hombre? Herder, Madrid, 1980.</li>
-                <li>Gevaert, Joseph. “El problema del hombre”. Sígueme. Salamanca, 1998.</li>
-                <li>Jiménez, Emiliano. “¿Quién soy yo?”. Biblioteca Catecumenal, Madrid, 1992.</li>
-                <li>LUCAS, Juan de S. “El hombre ¿quién es? Edit. Sociedad de Educación. Atenas, 1988</li>
-                <li>LUYPEN, W. “Fenomenología existencial”. Herder, Madrid, 1980.</li>
+                <li>Coreth, Emerich. "¿Qué es el hombre? Herder, Madrid, 1980.</li>
+                <li>Gevaert, Joseph. "El problema del hombre". Sígueme. Salamanca, 1998.</li>
+                <li>Jiménez, Emiliano. "¿Quién soy yo?". Biblioteca Catecumenal, Madrid, 1992.</li>
+                <li>LUCAS, Juan de S. "El hombre ¿quién es? Edit. Sociedad de Educación. Atenas, 1988</li>
+                <li>LUYPEN, W. "Fenomenología existencial". Herder, Madrid, 1980.</li>
                 <li>RECONDO, GREGORIO: Sociología y ciencias sociales, introducción a la sociología, Ediciones Pannedille, Buenos Aires, 1971.</li>
-                <li>VIDAL, Marciano. “Moral de actitudes”. P.S. Madrid, 1979.</li>
+                <li>VIDAL, Marciano. "Moral de actitudes". P.S. Madrid, 1979.</li>
                 <li>CHINOY, Ely: La sociedad, una introducción a la sociología, Fondo de Cultura Económica, México, 5ª. Edición, 1973.</li>
                 <li>En Antología: De la sociedad tradicional a la sociedad de masas, Departamento de Sociología, Universidad Nacional de Buenos Aires (UNBA), 1961.</li>
                 <li>Manual de Naciones Unidas: Población, desarrollo y salud reproductiva en el Paraguay, Manual para Institutos de Enseñanza Militar, Asunción, 1998.</li>
                 <li>RUMNEY, Jay & Maier, Joseph: Sociología, la ciencia de la sociedad, Editorial Paidos, Buenos Aires. 1952.</li>
             </ul>
 
+                </div>
+            </div>
         </div>
     </div>
 

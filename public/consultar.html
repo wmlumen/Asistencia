@@ -4,113 +4,187 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consultar Resultados</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="institutional.css">
+    <link rel="stylesheet" href="student-premium.css">
     <style>
-        .glass-panel-light { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
-        .background-blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
-        .blob { position: absolute; filter: blur(80px); opacity: 0.6; border-radius: 50%; }
-        .blob-1 { width: 400px; height: 400px; background: #059669; top: -100px; left: -100px; }
-        .blob-2 { width: 400px; height: 400px; background: #a3e635; bottom: -100px; right: -100px; }
+        /* Estilos específicos para consultar.html */
+        .resultado-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            animation: fadeInUp 0.4s ease-out forwards;
+            opacity: 0;
+        }
+        .resultado-card:nth-child(1) { animation-delay: 0.1s; }
+        .resultado-card:nth-child(2) { animation-delay: 0.2s; }
+        .resultado-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .resultado-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .resultado-card.aprobado {
+            border-color: var(--success);
+        }
+        .resultado-card.reprobado {
+            border-color: var(--danger);
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .mejor-nota-card {
+            background: linear-gradient(135deg, var(--success-light) 0%, #c3e6cb 100%);
+            border: 2px solid var(--success);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .mejor-nota-card .label {
+            font-size: 12px;
+            color: #155724;
+            font-weight: 600;
+        }
+        .mejor-nota-card .nota {
+            font-size: 22px;
+            font-weight: 800;
+            color: #155724;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .grid-2 .stat-box {
+            background: var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+        .grid-2 .stat-box .stat-label {
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+        .grid-2 .stat-box .stat-value {
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            color: #d1d5da;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .resultado-card {
+                padding: 12px;
+            }
+        }
     </style>
 </head>
-<body class="animated-bg text-slate-800 min-h-screen flex items-center justify-center p-4">
+<body>
 
     <!-- Header Institucional -->
-    <div class="institutional-header" style="position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 10px 30px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; max-width: 1400px; margin: 0 auto;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <img src="logo_centuria_blanco.png" alt="Logo Centuria" style="height: 35px;">
+    <div class="institutional-header">
+        <div class="header-inner">
+            <div class="header-left">
+                <img src="logo_centuria_blanco.png" alt="Logo Centuria">
                 <div>
-                    <h1 style="font-size: 16px; margin: 0;">Instituto Superior Centuria</h1>
-                    <p style="font-size: 11px; margin: 0; opacity: 0.9;">Consulta de Resultados</p>
+                    <h1>Instituto Superior Centuria</h1>
+                    <p>Consulta de Resultados</p>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <button onclick="logoutStudent(); window.location.href='index.html';" style="color: white; text-decoration: none; background: rgba(220, 38, 38, 0.3); border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <div class="header-actions">
+                <button class="btn-logout" onclick="logoutStudent(); window.location.href='index.html';">
                     <i class="fas fa-sign-out-alt"></i> Cerrar sesión
                 </button>
-                <a href="index.html" style="color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                <a href="index.html">
                     <i class="fas fa-home"></i> Volver al inicio
                 </a>
             </div>
         </div>
     </div>
 
-    <div class="background-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-    </div>
-
-    <div class="glass-panel-light max-w-md w-full relative z-10 overflow-hidden" style="margin-top: 60px;">
-        <div class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-lime-700 p-6 text-center relative overflow-hidden">
-            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
-                <div class="relative z-10">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-xs font-bold uppercase tracking-[0.3em] text-emerald-100">Institución</p>
-                    <a href="index.html" class="text-white text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5 no-underline">
-                        <i class="fas fa-home text-[10px]"></i> Volver al inicio
-                    </a>
-                </div>
-                <img src="logo_centuria_blanco.png" alt="Logo Centuria" style="height:50px;margin-bottom:10px;">
-                <h1 class="text-white text-2xl font-bold tracking-tight">Consultar Resultados</h1>
-            </div>
-        </div>
-        
-        <div class="p-6">
-            <!-- Buscador -->
-            <div id="buscador" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Ingrese su Cédula de Identidad</label>
-                    <input type="text" id="cedula-buscar" 
-                        class="w-full bg-white/50 border-2 border-slate-200 rounded-xl px-4 py-3 text-lg focus:border-emerald-500 focus:outline-none text-center"
-                        placeholder="Ej: 12345678">
-                </div>
-                
-                <button onclick="buscarResultados()" 
-                    class="w-full bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-bold py-3 rounded-xl shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                    <i class="fas fa-search mr-2"></i> Buscar Resultados
-                </button>
-                
-                <p class="text-center text-xs text-slate-400">
-                    Ingrese su cédula para ver sus intentos
-                </p>
+    <div class="premium-container">
+        <div class="premium-card animate-in">
+            <div class="premium-card-header">
+                <h2><i class="fas fa-search"></i> Consultar Resultados</h2>
             </div>
             
-            <!-- Cargando -->
-            <div id="cargando" class="hidden text-center py-8">
-                <div class="loader mx-auto mb-4"></div>
-                <p class="text-slate-500">Buscando resultados...</p>
-            </div>
-            
-            <!-- Resultados -->
-            <div id="resultados" class="hidden space-y-4">
-                <div class="flex justify-between items-center mb-4">
-                    <button onclick="nuevaBusqueda()" class="text-emerald-600 hover:underline text-sm font-medium">
-                        <i class="fas fa-arrow-left mr-1"></i> Nueva búsqueda
+            <div class="premium-card-body">
+                <!-- Buscador -->
+                <div id="buscador">
+                    <div class="premium-form-group">
+                        <label><i class="fas fa-id-card"></i> Ingrese su Cédula de Identidad</label>
+                        <input type="text" id="cedula-buscar" class="premium-input" style="text-align:center;font-size:16px;"
+                            placeholder="Ej: 12345678">
+                    </div>
+                    
+                    <button onclick="buscarResultados()" class="premium-btn premium-btn-block" style="margin-top:6px;">
+                        <i class="fas fa-search"></i> Buscar Resultados
+                    </button>
+                    
+                    <div class="premium-status info" style="margin-top:16px;">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Ingrese su cédula para ver sus intentos</span>
+                    </div>
+                </div>
+                
+                <!-- Cargando -->
+                <div id="cargando" class="hidden" style="text-align:center;padding:32px 0;">
+                    <div class="loader" style="margin:0 auto 12px;"></div>
+                    <p style="color:var(--text-muted);font-size:13px;">Buscando resultados...</p>
+                </div>
+                
+                <!-- Resultados -->
+                <div id="resultados" class="hidden">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <button onclick="nuevaBusqueda()" class="premium-btn premium-btn-secondary premium-btn-sm">
+                            <i class="fas fa-arrow-left"></i> Nueva búsqueda
+                        </button>
+                    </div>
+                    
+                    <div id="lista-resultados"></div>
+                </div>
+                
+                <!-- Sin resultados -->
+                <div id="sin-resultados" class="hidden" style="text-align:center;padding:32px 0;">
+                    <i class="fas fa-search empty-icon"></i>
+                    <p style="color:var(--text);font-weight:600;margin-bottom:4px;">No se encontraron resultados</p>
+                    <p style="color:var(--text-muted);font-size:13px;">Verifique su cédula e intente nuevamente</p>
+                    <button onclick="nuevaBusqueda()" class="premium-btn premium-btn-sm" style="margin-top:16px;">
+                        <i class="fas fa-redo"></i> Intentar nuevamente
                     </button>
                 </div>
-                
-                <div id="lista-resultados" class="space-y-3"></div>
             </div>
             
-            <!-- Sin resultados -->
-            <div id="sin-resultados" class="hidden text-center py-8">
-                <i class="fas fa-search text-4xl text-slate-300 mb-4"></i>
-                <p class="text-slate-600 font-medium">No se encontraron resultados</p>
-                <p class="text-slate-400 text-sm">Verifique su cédula e intente nuevamente</p>
-                <button onclick="nuevaBusqueda()" class="mt-4 text-emerald-600 hover:underline font-medium">
-                    Intentar nuevamente
-                </button>
+            <div style="background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);padding:12px 20px;text-align:center;border-top:1px solid var(--border-light);">
+                <a href="index.html" style="color:var(--primary);font-weight:600;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                    <i class="fas fa-home"></i> Volver al Inicio
+                </a>
             </div>
-        </div>
-        
-        <div class="bg-white/40 backdrop-blur-sm p-4 text-center border-t border-slate-200/50">
-            <a href="index.html" class="text-emerald-600 font-medium text-sm hover:underline">
-                <i class="fas fa-home mr-1"></i> Volver al Inicio
-            </a>
         </div>
     </div>
 
@@ -124,7 +198,7 @@
             }
             
             // Mostrar loading
-            document.getElementById('buscador').classList.add('hidden');
+            document.getElementById('buscador').style.display = 'none';
             document.getElementById('cargando').classList.remove('hidden');
             
             // Simular búsqueda
@@ -146,41 +220,41 @@
         
         function mostrarResultados(intentos) {
             const container = document.getElementById('lista-resultados');
-            let html = `<h3 class="font-bold text-lg text-slate-700 mb-4">
-                <i class="fas fa-user mr-2"></i>${intentos[0].name}
+            let html = `<h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                <i class="fas fa-user" style="color:var(--primary);"></i> ${intentos[0].name}
             </h3>`;
             
             intentos.forEach((r, idx) => {
                 const percent = ((r.score / 30) * 100).toFixed(0);
-                const estado = percent >= 60 ? 'aprobado' : 'reprobado';
-                const estadoTexto = percent >= 60 ? 'APROBADO' : 'REPROBADO';
+                const esAprobado = percent >= 60;
+                const estadoTexto = esAprobado ? 'APROBADO' : 'REPROBADO';
                 
                 html += `
-                    <div class="resultado-card bg-white/70 backdrop-blur-sm border ${percent >= 60 ? 'border-emerald-200' : 'border-rose-200'} p-4 rounded-xl shadow-sm mb-3">
-                        <div class="flex justify-between items-start mb-3">
+                    <div class="resultado-card ${esAprobado ? 'aprobado' : 'reprobado'}">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
                             <div>
-                                <span class="text-xs font-bold text-slate-500">Intento #${idx + 1}</span>
-                                <div class="text-xs text-slate-400">${r.date} - ${r.time}</div>
+                                <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Intento #${idx + 1}</div>
+                                <div style="font-size:11px;color:var(--text-muted);">${r.date} - ${r.time}</div>
                             </div>
-                            <div class="text-right">
-                                <span class="text-2xl font-bold ${percent >= 60 ? 'text-emerald-600' : 'text-rose-600'}">${r.score}/30</span>
-                                <div class="text-sm font-bold ${percent >= 60 ? 'text-emerald-500' : 'text-rose-500'}">${percent}%</div>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="bg-white/80 p-2 rounded-lg">
-                                <span class="text-slate-500">Sel. Múltiple:</span>
-                                <span class="font-bold text-emerald-600 ml-1">${r.summary ? r.summary[0].correct : '-'}/15</span>
-                            </div>
-                            <div class="bg-white/80 p-2 rounded-lg">
-                                <span class="text-slate-500">Verd/Falso:</span>
-                                <span class="font-bold text-emerald-600 ml-1">${r.summary ? r.summary[1].correct : '-'}/15</span>
+                            <div style="text-align:right;">
+                                <div style="font-size:22px;font-weight:800;color:${esAprobado ? 'var(--success)' : 'var(--danger)'};">${r.score}/30</div>
+                                <div style="font-size:13px;font-weight:700;color:${esAprobado ? 'var(--success)' : 'var(--danger)'};">${percent}%</div>
                             </div>
                         </div>
                         
-                        <div class="mt-3 text-center">
-                            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${percent >= 60 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                        <div class="grid-2">
+                            <div class="stat-box">
+                                <div class="stat-label">Sel. Múltiple</div>
+                                <div class="stat-value">${r.summary ? r.summary[0].correct : '-'}/15</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Verd/Falso</div>
+                                <div class="stat-value">${r.summary ? r.summary[1].correct : '-'}/15</div>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align:center;margin-top:10px;">
+                            <span class="premium-badge ${esAprobado ? 'premium-badge-green' : 'premium-badge-red'}">
                                 ${estadoTexto}
                             </span>
                         </div>
@@ -193,11 +267,9 @@
             const mejorPercent = ((mejor / 30) * 100).toFixed(0);
             
             html += `
-                <div class="mt-4 p-4 bg-emerald-50/80 rounded-xl border border-emerald-200 shadow-inner">
-                    <div class="text-center">
-                        <span class="text-sm text-slate-600">Mejor Nota:</span>
-                        <span class="text-xl font-bold text-emerald-600 ml-2">${mejor}/30 (${mejorPercent}%)</span>
-                    </div>
+                <div class="mejor-nota-card">
+                    <div class="label">Mejor Nota</div>
+                    <div class="nota">${mejor}/30 (${mejorPercent}%)</div>
                 </div>
             `;
             
@@ -208,7 +280,7 @@
         function nuevaBusqueda() {
             document.getElementById('resultados').classList.add('hidden');
             document.getElementById('sin-resultados').classList.add('hidden');
-            document.getElementById('buscador').classList.remove('hidden');
+            document.getElementById('buscador').style.display = 'block';
             document.getElementById('cedula-buscar').value = '';
         }
         

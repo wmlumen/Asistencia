@@ -6,6 +6,7 @@
     <title>Examen Parcial - Instituto Superior Centuria</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="institutional.css">
+    <link rel="stylesheet" href="student-premium.css">
     <script src="script.js?v=2"></script>
     <script>
     (function() {
@@ -22,14 +23,6 @@
     })();
     </script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f5f5f5;
-            min-height: 100vh;
-        }
-
         /* Login Overlay */
         .login-overlay {
             position: fixed;
@@ -41,10 +34,10 @@
             z-index: 9999;
         }
         .login-overlay.hidden { display: none; }
-        
+
         .login-box {
             background: white;
-            border-radius: 16px;
+            border-radius: var(--radius-lg);
             padding: 40px;
             width: 360px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -55,247 +48,60 @@
             margin-bottom: 12px;
         }
         .login-box h2 {
-            color: #1a2744;
+            color: var(--text);
             font-size: 20px;
             margin-bottom: 4px;
         }
         .login-box p {
-            color: #666;
+            color: var(--text-muted);
             font-size: 13px;
             margin-bottom: 24px;
         }
-        .login-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-            margin-bottom: 16px;
-        }
-        .login-input:focus {
-            outline: none;
-            border-color: #1a2744;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: #1a2744;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .login-btn:hover { background: #2a3f6a; }
         .login-error {
-            color: #dc2626;
+            color: var(--danger);
             font-size: 13px;
             margin-top: 12px;
             display: none;
         }
         .login-error.show { display: block; }
 
-        /* Header */
-        .header-docente {
-            background: linear-gradient(135deg, #0a1628, #1a2744);
-            color: white;
-            padding: 12px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* Outer wrapper for main content (page-header + layout) */
+        #mainContent {
+            flex-direction: column;
+            min-height: 0;
         }
-        .header-docente .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .header-docente img { height: 36px; }
-        .header-docente h1 { font-size: 16px; font-weight: 600; }
-        .header-docente .header-links {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .header-docente .header-links a,
-        .header-docente .header-links button {
-            color: white;
-            text-decoration: none;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .header-docente .header-links button:hover,
-        .header-docente .header-links a:hover { background: rgba(255,255,255,0.25); }
 
-        /* Layout principal */
+        /* Two-column layout */
         .main-layout {
             display: flex;
-            gap: 0;
-            height: calc(100vh - 60px);
+            gap: 24px;
+            align-items: flex-start;
         }
-
-        /* Panel izquierdo: formulario */
-        .form-panel {
+        .main-layout > .left-col {
             flex: 1;
-            padding: 24px;
-            overflow-y: auto;
+            min-width: 0;
+        }
+        .main-layout > .right-col {
+            width: 380px;
+            flex-shrink: 0;
         }
 
-        .exam-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            padding: 28px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .exam-card .exam-icon {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .exam-card .exam-icon i {
-            font-size: 40px;
-            color: #1a2744;
-            background: #eef2f7;
-            padding: 16px;
-            border-radius: 50%;
-        }
-        .exam-card h2 {
-            text-align: center;
-            color: #1a2744;
-            font-size: 22px;
-            margin-bottom: 4px;
-        }
-        .exam-card .exam-subtitle {
-            text-align: center;
-            color: #888;
-            font-size: 13px;
-            margin-bottom: 24px;
-        }
-
-        .form-row {
-            margin-bottom: 16px;
-        }
-        .form-row label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #444;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .form-row input,
-        .form-row select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        .form-row input:focus,
-        .form-row select:focus {
-            outline: none;
-            border-color: #1a2744;
-        }
-        .form-row input:disabled,
-        .form-row select:disabled {
-            background: #f5f5f5;
-            color: #666;
-        }
-        .form-row .input-hint {
-            font-size: 11px;
-            color: #999;
-            margin-top: 2px;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #1a2744, #2a3f6a);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,39,68,0.3); }
-        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-        .status-msg {
-            margin-top: 16px;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .status-msg.success { background: #dcfce7; color: #166534; }
-        .status-msg.error { background: #fee2e2; color: #991b1b; }
-        .status-msg.info { background: #dbeafe; color: #1e40af; }
-
-        /* Panel derecho: registros recientes */
-        .side-panel-exam {
-            width: 340px;
-            background: white;
-            border-left: 1px solid #e5e7eb;
-            display: flex;
-            flex-direction: column;
-        }
-        .side-panel-exam .panel-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #e5e7eb;
-            background: #fafafa;
-        }
-        .side-panel-exam .panel-header h3 {
-            font-size: 14px;
-            color: #1a2744;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .side-panel-exam .panel-header .count {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
-        }
-        .side-panel-exam .panel-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px 16px;
-        }
+        /* Recent exam records list */
         .exam-record {
             padding: 10px 12px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--border-light);
             font-size: 12px;
+            transition: var(--transition);
         }
         .exam-record:last-child { border-bottom: none; }
+        .exam-record:hover { background: #f8fafc; }
         .exam-record .record-nombre {
             font-weight: 600;
-            color: #1a2744;
+            color: var(--text);
             font-size: 13px;
         }
         .exam-record .record-detalle {
-            color: #888;
+            color: var(--text-muted);
             font-size: 11px;
             margin-top: 2px;
             display: flex;
@@ -309,29 +115,15 @@
         }
         .empty-exams {
             text-align: center;
-            color: #bbb;
+            color: var(--text-muted);
             padding: 40px 20px;
         }
         .empty-exams i { font-size: 32px; margin-bottom: 8px; }
         .empty-exams p { font-size: 13px; }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            .main-layout { flex-direction: column; height: auto; }
-            .side-panel-exam { width: 100%; border-left: none; border-top: 1px solid #e5e7eb; max-height: 300px; }
-            .exam-card { padding: 20px; }
-        }
-
-        /* Badge tipo examen */
-        .badge-parcial {
-            display: inline-block;
-            background: #dbeafe;
-            color: #1e40af;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 10px;
-            text-transform: uppercase;
+            .main-layout { flex-direction: column; }
+            .main-layout > .right-col { width: 100%; }
         }
     </style>
 </head>
@@ -343,114 +135,137 @@
             <img src="logo_centuria.png" alt="Logo Centuria">
             <h2>Examen Parcial</h2>
             <p>Ingresá tu contraseña de estudiante</p>
-            <input type="password" class="login-input" id="loginPassword" placeholder="Contraseña" onkeypress="if(event.key==='Enter')checkLogin()">
-            <button class="login-btn" onclick="checkLogin()"><i class="fas fa-graduation-cap"></i> Ingresar</button>
+            <input type="password" class="premium-input" id="loginPassword" placeholder="Contraseña" onkeypress="if(event.key==='Enter')checkLogin()" style="margin-bottom:12px;">
+            <button class="premium-btn premium-btn-block" onclick="checkLogin()"><i class="fas fa-graduation-cap"></i> Ingresar</button>
             <div class="login-error" id="loginError">Contraseña incorrecta</div>
             <div style="margin-top:20px;">
-                <a href="index.html" style="color:#666;font-size:12px;text-decoration:none;"><i class="fas fa-home"></i> Volver al inicio</a>
+                <a href="index.html" style="color:var(--text-muted);font-size:12px;text-decoration:none;"><i class="fas fa-home"></i> Volver al inicio</a>
             </div>
         </div>
     </div>
 
-    <!-- Header -->
-    <div class="header-docente" id="mainHeader" style="display:none;">
-        <div class="header-left">
-            <img src="logo_centuria_blanco.png" alt="Logo Centuria">
-            <div>
-                <h1>Examen Parcial</h1>
-                <div style="font-size:11px;opacity:0.7;">Instituto Superior Centuria</div>
-            </div>
-        </div>
-        <div class="header-links">
-            <a href="asistencia.html"><i class="fas fa-check-circle"></i> Asistencia</a>
-            <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
-            <button onclick="logoutStudent(); window.location.href='index.html';"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
-        </div>
-    </div>
-
-    <!-- Layout principal -->
-    <div class="main-layout" id="mainContent" style="display:none;">
-
-        <!-- Formulario -->
-        <div class="form-panel">
-            <div class="exam-card">
-                <div class="exam-icon">
-                    <i class="fas fa-file-alt"></i>
-                </div>
-                <h2>Registro de Examen Parcial</h2>
-                <p class="exam-subtitle" style="display:flex;align-items:center;justify-content:center;gap:8px;">
-                    Completá tus datos para registrar tu examen
-                    <span style="display:inline-block;background:#f59e0b;color:white;font-size:10px;font-weight:700;padding:2px 10px;border-radius:9999px;text-transform:uppercase;letter-spacing:0.5px;">EXAMEN 999 · PRUEBA</span>
-                </p>
-
-                <form id="examForm" onsubmit="event.preventDefault(); guardarExamen();">
-                    <div class="form-row">
-                        <label>Cédula <span style="color:#dc2626;">*</span></label>
-                        <input type="text" id="exam-cedula" placeholder="Ej: 1234567" required
-                               oninput="this.value = this.value.replace(/\./g,'');"
-                               onblur="buscarAlumnoExamen(this.value);">
-                        <div class="input-hint">Ingresá tu número de cédula sin puntos</div>
-                    </div>
-                    <div class="form-row">
-                        <label>Nombre Completo <span style="color:#dc2626;">*</span></label>
-                        <input type="text" id="exam-nombre" placeholder="Se autocompleta al buscar cédula" disabled>
-                    </div>
-                    <div class="form-row">
-                        <label>Carrera <span style="color:#dc2626;">*</span></label>
-                        <input type="text" id="exam-carrera" placeholder="Se autocompleta al buscar cédula" disabled>
-                    </div>
-                    <div class="form-row">
-                        <label>Sección <span style="color:#dc2626;">*</span></label>
-                        <input type="text" id="exam-seccion" placeholder="Se autocompleta al buscar cédula" disabled>
-                    </div>
-                    <div class="form-row">
-                        <label>Materia <span style="color:#dc2626;">*</span></label>
-                        <select id="exam-materia" required>
-                            <option value="">-- Seleccioná la materia --</option>
-                            <option value="Sociología">Sociología</option>
-                            <option value="Contabilidad">Contabilidad</option>
-                            <option value="Administración">Administración</option>
-                            <option value="Derecho">Derecho</option>
-                            <option value="Economía">Economía</option>
-                            <option value="Matemáticas">Matemáticas</option>
-                            <option value="Informática">Informática</option>
-                            <option value="Pedagogía">Pedagogía</option>
-                            <option value="Psicología">Psicología</option>
-                            <option value="Comunicación">Comunicación</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <label>Nota (opcional)</label>
-                        <input type="text" id="exam-nota" placeholder="Ej: 4/5 o 80%">
-                        <div class="input-hint">Dejalo vacío si aún no tenés la nota</div>
-                    </div>
-                    <div class="form-row">
-                        <label>Tipo de Examen</label>
-                        <input type="text" id="exam-tipo" value="Parcial" disabled style="font-weight:600;">
-                    </div>
-
-                    <button type="submit" class="btn-submit" id="btnGuardarExamen">
-                        <i class="fas fa-save"></i> Registrar Examen
-                    </button>
-                    <div id="exam-status" class="status-msg" style="display:none;"></div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Panel derecho: exámenes registrados hoy -->
-        <div class="side-panel-exam">
-            <div class="panel-header">
-                <h3><i class="fas fa-history"></i> Exámenes registrados hoy</h3>
-                <div class="count" id="exam-count">0 registros</div>
-            </div>
-            <div class="panel-body" id="exam-recent-list">
-                <div class="empty-exams">
-                    <i class="fas fa-inbox"></i>
-                    <p>No hay exámenes registrados hoy</p>
+    <!-- Header Institucional -->
+    <header class="institutional-header" id="mainHeader" style="display:none;">
+        <div class="header-inner">
+            <div class="header-left">
+                <img src="logo_centuria_blanco.png" alt="Logo Centuria">
+                <div>
+                    <h1>Examen Parcial</h1>
+                    <p>Instituto Superior Centuria</p>
                 </div>
             </div>
+            <div class="header-actions">
+                <a href="asistencia.html"><i class="fas fa-check-circle"></i> Asistencia</a>
+                <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+                <button class="btn-logout" onclick="logoutStudent(); window.location.href='index.html';"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+            </div>
         </div>
-    </div>
+    </header>
+
+    <!-- Main content (hidden until login) -->
+    <div id="mainContent" style="display:none;">
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1><i class="fas fa-pencil-alt"></i> Examen Parcial Virtual</h1>
+            <p>Complete el formulario para registrar su examen</p>
+            <div class="header-nav">
+                <a href="index.html"><i class="fas fa-arrow-left"></i> Volver al Dashboard</a>
+            </div>
+        </header>
+
+        <!-- Two-column layout -->
+        <div class="premium-container-wide main-layout">
+
+            <!-- Columna izquierda: formulario -->
+            <div class="left-col">
+                <div class="premium-card">
+                    <div class="premium-card-header">
+                        <h2><i class="fas fa-file-alt"></i> Registro de Examen Parcial</h2>
+                    </div>
+                    <div class="premium-card-body">
+                        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                            Completá tus datos para registrar tu examen
+                            <span class="premium-badge premium-badge-yellow">EXAMEN 999 · PRUEBA</span>
+                        </p>
+
+                        <form id="examForm" onsubmit="event.preventDefault(); guardarExamen();">
+                            <div class="premium-form-group">
+                                <label>Cédula <span style="color:var(--danger);">*</span></label>
+                                <input type="text" class="premium-input" id="exam-cedula" placeholder="Ej: 1234567" required
+                                       oninput="this.value = this.value.replace(/\./g,'');"
+                                       onblur="buscarAlumnoExamen(this.value);">
+                                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Ingresá tu número de cédula sin puntos</div>
+                            </div>
+                            <div class="premium-form-group">
+                                <label>Nombre Completo <span style="color:var(--danger);">*</span></label>
+                                <input type="text" class="premium-input" id="exam-nombre" placeholder="Se autocompleta al buscar cédula" disabled>
+                            </div>
+                            <div class="premium-form-row">
+                                <div class="premium-form-group">
+                                    <label>Carrera <span style="color:var(--danger);">*</span></label>
+                                    <input type="text" class="premium-input" id="exam-carrera" placeholder="Se autocompleta al buscar cédula" disabled>
+                                </div>
+                                <div class="premium-form-group">
+                                    <label>Sección <span style="color:var(--danger);">*</span></label>
+                                    <input type="text" class="premium-input" id="exam-seccion" placeholder="Se autocompleta al buscar cédula" disabled>
+                                </div>
+                            </div>
+                            <div class="premium-form-group">
+                                <label>Materia <span style="color:var(--danger);">*</span></label>
+                                <select class="premium-select" id="exam-materia" required>
+                                    <option value="">-- Seleccioná la materia --</option>
+                                    <option value="Sociología">Sociología</option>
+                                    <option value="Contabilidad">Contabilidad</option>
+                                    <option value="Administración">Administración</option>
+                                    <option value="Derecho">Derecho</option>
+                                    <option value="Economía">Economía</option>
+                                    <option value="Matemáticas">Matemáticas</option>
+                                    <option value="Informática">Informática</option>
+                                    <option value="Pedagogía">Pedagogía</option>
+                                    <option value="Psicología">Psicología</option>
+                                    <option value="Comunicación">Comunicación</option>
+                                </select>
+                            </div>
+                            <div class="premium-form-row">
+                                <div class="premium-form-group">
+                                    <label>Nota (opcional)</label>
+                                    <input type="text" class="premium-input" id="exam-nota" placeholder="Ej: 4/5 o 80%">
+                                    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Dejalo vacío si aún no tenés la nota</div>
+                                </div>
+                                <div class="premium-form-group">
+                                    <label>Tipo de Examen</label>
+                                    <input type="text" class="premium-input" id="exam-tipo" value="Parcial" disabled style="font-weight:600;">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="premium-btn premium-btn-block" id="btnGuardarExamen" style="margin-top:4px;">
+                                <i class="fas fa-save"></i> Registrar Examen
+                            </button>
+                            <div id="exam-status" class="premium-status" style="display:none;"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna derecha: exámenes registrados hoy -->
+            <div class="right-col">
+                <div class="premium-card">
+                    <div class="premium-card-header" style="display:flex;align-items:center;">
+                        <h2 style="margin:0;"><i class="fas fa-history"></i> Exámenes registrados hoy</h2>
+                        <span style="margin-left:auto;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:white;padding:4px 10px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;white-space:nowrap;" id="exam-count">0</span>
+                    </div>
+                    <div class="premium-card-body" style="padding:12px 16px;" id="exam-recent-list">
+                        <div class="empty-exams">
+                            <i class="fas fa-inbox"></i>
+                            <p>No hay exámenes registrados hoy</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /mainContent -->
 
     <script>
         let busquedaTimeoutExamen = null;
@@ -535,7 +350,7 @@
 
             // Mostrar búsqueda
             if (status) {
-                status.className = 'status-msg info';
+                status.className = 'premium-status info';
                 status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Buscando datos del alumno...</span>';
                 status.style.display = 'flex';
             }
@@ -579,7 +394,7 @@
                         document.getElementById('exam-seccion').value = datosCombinados.seccion;
 
                         if (status) {
-                            status.className = 'status-msg success';
+                            status.className = 'premium-status success';
                             let msg = '<i class="fas fa-user-check"></i><span>';
                             if (datosCombinados.nombre) msg += '<strong>' + datosCombinados.nombre.toUpperCase() + '</strong> — ';
                             msg += 'Encontrados ' + datosCombinados.totalRegistros + ' registro(s). Campos completados automáticamente.</span>';
@@ -593,7 +408,7 @@
                         document.getElementById('exam-seccion').value = '';
 
                         if (status) {
-                            status.className = 'status-msg info';
+                            status.className = 'premium-status info';
                             status.innerHTML = '<i class="fas fa-info-circle"></i><span>Cédula no encontrada. Completá los datos manualmente.</span>';
                             status.style.display = 'flex';
                         }
@@ -620,7 +435,7 @@
             const tipoExamen = document.getElementById('exam-tipo').value.trim();
 
             if (!cedula || !nombre || !carrera || !seccion || !materia) {
-                status.className = 'status-msg error';
+                status.className = 'premium-status error';
                 status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Completá todos los campos requeridos (cédula, nombre, carrera, sección, materia).</span>';
                 status.style.display = 'flex';
                 return;
@@ -651,7 +466,7 @@
                 const data = await resp.json();
 
                 if (data.ok) {
-                    status.className = 'status-msg success';
+                    status.className = 'premium-status success';
                     status.innerHTML = '<i class="fas fa-check-circle"></i><span>' + (data.mensaje || 'Examen registrado correctamente') + '</span>';
                     status.style.display = 'flex';
 
@@ -666,12 +481,12 @@
 
                     cargarExamenesRecientes();
                 } else {
-                    status.className = 'status-msg error';
+                    status.className = 'premium-status error';
                     status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>' + (data.error || 'Error al registrar examen') + '</span>';
                     status.style.display = 'flex';
                 }
             } catch(e) {
-                status.className = 'status-msg error';
+                status.className = 'premium-status error';
                 status.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Error de conexión: ' + e.message + '</span>';
                 status.style.display = 'flex';
             }
@@ -719,7 +534,7 @@
                     html += '<span><i class="far fa-clock" style="font-size:10px;"></i> ' + hora + '</span>';
                     html += '<span><i class="fas fa-book" style="font-size:10px;"></i> ' + (r.Materia || '') + '</span>';
                     if (r.Nota) html += '<span><i class="fas fa-star" style="font-size:10px;"></i> ' + r.Nota + '</span>';
-                    html += '<span class="badge-parcial">' + (r.TipoExamen || 'Parcial') + '</span>';
+                    html += '<span class="premium-badge premium-badge-blue">' + (r.TipoExamen || 'Parcial') + '</span>';
                     html += '</div></div>';
                 });
                 list.innerHTML = html;

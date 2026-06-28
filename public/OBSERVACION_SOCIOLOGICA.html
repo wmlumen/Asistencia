@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Observación Sociológica - Sociología - Centuria</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap');
-        :root { --color-primary: #28a745; --color-secondary: #1e1e1e; --font-title: 'Playfair Display', serif; --font-body: 'Open Sans', sans-serif; }
+        :root { --color-primary: #0366d6; --color-secondary: #1e1e1e; --font-title: 'Playfair Display', serif; --font-body: 'Open Sans', sans-serif; }
         body { font-family: var(--font-body); background-color: #f8fafc; color: #1e293b; }
         h1, h2, h3, h4, .font-title { font-family: var(--font-title); color: var(--color-secondary); }
         .card-main { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); margin-bottom: 2rem; overflow: hidden; border-left: 6px solid var(--color-primary); }
-        .card-header { background: #f7f7f7; padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; }
-        .card-number { background: var(--color-primary); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; flex-shrink: 0; }
+        .card-header { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 1rem 1.5rem; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; gap: 10px; }
+        .card-number { background: var(--color-primary); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; flex-shrink: 0; box-shadow: 0 2px 6px rgba(3,102,214,0.3); }
         .card-padding { padding: 1.5rem; }
         .text-primary { color: var(--color-primary); }
         .table-pensador { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 13px; }
@@ -25,14 +24,14 @@
         .table-weber td { border: 1px solid #e2e8f0; padding: 8px 10px; }
         .table-weber tr:nth-child(even) { background: #f8fafc; }
         .table-ficha { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 13px; }
-        .table-ficha th { background: #1e40af; color: white; padding: 8px 10px; text-align: left; font-weight: 600; }
+        .table-ficha th { background: #1e3a5f; color: white; padding: 8px 10px; text-align: left; font-weight: 600; }
         .table-ficha td { border: 1px solid #e2e8f0; padding: 8px 10px; vertical-align: top; }
         .table-ficha tr:nth-child(even) { background: #f8fafc; }
         .table-eval { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 13px; }
         .table-eval th { background: #dc2626; color: white; padding: 8px 10px; text-align: left; font-weight: 600; }
         .table-eval td { border: 1px solid #e2e8f0; padding: 8px 10px; }
         .table-eval tr:nth-child(even) { background: #f8fafc; }
-        .consigna-box { background: #f0fdf4; border: 2px solid var(--color-primary); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0; }
+        .consigna-box { background: #e8f0fe; border: 2px solid var(--color-primary); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0; }
         .pregunta-box { background: #fffbeb; border: 2px solid #f59e0b; border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0; }
         .conclusion-box { background: #eef2ff; border: 2px solid #6366f1; border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0; }
         /* --- Carrusel --- */
@@ -46,13 +45,13 @@
         .carrusel-btn.next { right: 12px; }
         .carrusel-dots { display: flex; justify-content: center; gap: 8px; padding: 8px 0 4px; background: #1a1a1a; }
         .carrusel-dot { width: 10px; height: 10px; border-radius: 50%; background: #555; border: none; cursor: pointer; transition: background 0.3s; padding: 0; }
-        .carrusel-dot.activo { background: #28a745; }
+        .carrusel-dot.activo { background: #0366d6; }
         .carrusel-label { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; pointer-events: none; white-space: nowrap; }
         /* --- Thumbnails --- */
         .carrusel-thumbs { display: flex; justify-content: center; gap: 6px; padding: 8px 12px 12px; background: #1a1a1a; flex-wrap: wrap; }
         .carrusel-thumb { width: 52px; height: 36px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; opacity: 0.6; transition: all 0.3s; }
         .carrusel-thumb:hover { opacity: 1; }
-        .carrusel-thumb.activo { border-color: #28a745; opacity: 1; }
+        .carrusel-thumb.activo { border-color: #0366d6; opacity: 1; }
         /* --- Fullscreen overlay --- */
         .carrusel-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 9999; justify-content: center; align-items: center; cursor: pointer; }
         .carrusel-overlay.abierto { display: flex; }
@@ -71,39 +70,33 @@
             .card-padding { padding: 1rem; }
         }
     </style>
+    <link rel="stylesheet" href="student-premium.css">
 </head>
-<body class="p-4 md:p-8">
+<body>
 
-    <!-- Navegación -->
-    <div class="max-w-5xl mx-auto mb-4 no-print">
-        <a href="index.html" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-primary transition-colors"><i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard</a>
-    </div>
-
-    <header class="max-w-5xl mx-auto mb-6 text-center border-b-2 pb-4" style="border-color: var(--color-primary);">
-        <div class="flex flex-col items-center mb-2">
-            <div class="font-bold text-2xl tracking-tighter mb-1 font-title text-secondary">
-                INSTITUTO SUPERIOR <span class="text-red-600">CENTURIA</span>
-            </div>
-            <p class="text-gray-500 uppercase tracking-widest text-xs font-semibold">Excelencia Académica</p>
+    <header class="page-header">
+        <h1><i class="fas fa-eye"></i> Actividad: Observación Sociológica del Entorno</h1>
+        <p>Sociología — Unidad I: Autores y Doctrinas</p>
+        <div class="header-nav">
+            <a href="index.html"><i class="fas fa-arrow-left"></i> Volver al Dashboard</a>
+            <a href="#" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</a>
         </div>
-        <h2 class="text-xl font-bold mt-2 uppercase text-primary">Actividad: Observación Sociológica del Entorno</h2>
-        <p class="text-sm text-gray-600 italic">Sociología — Unidad I: Autores y Doctrinas</p>
     </header>
 
-    <main class="max-w-5xl mx-auto">
+    <main class="premium-container">
 
         <!-- 1. Introducción -->
         <div class="card-main">
             <div class="card-header">
                 <span class="card-number">1</span>
-                <h3 class="font-bold text-lg">Introducción</h3>
+                <h3 style="font-weight: 700; font-size: 18px;">Introducción</h3>
             </div>
             <div class="card-padding">
-                <p class="text-gray-700 leading-relaxed mb-3">
+                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
                     La actividad consiste en <strong>observar situaciones cotidianas</strong> de la familia, el barrio, la institución educativa, el trabajo, el mercado, una organización comunitaria o las redes sociales, para luego <strong>interpretarlas desde las perspectivas de los autores</strong> incluidos en la <strong>Unidad I</strong> del programa.
                 </p>
-                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-sm text-gray-700">
-                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                <div style="background: #fffbeb; border-left-width: 4px; border-left-color: #facc15; border-left-style: solid; padding: 16px; border-radius: 8px; font-size: 13px; color: var(--text-secondary);">
+                    <i class="fas fa-exclamation-triangle" style="color: #eab308; margin-right: 8px;"></i>
                     <strong>Importante:</strong> No se debe clasificar rígidamente a las personas como "marxistas", "durkheimianas" o "weberianas". Lo que se identifican son <strong>comportamientos, relaciones y situaciones</strong> que pueden ser explicados mediante las ideas de cada pensador.
                 </div>
             </div>
@@ -113,10 +106,10 @@
         <div class="card-main">
             <div class="card-header">
                 <span class="card-number">2</span>
-                <h3 class="font-bold text-lg">Características observables según cada pensador</h3>
+                <h3 style="font-weight: 700; font-size: 18px;">Características observables según cada pensador</h3>
             </div>
             <div class="card-padding">
-                <div class="overflow-x-auto">
+                <div style="overflow-x: auto;">
                     <table class="table-pensador">
                         <thead>
                             <tr>
@@ -128,43 +121,43 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="font-bold">Auguste Comte</td>
+                                <td style="font-weight: 700;">Auguste Comte</td>
                                 <td>La sociedad progresa mediante el orden, la ciencia y el conocimiento racional.</td>
                                 <td>Personas organizadas, que respetan normas, planifican, buscan datos y soluciones prácticas. Confían en la educación, la ciencia y las instituciones.</td>
                                 <td>Un director organiza las actividades mediante reglamentos, registros, estadísticas y planificación.</td>
                             </tr>
                             <tr>
-                                <td class="font-bold">Herbert Spencer</td>
+                                <td style="font-weight: 700;">Herbert Spencer</td>
                                 <td>La sociedad funciona como un organismo en el que cada parte cumple una función.</td>
                                 <td>Personas que se adaptan a los cambios, cumplen roles específicos, compiten, se especializan o colaboran para mantener el funcionamiento del grupo.</td>
                                 <td>En una comunidad, cada integrante cumple una tarea diferente: unos organizan, otros producen y otros administran.</td>
                             </tr>
                             <tr>
-                                <td class="font-bold">Émile Durkheim</td>
+                                <td style="font-weight: 700;">Émile Durkheim</td>
                                 <td>La conducta individual está influida por normas, valores, costumbres e instituciones sociales.</td>
                                 <td>Personas que actúan por deber, tradición, presión social o respeto a reglas colectivas. Participan en celebraciones y actividades que fortalecen la unión.</td>
                                 <td>Los estudiantes usan uniforme y respetan horarios porque son normas establecidas por la institución.</td>
                             </tr>
                             <tr>
-                                <td class="font-bold">Max Weber</td>
+                                <td style="font-weight: 700;">Max Weber</td>
                                 <td>Las acciones deben comprenderse a partir del sentido y la intención que les otorga la persona.</td>
                                 <td>Personas que actúan por interés, valores, emociones o costumbres. Organizan racionalmente sus medios para alcanzar objetivos.</td>
                                 <td>Una persona estudia para conseguir empleo; otra lo hace por vocación; otra, por tradición familiar.</td>
                             </tr>
                             <tr>
-                                <td class="font-bold">Karl Marx</td>
+                                <td style="font-weight: 700;">Karl Marx</td>
                                 <td>La sociedad está marcada por las relaciones económicas, la propiedad y los conflictos entre grupos sociales.</td>
                                 <td>Diferencias entre quienes poseen recursos y quienes trabajan para otros. Desigualdad salarial, explotación, lucha por derechos y organización colectiva.</td>
                                 <td>Trabajadores que reclaman mejores condiciones frente al propietario de una empresa.</td>
                             </tr>
                             <tr>
-                                <td class="font-bold">Vilfredo Pareto</td>
+                                <td style="font-weight: 700;">Vilfredo Pareto</td>
                                 <td>Las personas no siempre actúan racionalmente; muchas veces justifican posteriormente decisiones motivadas por emociones o intereses.</td>
                                 <td>Conductas impulsadas por prestigio, poder, sentimientos, lealtades o conveniencias, aunque se presenten como decisiones racionales.</td>
                                 <td>Una persona apoya a un dirigente por amistad, pero afirma que lo hace únicamente por sus propuestas.</td>
                             </tr>
                             <tr>
-                                <td class="font-bold">Charles Darwin</td>
+                                <td style="font-weight: 700;">Charles Darwin</td>
                                 <td>Explicó la evolución biológica mediante adaptación y selección natural. Su teoría influyó en algunos estudios sociales posteriores.</td>
                                 <td>Capacidad de adaptación a nuevas condiciones. No debe emplearse para afirmar que unas personas o grupos son "superiores" a otros.</td>
                                 <td>Una familia cambia su forma de trabajar y vender productos para adaptarse a nuevas tecnologías.</td>
@@ -179,11 +172,11 @@
         <div class="card-main">
             <div class="card-header">
                 <span class="card-number">3</span>
-                <h3 class="font-bold text-lg">Clasificación de las acciones según Max Weber</h3>
+                <h3 style="font-weight: 700; font-size: 18px;">Clasificación de las acciones según Max Weber</h3>
             </div>
             <div class="card-padding">
-                <p class="text-gray-700 leading-relaxed mb-3">La perspectiva de Weber resulta especialmente útil para observar las formas de actuar de las personas.</p>
-                <div class="overflow-x-auto">
+                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">La perspectiva de Weber resulta especialmente útil para observar las formas de actuar de las personas.</p>
+                <div style="overflow-x: auto;">
                     <table class="table-weber">
                         <thead>
                             <tr>
@@ -194,22 +187,22 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="font-bold">Acción racional con arreglo a fines</td>
+                                <td style="font-weight: 700;">Acción racional con arreglo a fines</td>
                                 <td>La persona calcula los medios necesarios para alcanzar un objetivo.</td>
                                 <td>Estudiar una carrera para obtener un empleo determinado.</td>
                             </tr>
                             <tr>
-                                <td class="font-bold">Acción racional con arreglo a valores</td>
+                                <td style="font-weight: 700;">Acción racional con arreglo a valores</td>
                                 <td>Se actúa por principios éticos, religiosos, patrióticos o profesionales.</td>
                                 <td>Ayudar a una persona porque se considera que es un deber moral.</td>
                             </tr>
                             <tr>
-                                <td class="font-bold">Acción afectiva</td>
+                                <td style="font-weight: 700;">Acción afectiva</td>
                                 <td>La conducta está guiada principalmente por emociones.</td>
                                 <td>Abrazar, discutir, llorar o reaccionar con entusiasmo.</td>
                             </tr>
                             <tr>
-                                <td class="font-bold">Acción tradicional</td>
+                                <td style="font-weight: 700;">Acción tradicional</td>
                                 <td>Se actúa por costumbre o porque siempre se hizo de esa manera.</td>
                                 <td>Participar anualmente en una celebración familiar o comunitaria.</td>
                             </tr>
@@ -221,22 +214,22 @@
 
         <!-- 4. Consigna -->
         <div class="consigna-box">
-            <div class="flex items-center gap-3 mb-3">
-                <i class="fas fa-clipboard-list text-2xl text-primary"></i>
-                <h3 class="font-bold text-xl text-primary">Consigna para los estudiantes</h3>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <i class="fas fa-clipboard-list" style="font-size: 26px; color: var(--color-primary);"></i>
+                <h3 style="font-weight: 700; font-size: 20px; color: var(--color-primary);">Consigna para los estudiantes</h3>
             </div>
-            <p class="text-gray-700 leading-relaxed mb-3">
+            <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
                 Observar durante <strong>uno o dos días</strong> una situación de su entorno cercano e identificar comportamientos que puedan interpretarse desde las perspectivas de los pensadores estudiados.
             </p>
-            <p class="text-gray-700 font-semibold mb-2">El estudiante deberá:</p>
-            <ol class="list-decimal pl-6 text-gray-700 space-y-1">
-                <li>Seleccionar un espacio de observación.</li>
-                <li>Describir objetivamente la situación.</li>
-                <li>Identificar las personas o grupos participantes sin colocar nombres reales.</li>
-                <li>Registrar las acciones observadas.</li>
-                <li>Relacionar cada acción con uno o más pensadores.</li>
-                <li>Justificar la relación utilizando conceptos sociológicos.</li>
-                <li>Elaborar una conclusión personal sobre la influencia de la sociedad en la conducta humana.</li>
+            <p style="color: var(--text-secondary); font-weight: 600; margin-bottom: 8px;">El estudiante deberá:</p>
+            <ol style="list-style-type: decimal; padding-left: 24px; color: var(--text-secondary);">
+                <li style="margin-bottom: 4px;">Seleccionar un espacio de observación.</li>
+                <li style="margin-bottom: 4px;">Describir objetivamente la situación.</li>
+                <li style="margin-bottom: 4px;">Identificar las personas o grupos participantes sin colocar nombres reales.</li>
+                <li style="margin-bottom: 4px;">Registrar las acciones observadas.</li>
+                <li style="margin-bottom: 4px;">Relacionar cada acción con uno o más pensadores.</li>
+                <li style="margin-bottom: 4px;">Justificar la relación utilizando conceptos sociológicos.</li>
+                <li style="margin-bottom: 4px;">Elaborar una conclusión personal sobre la influencia de la sociedad en la conducta humana.</li>
             </ol>
         </div>
 
@@ -244,25 +237,27 @@
         <div class="card-main">
             <div class="card-header">
                 <span class="card-number">4</span>
-                <h3 class="font-bold text-lg">Ficha de observación</h3>
+                <h3 style="font-weight: 700; font-size: 18px;">Ficha de observación</h3>
             </div>
             <div class="card-padding">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase">Lugar observado</label>
-                        <div class="border-b border-gray-400 h-6 mt-1"></div>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase">Fecha y horario</label>
-                        <div class="border-b border-gray-400 h-6 mt-1"></div>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase">Situación observada</label>
-                        <div class="border-b border-gray-400 h-6 mt-1"></div>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Lugar observado</label>
+                            <div style="border-bottom: 1px solid #9ca3af; height: 24px; margin-top: 4px;"></div>
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Fecha y horario</label>
+                            <div style="border-bottom: 1px solid #9ca3af; height: 24px; margin-top: 4px;"></div>
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Situación observada</label>
+                            <div style="border-bottom: 1px solid #9ca3af; height: 24px; margin-top: 4px;"></div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
+                <div style="overflow-x: auto;">
                     <table class="table-ficha">
                         <thead>
                             <tr>
@@ -275,30 +270,30 @@
                         <tbody>
                             <tr>
                                 <td>Los participantes respetan el turno de atención.</td>
-                                <td class="font-bold">Durkheim</td>
+                                <td style="font-weight: 700;">Durkheim</td>
                                 <td>Norma social</td>
                                 <td>Respetan una regla colectiva que organiza la convivencia.</td>
                             </tr>
                             <tr>
                                 <td>Un vendedor modifica sus precios para aumentar sus ventas.</td>
-                                <td class="font-bold">Weber</td>
+                                <td style="font-weight: 700;">Weber</td>
                                 <td>Acción racional orientada a fines</td>
                                 <td>Calcula una estrategia para obtener un resultado económico.</td>
                             </tr>
                             <tr>
                                 <td>Los trabajadores reclaman mejores salarios.</td>
-                                <td class="font-bold">Marx</td>
+                                <td style="font-weight: 700;">Marx</td>
                                 <td>Conflicto entre grupos sociales</td>
                                 <td>Existe una diferencia de intereses entre trabajadores y propietarios.</td>
                             </tr>
                             <tr>
                                 <td>La organización distribuye tareas entre sus miembros.</td>
-                                <td class="font-bold">Spencer</td>
+                                <td style="font-weight: 700;">Spencer</td>
                                 <td>Sociedad como organismo</td>
                                 <td>Cada integrante cumple una función para mantener el conjunto.</td>
                             </tr>
                             <tr>
-                                <td colspan="4" class="text-center text-gray-400 italic py-4">Agregá más filas según tus observaciones</td>
+                                <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 16px 0;">Agregá más filas según tus observaciones</td>
                             </tr>
                         </tbody>
                     </table>
@@ -308,53 +303,53 @@
 
         <!-- 6. Preguntas orientadoras -->
         <div class="pregunta-box">
-            <div class="flex items-center gap-3 mb-3">
-                <i class="fas fa-question-circle text-2xl text-yellow-500"></i>
-                <h3 class="font-bold text-xl text-yellow-600">Preguntas orientadoras</h3>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <i class="fas fa-question-circle" style="font-size: 26px; color: #eab308;"></i>
+                <h3 style="font-weight: 700; font-size: 20px; color: #d97706;">Preguntas orientadoras</h3>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="flex items-start gap-2">
-                    <span class="bg-yellow-100 text-yellow-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
-                    <p class="text-gray-700 text-sm">¿Qué normas sociales influyen en las conductas observadas?</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <span style="background: #fef3c7; color: #d97706; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;">1</span>
+                    <p style="color: var(--text-secondary); font-size: 13px;">¿Qué normas sociales influyen en las conductas observadas?</p>
                 </div>
-                <div class="flex items-start gap-2">
-                    <span class="bg-yellow-100 text-yellow-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
-                    <p class="text-gray-700 text-sm">¿Las personas actúan por interés, valores, emociones o costumbres?</p>
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <span style="background: #fef3c7; color: #d97706; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;">2</span>
+                    <p style="color: var(--text-secondary); font-size: 13px;">¿Las personas actúan por interés, valores, emociones o costumbres?</p>
                 </div>
-                <div class="flex items-start gap-2">
-                    <span class="bg-yellow-100 text-yellow-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
-                    <p class="text-gray-700 text-sm">¿Existen diferencias de poder o recursos entre los participantes?</p>
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <span style="background: #fef3c7; color: #d97706; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;">3</span>
+                    <p style="color: var(--text-secondary); font-size: 13px;">¿Existen diferencias de poder o recursos entre los participantes?</p>
                 </div>
-                <div class="flex items-start gap-2">
-                    <span class="bg-yellow-100 text-yellow-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">4</span>
-                    <p class="text-gray-700 text-sm">¿Qué función cumple cada persona dentro del grupo?</p>
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <span style="background: #fef3c7; color: #d97706; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;">4</span>
+                    <p style="color: var(--text-secondary); font-size: 13px;">¿Qué función cumple cada persona dentro del grupo?</p>
                 </div>
-                <div class="flex items-start gap-2">
-                    <span class="bg-yellow-100 text-yellow-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">5</span>
-                    <p class="text-gray-700 text-sm">¿La conducta contribuye al orden o produce conflicto?</p>
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <span style="background: #fef3c7; color: #d97706; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;">5</span>
+                    <p style="color: var(--text-secondary); font-size: 13px;">¿La conducta contribuye al orden o produce conflicto?</p>
                 </div>
-                <div class="flex items-start gap-2">
-                    <span class="bg-yellow-100 text-yellow-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">6</span>
-                    <p class="text-gray-700 text-sm">¿Las personas actúan libremente o están condicionadas por el entorno?</p>
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <span style="background: #fef3c7; color: #d97706; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;">6</span>
+                    <p style="color: var(--text-secondary); font-size: 13px;">¿Las personas actúan libremente o están condicionadas por el entorno?</p>
                 </div>
-                <div class="flex items-start gap-2">
-                    <span class="bg-yellow-100 text-yellow-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">7</span>
-                    <p class="text-gray-700 text-sm">¿Cómo se adaptan los participantes a los cambios?</p>
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <span style="background: #fef3c7; color: #d97706; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;">7</span>
+                    <p style="color: var(--text-secondary); font-size: 13px;">¿Cómo se adaptan los participantes a los cambios?</p>
                 </div>
-                <div class="flex items-start gap-2">
-                    <span class="bg-yellow-100 text-yellow-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">8</span>
-                    <p class="text-gray-700 text-sm">¿Qué explicaciones ofrecen las personas para justificar sus acciones?</p>
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <span style="background: #fef3c7; color: #d97706; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;">8</span>
+                    <p style="color: var(--text-secondary); font-size: 13px;">¿Qué explicaciones ofrecen las personas para justificar sus acciones?</p>
                 </div>
             </div>
         </div>
 
         <!-- 7. Ejemplo de conclusión -->
         <div class="conclusion-box">
-            <div class="flex items-center gap-3 mb-3">
-                <i class="fas fa-pen-fancy text-2xl text-indigo-500"></i>
-                <h3 class="font-bold text-xl text-indigo-600">Ejemplo de conclusión</h3>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <i class="fas fa-pen-fancy" style="font-size: 26px; color: #4f46e5;"></i>
+                <h3 style="font-weight: 700; font-size: 20px; color: #4f46e5;">Ejemplo de conclusión</h3>
             </div>
-            <p class="text-gray-700 leading-relaxed italic">
+            <p style="color: var(--text-secondary); line-height: 1.7; font-style: italic;">
                 "En la observación se identificó que la conducta de las personas no depende solamente de decisiones individuales. Las normas institucionales influyen en su comportamiento, como sostiene Durkheim; algunas acciones se realizan para alcanzar objetivos concretos, como explica Weber; y también existen diferencias de intereses y recursos que pueden analizarse desde la perspectiva de Marx. Por tanto, una misma situación puede ser comprendida desde distintas perspectivas sociológicas."
             </p>
         </div>
@@ -363,10 +358,10 @@
         <div class="card-main no-print">
             <div class="card-header">
                 <span class="card-number"><i class="fas fa-images"></i></span>
-                <h3 class="font-bold text-lg">Galería de observación</h3>
+                <h3 style="font-weight: 700; font-size: 18px;">Galería de observación</h3>
             </div>
             <div class="card-padding">
-                <p class="text-gray-700 text-sm mb-4 text-center">Ejemplos visuales para inspirar tu trabajo de campo</p>
+                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px; text-align: center;">Ejemplos visuales para inspirar tu trabajo de campo</p>
                 <div class="carrusel" id="carrusel">
                     <div class="carrusel-inner" id="carruselInner">
                         <div class="carrusel-slide">
@@ -414,10 +409,10 @@
         <div class="card-main">
             <div class="card-header">
                 <span class="card-number">5</span>
-                <h3 class="font-bold text-lg">Criterios de evaluación</h3>
+                <h3 style="font-weight: 700; font-size: 18px;">Criterios de evaluación</h3>
             </div>
             <div class="card-padding">
-                <div class="overflow-x-auto">
+                <div style="overflow-x: auto;">
                     <table class="table-eval">
                         <thead>
                             <tr>
@@ -428,33 +423,33 @@
                         <tbody>
                             <tr>
                                 <td>Descripción clara y objetiva del entorno</td>
-                                <td class="text-center font-bold">1 punto</td>
+                                <td style="text-align: center; font-weight: 700;">1 punto</td>
                             </tr>
                             <tr>
                                 <td>Identificación correcta de las conductas</td>
-                                <td class="text-center font-bold">1 punto</td>
+                                <td style="text-align: center; font-weight: 700;">1 punto</td>
                             </tr>
                             <tr>
                                 <td>Relación con los pensadores estudiados</td>
-                                <td class="text-center font-bold">1 punto</td>
+                                <td style="text-align: center; font-weight: 700;">1 punto</td>
                             </tr>
                             <tr>
                                 <td>Justificación mediante conceptos sociológicos</td>
-                                <td class="text-center font-bold">1 punto</td>
+                                <td style="text-align: center; font-weight: 700;">1 punto</td>
                             </tr>
                             <tr>
                                 <td>Reflexión y conclusión personal</td>
-                                <td class="text-center font-bold">2 puntos</td>
+                                <td style="text-align: center; font-weight: 700;">2 puntos</td>
                             </tr>
-                            <tr class="bg-green-50">
-                                <td class="font-bold text-green-700">Total</td>
-                                <td class="text-center font-bold text-green-700">6 puntos</td>
+                            <tr style="background: #f0fdf4;">
+                                <td style="font-weight: 700; color: #15803d;">Total</td>
+                                <td style="text-align: center; font-weight: 700; color: #15803d;">6 puntos</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <p class="text-gray-600 text-sm mt-4 leading-relaxed">
-                    <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+                <p style="color: var(--text-secondary); font-size: 13px; margin-top: 16px; line-height: 1.7;">
+                    <i class="fas fa-info-circle" style="color: var(--color-primary); margin-right: 4px;"></i>
                     La actividad permite cumplir con los objetivos del programa relacionados con la reflexión personal, la comprensión de la conducta humana, el análisis de la estructura social y la aplicación de las perspectivas sociológicas a la realidad cotidiana.
                 </p>
             </div>
@@ -463,7 +458,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="max-w-5xl mx-auto mt-8 pt-4 border-t text-center text-gray-400 text-xs no-print">
+    <footer style="max-width: 1000px; margin: 0 auto; padding: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 11px;" class="no-print">
         <p>Instituto Superior Centuria &mdash; Sociolog&iacute;a &mdash; Actividad: Observaci&oacute;n Sociol&oacute;gica del Entorno</p>
     </footer>
 
