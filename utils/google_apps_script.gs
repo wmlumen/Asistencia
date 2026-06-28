@@ -312,6 +312,10 @@ function doPost(e) {
       const codCarrera = (data.codCarrera || '').trim();
       const fechaInicio = (data.fechaInicio || '').trim();
       const fechaCierre = (data.fechaCierre || '').trim();
+      const sala = (data.sala || '').trim();
+      const sede = (data.sede || '').trim();
+      const modalidad = (data.modalidad || '').trim();
+      const observaciones = (data.observaciones || '').trim();
       
       if (!codigo || !cedula || !nombre || !codAsignatura || !codSeccion || !codCarrera || !fechaInicio || !fechaCierre) {
         return jsonResponse({ ok: false, error: 'Faltan datos requeridos para planificación' });
@@ -329,12 +333,12 @@ function doPost(e) {
       }
       
       if (filaEditar > 0) {
-        // Editar fila existente
-        sheet.getRange(filaEditar, 1, 1, 8).setValues([[codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre]]);
+        // Editar fila existente (12 columnas: incluye sala, sede, modalidad, observaciones)
+        sheet.getRange(filaEditar, 1, 1, 12).setValues([[codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones]]);
         return jsonResponse({ ok: true, mensaje: 'Planificación actualizada correctamente', codigo: codigo });
       } else {
         // Nueva fila
-        sheet.appendRow([codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre]);
+        sheet.appendRow([codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones]);
         return jsonResponse({ ok: true, mensaje: 'Planificación guardada correctamente', codigo: codigo });
       }
     }
@@ -567,7 +571,7 @@ function recalcularResumen_() {
     if (datos.length <= 1) {
       // Limpiar resumen si no hay datos
       if (resSheet.getLastRow() > 1) {
-        resSheet.getRange(2, 1, resSheet.getLastRow() - 1, 8).clearContent();
+        resSheet.getRange(2, 1, resSheet.getLastRow() - 1, 9).clearContent();
       }
       return;
     }
@@ -618,12 +622,12 @@ function recalcularResumen_() {
       ];
     });
 
-    // Limpiar y reescribir
+    // Limpiar y reescribir (9 columnas: Cedula, Nombre, Carrera, TotalClases, Presentes, Tardanzas, AusJustificadas, Ausencias, Porcentaje)
     if (resSheet.getLastRow() > 1) {
-      resSheet.getRange(2, 1, resSheet.getLastRow() - 1, 8).clearContent();
+      resSheet.getRange(2, 1, resSheet.getLastRow() - 1, 9).clearContent();
     }
     if (filas.length) {
-      resSheet.getRange(2, 1, filas.length, 8).setValues(filas);
+      resSheet.getRange(2, 1, filas.length, 9).setValues(filas);
     }
   } catch (error) {
     console.error('Error en recalcularResumen_:', error);
