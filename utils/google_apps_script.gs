@@ -1,55 +1,71 @@
 /**
- * ASISTENCIA CENTURIA - Google Apps Script
- * ==========================================
- * Planilla: https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA/edit
+ * ASISTENCIA CENTURIA - Google Apps Script (SISTEMA UNIFICADO 9 HOJAS)
+ * ====================================================================
+ * Spreadsheet: https://docs.google.com/spreadsheets/d/1aMr1KYx7FQ4YYh0WgqzWQQ4FZnOytMwae8JWskG5cPQ/edit
  * 
- * INSTRUCCIONES:
- * 1. Copiar este código en el editor de Apps Script
+ * ARQUITECTURA:
+ * - 9 hojas estandarizadas: Asistencia, Catálogos, Planificaciones, ProgresoGrupos,
+ *   Examenes, Examen_Detalle, Estudiantes, Docentes, Novedades
+ * - setupCompleto() crea/limpia toda la estructura desde cero
+ * - fixExamenesAhora() parsea hoja legacy ReExVir → Examenes + Examen_Detalle
+ * - Modos GET: catalogos, asistencia, planificaciones, progreso_grupo, examenes,
+ *   estudiantes, docentes, novedades
+ * - Modos POST: guardar_asistencia, guardar_planificacion, guardar_progreso_grupo,
+ *   guardar_examen, guardar_novedad
+ * 
+ * INSTRUCCIONES INICIALES:
+ * 1. Pegar este código en el editor de Apps Script (vinculado al spreadsheet)
  * 2. Guardar (Ctrl+S)
- * 3. EJECUTAR UNA VEZ la función autorizarDrive() para dar permisos
- * 4. Implementar > Nuevo implementacion > Web App
- * 5. Acceso: Cualquiera
- * 6. Copiar la URL de la Web App y pegarla en asistencia.api.url
- * 
- * IMPORTANTE: La primera vez que se usa Drive, Google pedirá autorización.
- * Asegúrese de aceptar todos los permisos.
- * ==========================================
+ * 3. Ejecutar setupCompleto() — crea las 9 hojas con headers
+ * 4. Si hay datos legacy en ReExVir, ejecutar fixExamenesAhora()
+ * 5. Implementar → Nueva implementación → Web App
+ * 6. Copiar URL en script.js como asistencia_api_url
+ * ====================================================================
  */
 
-const SPREADSHEET_ID = '1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA';
-const SHEET_REGISTRO = 'Registro';
-const SHEET_RESUMEN = 'Resumen';
-const SHEET_PLANIFICACION = 'Planificacion';
-const SHEET_EXAMEN = 'ExamenParcial';
-const SHEET_EXAMEN_TEST = 'Examen999';
-const SHEET_PROGRESO = 'ProgresoGrupos';
-
-// CAMBIAR ESTA CLAVE Y MANTENERLA EN SECRETO
+// ============================================================
+// CONFIGURACIÓN
+// ============================================================
+const SPREADSHEET_ID = '1aMr1KYx7FQ4YYh0WgqzWQQ4FZnOytMwae8JWskG5cPQ';
 const API_SECRET = 'CenturiaApi2024!';
 
-/* ============================================================
-   CONFIGURACIÓN INICIAL DE HOJAS
-   ============================================================ */
+// Nombres de hojas del sistema unificado
+const SH = {
+  ASISTENCIA: 'Asistencia',
+  CATALOGOS: 'Catálogos',
+  PLANIFICACIONES: 'Planificaciones',
+  PROGRESO_GRUPOS: 'ProgresoGrupos',
+  EXAMENES: 'Examenes',
+  EXAMEN_DETALLE: 'Examen_Detalle',
+  ESTUDIANTES: 'Estudiantes',
+  DOCENTES: 'Docentes',
+  NOVEDADES: 'Novedades'
+};
+
+// Headers normalizados para cada hoja
+const HEADERS = {
+  ASISTENCIA: ['Fecha', 'Nombre', 'Cedula', 'Carrera', 'Seccion', 'Asignatura', 'Estado', 'Observacion', 'MarcaTemporal'],
+  CATALOGOS: ['Tipo', 'Codigo', 'Nombre', 'Activo'],
+  PLANIFICACIONES: ['Codigo', 'CedulaDocente', 'NombreDocente', 'CodAsignatura', 'CodSeccion', 'CodCarrera', 'FechaInicio', 'FechaCierre', 'Sala', 'Sede', 'Modalidad', 'Observaciones', 'MarcaTemporal'],
+  PROGRESO_GRUPOS: ['Codigo', 'CedulaDocente', 'Seccion', 'Asignatura', 'Unidad', 'Tema', 'Fecha', 'Observaciones', 'MarcaTemporal'],
+  EXAMENES: ['ExamId', 'MarcaTemporal', 'Nombre', 'Cedula', 'Puntaje', 'Total', 'Fecha', 'Hora', 'Intento'],
+  EXAMEN_DETALLE: ['ExamId', 'Seccion', 'NumPregunta', 'Pregunta', 'Respuesta', 'Correcta', 'Acerto'],
+  ESTUDIANTES: ['Cedula', 'Nombre', 'Carrera', 'Activo'],
+  DOCENTES: ['Cedula', 'Nombre', 'Activo'],
+  NOVEDADES: ['Id', 'Titulo', 'Contenido', 'Fecha', 'Autor', 'Activo']
+};
+
+// ============================================================
+// FUNCIONES AUXILIARES
+// ============================================================
 
 function getSheet_(name) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(name);
-    if (!sheet) {
+  if (!sheet) {
     sheet = ss.insertSheet(name);
-    if (name === SHEET_REGISTRO) {
-      sheet.appendRow(['Fecha','Nombre','Cedula','Carrera','Seccion','Observacion','Estado','MarcaTemporal']);
-      sheet.getRange('A:A').setNumberFormat('dd/MM/yyyy');
-    } else if (name === SHEET_RESUMEN) {
-      sheet.appendRow(['Cedula','Nombre','Carrera','TotalClases','Presentes','Tardanzas','AusJustificadas','Ausencias','Porcentaje']);
-    } else if (name === SHEET_PLANIFICACION) {
-      sheet.appendRow(['CODIGO','Cedula','Nombre y Apellido','COD_ASIGNATURA','COD_SECCION','COD_CARRERA','Fecha de Inicio','Fecha de Cierre','SALA','SEDE','Modalidad','Observaciones']);
-    } else if (name === SHEET_EXAMEN) {
-      sheet.appendRow(['Fecha','Hora','Nombre','Cedula','Carrera','Seccion','Materia','Nota','TipoExamen','MarcaTemporal']);
-    } else if (name === SHEET_EXAMEN_TEST) {
-      sheet.appendRow(['Fecha','Hora','Nombre','Cedula','Carrera','Seccion','Materia','Nota','TipoExamen','MarcaTemporal']);
-    } else if (name === SHEET_PROGRESO) {
-      sheet.appendRow(['CODIGO','CedulaDocente','Seccion','Asignatura','Unidad','Tema','Fecha','Observaciones','MarcaTemporal']);
-    }
+    const h = HEADERS[name];
+    if (h) sheet.appendRow(h);
   }
   return sheet;
 }
@@ -59,755 +75,6 @@ function jsonResponse(data) {
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
-
-/* ============================================================
-   CORS - Manejar peticiones OPTIONS (preflight)
-   ============================================================ */
-
-function doOptions(e) {
-  return jsonResponse({});
-}
-
-/* ============================================================
-   LEER ASISTENCIA (GET)
-   ============================================================ */
-
-function doGet(e) {
-  try {
-    const data = e?.parameter || {};
-    
-    // Validar API key
-    const key = (data.apiKey || data.api_secret || '').trim();
-    if (key !== API_SECRET) {
-      return jsonResponse({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
-    }
-    
-    const modo = data.modo || 'registro';
-
-    if (modo === 'resumen') {
-      return jsonResponse({ resumen: obtenerResumen_() });
-    }
-
-    if (modo === 'csv') {
-      return exportarCSV_();
-    }
-
-    if (modo === 'justificaciones') {
-      const sheet = getSheet_(SHEET_REGISTRO);
-      const values = sheet.getDataRange().getValues();
-      if (values.length <= 1) return jsonResponse({ justificaciones: [] });
-      const headers = values[0];
-      const justificaciones = values.slice(1)
-        .filter(row => row[6] === 'Ausencia Justificada')
-        .reverse()
-        .map(row => {
-          return headers.reduce((acc, h, i) => { 
-            acc[h] = row[i]; 
-            return acc; 
-          }, {});
-        });
-      return jsonResponse({ justificaciones, total: justificaciones.length });
-    }
-
-    if (modo === 'buscar') {
-      const cedula = (data.cedula || '').toString().replace(/\./g, '').trim();
-      if (!cedula) return jsonResponse({ registros: [] });
-      
-      const sheet = getSheet_(SHEET_REGISTRO);
-      const values = sheet.getDataRange().getValues();
-      if (values.length <= 1) return jsonResponse({ registros: [] });
-      
-      const headers = values[0];
-      const registros = values.slice(1)
-        .filter(row => {
-          const rowCedula = (row[2] || '').toString().replace(/\./g, '').trim();
-          return rowCedula === cedula;
-        })
-        .reverse()
-        .map(row => {
-          return headers.reduce((acc, h, i) => { 
-            acc[h] = row[i]; 
-            return acc; 
-          }, {});
-        });
-      
-      console.log('Buscar cedula:', cedula, '- Encontrados:', registros.length);
-      return jsonResponse({ registros, total: registros.length });
-    }
-
-    if (modo === 'planificaciones') {
-      const sheet = getSheet_(SHEET_PLANIFICACION);
-      const values = sheet.getDataRange().getValues();
-      if (values.length <= 1) return jsonResponse({ planificaciones: [] });
-      
-      const headers = values[0];
-      const planificaciones = values.slice(1).map(row => {
-        return headers.reduce((acc, h, i) => { 
-          acc[h] = row[i]; 
-          return acc; 
-        }, {});
-      });
-      
-      return jsonResponse({ planificaciones, total: planificaciones.length });
-    }
-
-    // Modo examenes — obtener registros de ExamenParcial
-    if (modo === 'examenes') {
-      const sheet = getSheet_(SHEET_EXAMEN);
-      const values = sheet.getDataRange().getValues();
-      if (values.length <= 1) return jsonResponse({ examenes: [] });
-      const headers = values[0];
-      const examenes = values.slice(1).reverse().map(row => {
-        return headers.reduce((acc, h, i) => { 
-          acc[h] = row[i]; 
-          return acc; 
-        }, {});
-      });
-      return jsonResponse({ examenes, total: examenes.length });
-    }
-
-    // Modo examenes_999 — obtener registros de Examen999 (prueba)
-    if (modo === 'examenes_999') {
-      const sheet = getSheet_(SHEET_EXAMEN_TEST);
-      const values = sheet.getDataRange().getValues();
-      if (values.length <= 1) return jsonResponse({ examenes: [] });
-      const headers = values[0];
-      const examenes = values.slice(1).reverse().map(row => {
-        return headers.reduce((acc, h, i) => { 
-          acc[h] = row[i]; 
-          return acc; 
-        }, {});
-      });
-      return jsonResponse({ examenes, total: examenes.length });
-    }
-
-    // Modo progreso_grupo — obtener registros de ProgresoGrupos
-    if (modo === 'progreso_grupo') {
-      const sheet = getSheet_(SHEET_PROGRESO);
-      const values = sheet.getDataRange().getValues();
-      if (values.length <= 1) return jsonResponse({ progreso: [] });
-      const headers = values[0];
-      const cedulaFiltro = (data.cedula || '').toString().replace(/\./g, '').trim();
-      let progreso = values.slice(1).reverse().map(row => {
-        return headers.reduce((acc, h, i) => { 
-          acc[h] = row[i]; 
-          return acc; 
-        }, {});
-      });
-      // Filtrar por cédula docente si se especifica
-      if (cedulaFiltro) {
-        progreso = progreso.filter(p => {
-          const pCedula = (p.CedulaDocente || '').toString().replace(/\./g, '').trim();
-          return pCedula === cedulaFiltro;
-        });
-      }
-      return jsonResponse({ progreso, total: progreso.length });
-    }
-
-    // Modo catalogos — extrae asignaturas, secciones y carreras únicas de Planificacion
-    if (modo === 'catalogos') {
-      const sheet = getSheet_(SHEET_PLANIFICACION);
-      const values = sheet.getDataRange().getValues();
-      if (values.length <= 1) return jsonResponse({ asignaturas: [], secciones: [], carreras: [] });
-      
-      const asignaturasSet = new Set();
-      const seccionesSet = new Set();
-      const carrerasSet = new Set();
-      
-      values.slice(1).forEach(row => {
-        const codAsig = (row[3] || '').toString().trim();
-        const codSec = (row[4] || '').toString().trim();
-        const codCarr = (row[5] || '').toString().trim();
-        
-        if (codAsig) asignaturasSet.add(codAsig);
-        if (codSec) seccionesSet.add(codSec);
-        if (codCarr) carrerasSet.add(codCarr);
-      });
-      
-      // Convertir a array de objetos {codigo, nombre}
-      const parseItem = (item) => {
-        const partes = item.split('-');
-        if (partes.length >= 2 && !isNaN(partes[0])) {
-          return { codigo: partes[0], nombre: partes.slice(1).join('-') };
-        }
-        return { codigo: item, nombre: item };
-      };
-      
-      const asignaturas = Array.from(asignaturasSet).sort().map(parseItem);
-      const secciones = Array.from(seccionesSet).sort().map(parseItem);
-      const carreras = Array.from(carrerasSet).sort().map(parseItem);
-      
-      return jsonResponse({ asignaturas, secciones, carreras });
-    }
-
-    // Modo planificación via GET (para guardar desde planificacion.html)
-    if (modo === 'planificacion') {
-      const sheet = getSheet_(SHEET_PLANIFICACION);
-      
-      const codigo = (data.codigo || '').trim();
-      const cedula = (data.cedula || '').toString().replace(/\./g, '').trim();
-      const nombre = (data.nombre || '').trim().toUpperCase();
-      const codAsignatura = (data.codAsignatura || '').trim();
-      const codSeccion = (data.codSeccion || '').trim();
-      const codCarrera = (data.codCarrera || '').trim();
-      const fechaInicio = (data.fechaInicio || '').trim();
-      const fechaCierre = (data.fechaCierre || '').trim();
-      const sala = (data.sala || '').trim();
-      const sede = (data.sede || '').trim();
-      const modalidad = (data.modalidad || '').trim();
-      const observaciones = (data.observaciones || '').trim();
-      
-      if (!codigo || !cedula || !nombre || !codAsignatura || !codSeccion || !codCarrera || !fechaInicio || !fechaCierre) {
-        return jsonResponse({ ok: false, error: 'Faltan datos requeridos para planificación' });
-      }
-      
-      // Verificar si ya existe el código (editar) o es nuevo
-      const valores = sheet.getDataRange().getValues();
-      let filaEditar = -1;
-      
-      for (let i = 1; i < valores.length; i++) {
-        if (valores[i][0] === codigo) {
-          filaEditar = i + 1;
-          break;
-        }
-      }
-      
-      if (filaEditar > 0) {
-        sheet.getRange(filaEditar, 1, 1, 12).setValues([[codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones]]);
-        return jsonResponse({ ok: true, mensaje: 'Planificación actualizada correctamente', codigo: codigo });
-      } else {
-        sheet.appendRow([codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones]);
-        return jsonResponse({ ok: true, mensaje: 'Planificación guardada correctamente', codigo: codigo });
-      }
-    }
-
-    // modo = 'registro' por defecto
-    const sheet = getSheet_(SHEET_REGISTRO);
-    const values = sheet.getDataRange().getValues();
-
-    if (values.length <= 1) return jsonResponse({ registros: [] });
-
-    const headers = values[0];
-    const registros = values.slice(1).reverse().map(row => {
-      return headers.reduce((acc, h, i) => { 
-        acc[h] = row[i]; 
-        return acc; 
-      }, {});
-    });
-
-    return jsonResponse({ registros, total: registros.length });
-  } catch (error) {
-    return jsonResponse({ ok: false, error: error.message });
-  }
-}
-
-/* ============================================================
-   GUARDAR ASISTENCIA (POST)
-   ============================================================ */
-
-function doPost(e) {
-  try {
-    // Si se ejecuta manualmente desde el editor, e es undefined
-    if (!e) {
-      console.log('doPost ejecutado manualmente sin evento HTTP');
-      return jsonResponse({ ok: false, error: 'Ejecutar via Web App, no manualmente' });
-    }
-    
-    // Leer datos de query params (el frontend envia todo como URL params)
-    const data = e.parameter || {};
-    
-    console.log('doPost recibido. Keys:', Object.keys(data).join(', '));
-    console.log('studentName:', data.studentName);
-    console.log('studentId:', data.studentId);
-
-    // Validar API key
-    const key = (data.apiKey || data.api_secret || '').trim();
-    if (key !== API_SECRET) {
-      return jsonResponse({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
-    }
-
-    // Modo planificación — guarda en hoja Planificacion
-    if (data.modo === 'planificacion') {
-      const sheet = getSheet_(SHEET_PLANIFICACION);
-      
-      const codigo = (data.codigo || '').trim();
-      const cedula = (data.cedula || '').toString().replace(/\./g, '').trim();
-      const nombre = (data.nombre || '').trim().toUpperCase();
-      const codAsignatura = (data.codAsignatura || '').trim();
-      const codSeccion = (data.codSeccion || '').trim();
-      const codCarrera = (data.codCarrera || '').trim();
-      const fechaInicio = (data.fechaInicio || '').trim();
-      const fechaCierre = (data.fechaCierre || '').trim();
-      const sala = (data.sala || '').trim();
-      const sede = (data.sede || '').trim();
-      const modalidad = (data.modalidad || '').trim();
-      const observaciones = (data.observaciones || '').trim();
-      
-      if (!codigo || !cedula || !nombre || !codAsignatura || !codSeccion || !codCarrera || !fechaInicio || !fechaCierre) {
-        return jsonResponse({ ok: false, error: 'Faltan datos requeridos para planificación' });
-      }
-      
-      // Verificar si ya existe el código (editar) o es nuevo
-      const valores = sheet.getDataRange().getValues();
-      let filaEditar = -1;
-      
-      for (let i = 1; i < valores.length; i++) {
-        if (valores[i][0] === codigo) {
-          filaEditar = i + 1; // +1 porque Sheets es 1-based
-          break;
-        }
-      }
-      
-      if (filaEditar > 0) {
-        // Editar fila existente (12 columnas: incluye sala, sede, modalidad, observaciones)
-        sheet.getRange(filaEditar, 1, 1, 12).setValues([[codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones]]);
-        return jsonResponse({ ok: true, mensaje: 'Planificación actualizada correctamente', codigo: codigo });
-      } else {
-        // Nueva fila
-        sheet.appendRow([codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones]);
-        return jsonResponse({ ok: true, mensaje: 'Planificación guardada correctamente', codigo: codigo });
-      }
-    }
-
-    // Modo progreso_grupo — guarda/actualiza progreso en ProgresoGrupos
-    if (data.modo === 'progreso_grupo') {
-      const sheet = getSheet_(SHEET_PROGRESO);
-      const now = new Date();
-      const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
-      const fecha = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
-
-      const codigo = (data.codigo || '').trim();
-      const cedulaDocente = (data.cedulaDocente || data.cedula || '').toString().replace(/\./g, '').trim();
-      const seccion = (data.seccion || '').trim();
-      const asignatura = (data.asignatura || '').trim();
-      const unidad = (data.unidad || '').trim();
-      const tema = (data.tema || '').trim();
-      const observaciones = (data.observaciones || '').trim();
-
-      if (!cedulaDocente || !seccion || !asignatura) {
-        return jsonResponse({ ok: false, error: 'Faltan datos requeridos: cedulaDocente, seccion, asignatura' });
-      }
-
-      if (codigo) {
-        // Editar registro existente
-        const valores = sheet.getDataRange().getValues();
-        for (let i = 1; i < valores.length; i++) {
-          if (valores[i][0] === codigo) {
-            sheet.getRange(i + 1, 1, 1, 9).setValues([[codigo, cedulaDocente, seccion, asignatura, unidad, tema, fecha, observaciones, marcaTemporal]]);
-            return jsonResponse({ ok: true, mensaje: 'Progreso actualizado correctamente', codigo: codigo });
-          }
-        }
-        return jsonResponse({ ok: false, error: 'Código de progreso no encontrado' });
-      } else {
-        // Nuevo registro — generar código
-        const codigoProgreso = 'PG-' + Utilities.formatDate(now, 'America/Asuncion', 'yyyyMMddHHmmss') + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-        sheet.appendRow([codigoProgreso, cedulaDocente, seccion, asignatura, unidad, tema, fecha, observaciones, marcaTemporal]);
-        return jsonResponse({ ok: true, mensaje: 'Progreso guardado correctamente', codigo: codigoProgreso });
-      }
-    }
-
-    // Modo guardar_examen — registra examen parcial en hoja ExamenParcial
-    if (data.modo === 'guardar_examen') {
-      const sheet = getSheet_(SHEET_EXAMEN);
-      const now = new Date();
-      const fecha = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
-      const hora = Utilities.formatDate(now, 'America/Asuncion', 'HH:mm:ss');
-      const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
-
-      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
-      const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
-      const carrera = (data.career || data.carrera || '').trim();
-      const seccion = (data.seccion || data.section || '').trim();
-      const materia = (data.materia || '').trim();
-      const nota = (data.nota || '').trim();
-      const tipoExamen = (data.tipoExamen || 'Parcial').trim();
-
-      if (!nombre || !cedula || !carrera || !seccion || !materia) {
-        return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera, seccion o materia' });
-      }
-
-      sheet.appendRow([fecha, hora, nombre, cedula, carrera, seccion, materia, nota, tipoExamen, marcaTemporal]);
-      return jsonResponse({ ok: true, mensaje: 'Examen registrado correctamente en la hoja ' + SHEET_EXAMEN });
-    }
-
-    // Modo guardar_examen_999 — registra examen en hoja Examen999 (prueba)
-    if (data.modo === 'guardar_examen_999') {
-      const sheet = getSheet_(SHEET_EXAMEN_TEST);
-      const now = new Date();
-      const fecha = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
-      const hora = Utilities.formatDate(now, 'America/Asuncion', 'HH:mm:ss');
-      const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
-
-      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
-      const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
-      const carrera = (data.career || data.carrera || '').trim();
-      const seccion = (data.seccion || data.section || '').trim();
-      const materia = (data.materia || '').trim();
-      const nota = (data.nota || '').trim();
-      const tipoExamen = (data.tipoExamen || 'Parcial').trim();
-
-      if (!nombre || !cedula || !carrera || !seccion || !materia) {
-        return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera, seccion o materia' });
-      }
-
-      sheet.appendRow([fecha, hora, nombre, cedula, carrera, seccion, materia, nota, tipoExamen, marcaTemporal]);
-      return jsonResponse({ ok: true, mensaje: 'Examen registrado correctamente en la hoja ' + SHEET_EXAMEN_TEST + ' (PRUEBA)' });
-    }
-
-    // Modo justificación de ausencia — guarda en Registro con estado "Ausencia Justificada"
-    if (data.modo === 'justificar') {
-      const sheet = getSheet_(SHEET_REGISTRO);
-      const now = new Date();
-      const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
-
-      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
-      const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
-      const carrera = (data.career || data.carrera || '').trim();
-      const seccion = (data.seccion || data.section || '').trim();
-      const fechaAusencia = (data.fechaAusencia || data.fecha || '').trim();
-      const motivo = (data.motivo || '').trim();
-      const observacion = (data.notes || data.observacion || '').trim();
-      const fileData = data.fileData || '';
-      const fileName = data.fileName || '';
-
-      if (!nombre || !cedula || !carrera || !seccion || !fechaAusencia) {
-        return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera, seccion o fecha de ausencia' });
-      }
-
-      const carrerasValidas = [
-        'LICENCIATURA EN ADMINISTRACION DE EMPRESAS',
-        'LICENCIATURA EN CONTABILIDAD',
-        'LICENCIATURA EN ADMINISTRACION ADUANERA',
-        'LICENCIATURA EN ADMINISTRACION Y GESTION PUBLICA',
-        'INGENIERIA COMERCIAL',
-        'MAESTRIA EN ADMINISTRACION Y GESTION PUBLICA',
-        'OTRO'
-      ];
-      const carreraNormalizada = carrera.toUpperCase().trim();
-      const carreraValida = carrerasValidas.find(c => carreraNormalizada.includes(c));
-      if (!carreraValida) {
-        return jsonResponse({ ok: false, error: 'Carrera no válida: ' + carrera });
-      }
-
-      // Subir archivo a Drive si se proporcionó
-      let fileUrl = '';
-      let fileId = '';
-      if (fileData && fileName) {
-        try {
-          const folderId = '1mpEs3pytsFEWsb1esJRRay9fiktBh8e0';
-          console.log('Subiendo archivo a Drive. Folder ID:', folderId);
-          console.log('Nombre archivo:', fileName);
-          console.log('Tamaño datos:', fileData.length);
-          
-          const folder = DriveApp.getFolderById(folderId);
-          const decoded = Utilities.base64Decode(fileData);
-          console.log('Bytes decodificados:', decoded.length);
-          
-          const blob = Utilities.newBlob(decoded, getMimeType_(fileName), fileName);
-          const file = folder.createFile(blob);
-          file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-          fileUrl = file.getUrl();
-          fileId = file.getId();
-          console.log('Archivo subido exitosamente. URL:', fileUrl);
-        } catch (driveError) {
-          console.error('Error al subir a Drive:', driveError);
-          console.error('Stack:', driveError.stack);
-        }
-      }
-
-      // Construir observación combinada: motivo + link + observación original
-      let obsCombinada = motivo ? 'Motivo: ' + motivo : '';
-      if (fileUrl) obsCombinada += (obsCombinada ? ' | ' : '') + 'Doc: ' + fileUrl;
-      if (observacion) obsCombinada += (obsCombinada ? ' | ' : '') + 'Obs: ' + observacion;
-
-      sheet.appendRow([fechaAusencia, nombre, cedula, carreraValida, seccion, obsCombinada, 'Ausencia Justificada', marcaTemporal]);
-      recalcularResumen_();
-      return jsonResponse({ ok: true, mensaje: 'Ausencia justificada registrada correctamente en la planilla de asistencia', fileUrl: fileUrl });
-    }
-
-    // Modo subir archivo a Drive (separado de la justificación)
-    if (data.modo === 'subirArchivo') {
-      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
-      const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
-      const fileData = data.fileData || '';
-      const fileName = data.fileName || '';
-
-      if (!fileData || !fileName) {
-        return jsonResponse({ ok: false, error: 'No se proporcionó archivo' });
-      }
-
-      // Subir archivo a Drive
-      let fileUrl = '';
-      try {
-        const folderId = '1mpEs3pytsFEWsb1esJRRay9fiktBh8e0';
-        console.log('Subiendo archivo a Drive. Folder ID:', folderId);
-        console.log('Nombre archivo:', fileName);
-        console.log('Tamaño datos:', fileData.length);
-        
-        const folder = DriveApp.getFolderById(folderId);
-        const decoded = Utilities.base64Decode(fileData);
-        console.log('Bytes decodificados:', decoded.length);
-        
-        // Renombrar archivo con cédula y nombre para identificarlo
-        const nombreArchivo = cedula + '_' + nombre.replace(/\s+/g, '_') + '_' + fileName;
-        const blob = Utilities.newBlob(decoded, getMimeType_(fileName), nombreArchivo);
-        const file = folder.createFile(blob);
-        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-        fileUrl = file.getUrl();
-        console.log('Archivo subido exitosamente. URL:', fileUrl);
-        
-        return jsonResponse({ ok: true, mensaje: 'Archivo subido correctamente', fileUrl: fileUrl });
-      } catch (driveError) {
-        console.error('Error al subir a Drive:', driveError);
-        console.error('Stack:', driveError.stack);
-        return jsonResponse({ ok: false, error: 'Error al subir archivo: ' + driveError.message });
-      }
-    }
-
-    // Modo asistencia (default) - ahora soporta Presente y Ausencia Justificada
-    const sheet = getSheet_(SHEET_REGISTRO);
-    const now = new Date();
-    const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
-
-    const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
-    const cedula = (data.studentId || data.cedula || '').toString().replace(/\./g, '').trim();
-    const carrera = (data.career || data.carrera || '').trim();
-    const seccion = (data.seccion || data.section || '').trim();
-    const observacion = (data.notes || data.observacion || '').trim();
-    const estado = (data.estado || 'Presente').trim();
-    const fechaAusencia = (data.fechaAusencia || '').trim();
-
-    if (!nombre || !cedula || !carrera || !seccion) {
-      return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera o seccion' });
-    }
-
-    // Determinar fecha a usar
-    let fechaStr;
-    if (estado === 'Ausencia Justificada' && fechaAusencia) {
-      // Convertir fecha YYYY-MM-DD a DD/MM/YYYY
-      const partes = fechaAusencia.split('-');
-      if (partes.length === 3) {
-        fechaStr = partes[2] + '/' + partes[1] + '/' + partes[0];
-      } else {
-        fechaStr = fechaAusencia;
-      }
-    } else {
-      fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
-    }
-
-    // Evitar duplicados exactos en la misma fecha (solo para Presente)
-    if (estado === 'Presente') {
-      const datos = sheet.getDataRange().getValues();
-      const yaExiste = datos.some(row => {
-        const rowCedula = (row[2] || '').toString().replace(/\./g, '').trim();
-        return rowCedula === cedula && row[0] === fechaStr;
-      });
-
-      if (yaExiste) {
-        return jsonResponse({ ok: false, duplicado: true, mensaje: 'Ya existe un registro para esta cedula en la fecha actual' });
-      }
-    }
-
-    sheet.appendRow([fechaStr, nombre, cedula, carrera, seccion, observacion, estado, marcaTemporal]);
-    recalcularResumen_();
-
-    const mensaje = estado === 'Ausencia Justificada' 
-      ? 'Ausencia justificada registrada correctamente' 
-      : 'Asistencia registrada correctamente';
-
-    return jsonResponse({ ok: true, mensaje: mensaje, duplicado: false });
-  } catch (error) {
-    return jsonResponse({ ok: false, error: error.message || 'Error desconocido' });
-  }
-}
-
-/* ============================================================
-   RECALCULAR RESUMEN (% DE ASISTENCIA)
-   ============================================================ */
-
-function recalcularResumen_() {
-  try {
-    const regSheet = getSheet_(SHEET_REGISTRO);
-    const resSheet = getSheet_(SHEET_RESUMEN);
-
-    const datos = regSheet.getDataRange().getValues();
-    if (datos.length <= 1) {
-      // Limpiar resumen si no hay datos
-      if (resSheet.getLastRow() > 1) {
-        resSheet.getRange(2, 1, resSheet.getLastRow() - 1, 9).clearContent();
-      }
-      return;
-    }
-
-    // Mapa: cedula -> { nombre, carrera, total, presente, tarde, ausenciaJustificada }
-    const mapa = {};
-    const fechasUnicas = new Set();
-
-    for (let i = 1; i < datos.length; i++) {
-      const [fecha, nombre, cedula, carrera, seccion, observacion, estado] = datos[i];
-      const cedulaLimpia = (cedula || '').toString().replace(/\./g, '').trim();
-      if (!cedulaLimpia) continue;
-      
-      fechasUnicas.add(fecha);
-
-      if (!mapa[cedulaLimpia]) {
-        mapa[cedulaLimpia] = { 
-          nombre: nombre || '', 
-          carrera: carrera || '', 
-          total: 0, 
-          presente: 0, 
-          tarde: 0,
-          ausenciaJustificada: 0
-        };
-      }
-      mapa[cedulaLimpia].total++;
-      if (estado === 'Presente') mapa[cedulaLimpia].presente++;
-      else if (estado === 'Tarde') mapa[cedulaLimpia].tarde++;
-      else if (estado === 'Ausencia Justificada') mapa[cedulaLimpia].ausenciaJustificada++;
-    }
-
-    const totalClases = fechasUnicas.size;
-    const filas = Object.keys(mapa).sort().map(cedula => {
-      const r = mapa[cedula];
-      const puntaje = r.presente + (r.tarde * 0.5) + (r.ausenciaJustificada * 0.5); // Tarde y AJ = 0.5
-      const ausencias = Math.max(0, totalClases - r.presente - r.tarde - r.ausenciaJustificada);
-      const porcentaje = totalClases > 0 ? Math.round((puntaje / totalClases) * 100) : 0;
-      return [
-        cedula, 
-        r.nombre, 
-        r.carrera, 
-        totalClases, 
-        r.presente, 
-        r.tarde, 
-        r.ausenciaJustificada,
-        ausencias, 
-        porcentaje
-      ];
-    });
-
-    // Limpiar y reescribir (9 columnas: Cedula, Nombre, Carrera, TotalClases, Presentes, Tardanzas, AusJustificadas, Ausencias, Porcentaje)
-    if (resSheet.getLastRow() > 1) {
-      resSheet.getRange(2, 1, resSheet.getLastRow() - 1, 9).clearContent();
-    }
-    if (filas.length) {
-      resSheet.getRange(2, 1, filas.length, 9).setValues(filas);
-    }
-  } catch (error) {
-    console.error('Error en recalcularResumen_:', error);
-  }
-}
-
-function obtenerResumen_() {
-  try {
-    const sheet = getSheet_(SHEET_RESUMEN);
-    const values = sheet.getDataRange().getValues();
-    if (values.length <= 1) return [];
-
-    const headers = values[0];
-    return values.slice(1).map(row => {
-      return headers.reduce((acc, h, i) => { 
-        acc[h] = row[i]; 
-        return acc; 
-      }, {});
-    });
-  } catch (error) {
-    console.error('Error en obtenerResumen_:', error);
-    return [];
-  }
-}
-
-/* ============================================================
-   EXPORTAR CSV (para compatibilidad)
-   ============================================================ */
-
-function exportarCSV_() {
-  try {
-    const sheet = getSheet_(SHEET_REGISTRO);
-    const values = sheet.getDataRange().getValues();
-    
-    if (values.length <= 1) {
-      return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
-    }
-
-    const csv = values.map(row => 
-      row.map(cell => {
-        const str = String(cell || '').replace(/"/g, '""');
-        return '"' + str + '"';
-      }).join(',')
-    ).join('\n');
-
-    return ContentService.createTextOutput(csv).setMimeType(ContentService.MimeType.TEXT);
-  } catch (error) {
-    return ContentService.createTextOutput('Error: ' + error.message).setMimeType(ContentService.MimeType.TEXT);
-  }
-}
-
-/* ============================================================
-   FUNCIONES UTILITARIAS (ejecutar manualmente desde el editor)
-   ============================================================ */
-
-function recalcularManualmente() {
-  recalcularResumen_();
-  console.log('Resumen recalculado manualmente');
-}
-
-function limpiarDatosDePrueba() {
-  const sheet = getSheet_(SHEET_REGISTRO);
-  const lastRow = sheet.getLastRow();
-  if (lastRow > 1) {
-    sheet.getRange(2, 1, lastRow - 1, 8).clearContent();
-  }
-  recalcularResumen_();
-  console.log('Datos de prueba eliminados');
-}
-
-function inicializarHojas() {
-  getSheet_(SHEET_REGISTRO);
-  getSheet_(SHEET_RESUMEN);
-  getSheet_(SHEET_PROGRESO);
-  console.log('Hojas inicializadas correctamente');
-}
-
-/* ============================================================
-   PRUEBA MANUAL DE ESCRITURA (ejecutar desde el editor)
-   ============================================================ */
-
-function probarEscrituraManual() {
-  console.log('Iniciando probarEscrituraManual...');
-  console.log('SPREADSHEET_ID:', SPREADSHEET_ID);
-  
-  try {
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    console.log('Planilla abierta. Nombre:', ss.getName());
-    console.log('URL:', ss.getUrl());
-    
-    let sheet = ss.getSheetByName(SHEET_REGISTRO);
-    console.log('Hoja Registro existe?', sheet ? 'SI' : 'NO');
-    
-    if (!sheet) {
-      console.log('Creando hoja Registro...');
-      sheet = ss.insertSheet(SHEET_REGISTRO);
-      sheet.appendRow(['Fecha','Nombre','Cedula','Carrera','Seccion','Observacion','Estado','MarcaTemporal']);
-      console.log('Hoja creada');
-    }
-    
-    const now = new Date();
-    const fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
-    const marcaTemporal = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
-    
-    console.log('Insertando fila...');
-    sheet.appendRow([fechaStr, 'TEST MANUAL', '9999999', 'CONTABILIDAD', 'S026', '', 'Presente', marcaTemporal]);
-    console.log('Fila insertada. Total filas:', sheet.getLastRow());
-    
-  } catch (error) {
-    console.error('ERROR:', error.message);
-    console.error('Stack:', error.stack);
-  }
-}
-
-/* ============================================================
-   UTILIDAD: Determinar MIME type por extension de archivo
-   ============================================================ */
 
 function getMimeType_(fileName) {
   const ext = (fileName.split('.').pop() || '').toLowerCase();
@@ -823,29 +90,694 @@ function getMimeType_(fileName) {
   return mimeTypes[ext] || 'application/octet-stream';
 }
 
-/* ============================================================
-   AUTORIZAR DRIVE - Ejecutar manualmente antes de usar archivos
-   ============================================================ */
+function sheetToObjects_(sheet) {
+  const values = sheet.getDataRange().getValues();
+  if (values.length <= 1) return [];
+  const headers = values[0];
+  return values.slice(1).map(row =>
+    headers.reduce((acc, h, i) => { acc[h] = row[i]; return acc; }, {})
+  );
+}
+
+function marcaTemporal_() {
+  return Utilities.formatDate(new Date(), 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
+}
+
+function validarApiKey_(key) {
+  return (key || '').trim() === API_SECRET;
+}
+
+// ============================================================
+// SETUP COMPLETO — Crea/limpia las 9 hojas desde cero
+// Ejecutar manualmente una sola vez desde el editor
+// ============================================================
+
+function setupCompleto() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  
+  // 1. Crear o limpiar cada hoja
+  const hojas = Object.keys(SH);
+  hojas.forEach(nombre => {
+    let sheet = ss.getSheetByName(nombre);
+    if (sheet) {
+      // Limpiar completamente
+      sheet.clear();
+    } else {
+      sheet = ss.insertSheet(nombre);
+    }
+    // Escribir headers
+    const h = HEADERS[nombre];
+    if (h) sheet.appendRow(h);
+    Logger.log('Hoja lista: ' + nombre);
+  });
+
+  // 2. Poblar Catálogos desde datos reales de hojas legacy (si existen)
+  poblarCatalogosDesdeLegacy_(ss);
+
+  Logger.log('✅ setupCompleto() terminado. 9 hojas listas.');
+}
+
+function poblarCatalogosDesdeLegacy_(ss) {
+  const catSheet = ss.getSheetByName(SH.CATALOGOS);
+  if (!catSheet) return;
+  
+  // Buscar hojas legacy con datos
+  const legacySheets = ['ReExVir', 'Registro'];
+  const carreras = new Set();
+  const secciones = new Set();
+  const asignaturas = new Set();
+  const estudiantes = new Map(); // cedula -> {nombre, carrera}
+  const docentes = new Map();   // cedula -> nombre
+
+  legacySheets.forEach(name => {
+    const sh = ss.getSheetByName(name);
+    if (!sh) return;
+    const data = sh.getDataRange().getValues();
+    if (data.length <= 1) return;
+    const headers = data[0].map(h => String(h).trim().toLowerCase().replace(/\s+/g, '_'));
+    data.slice(1).forEach(row => {
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = row[i]);
+      const c = String(obj.cedula || obj.cedula_docente || '').replace(/[.\s-]/g, '').trim();
+      const n = String(obj.nombre || obj.nombre_y_apellido || obj.nombre_docente || '').trim();
+      const ca = String(obj.carrera || '').trim();
+      const s = String(obj.seccion || '').trim().toUpperCase();
+      const a = String(obj.asignatura || obj.materia || obj.cod_asignatura || '').trim();
+      if (ca) carreras.add(ca);
+      if (s && s.length <= 10) secciones.add(s);
+      if (a) asignaturas.add(a);
+      if (c && n) {
+        if (!estudiantes.has(c)) estudiantes.set(c, { nombre: n, carrera: ca || '' });
+        if (!docentes.has(c)) docentes.set(c, n);
+      }
+    });
+  });
+
+  // Escribir catálogos
+  const rows = [];
+  carreras.forEach(v => rows.push(['Carrera', v, v, 'SI']));
+  secciones.forEach(v => rows.push(['Seccion', v, v, 'SI']));
+  asignaturas.forEach(v => rows.push(['Asignatura', v, v, 'SI']));
+  if (rows.length) {
+    catSheet.getRange(2, 1, rows.length, 4).setValues(rows);
+    Logger.log(`Catálogos: ${carreras.size} carreras, ${secciones.size} secciones, ${asignaturas.size} asignaturas`);
+  }
+
+  // Poblar Estudiantes
+  const estSheet = ss.getSheetByName(SH.ESTUDIANTES);
+  if (estSheet && estudiantes.size) {
+    const estRows = [];
+    estudiantes.forEach((v, k) => estRows.push([k, v.nombre, v.carrera, 'SI']));
+    estSheet.getRange(2, 1, estRows.length, 4).setValues(estRows);
+    Logger.log(`Estudiantes: ${estudiantes.size} únicos`);
+  }
+
+  // Poblar Docentes
+  const docSheet = ss.getSheetByName(SH.DOCENTES);
+  if (docSheet && docentes.size) {
+    const docRows = [];
+    docentes.forEach((v, k) => docRows.push([k, v, 'SI']));
+    docSheet.getRange(2, 1, docRows.length, 3).setValues(docRows);
+    Logger.log(`Docentes: ${docentes.size} únicos`);
+  }
+}
+
+// ============================================================
+// FIX EXAMENES — Parsea hoja legacy ReExVir a Examenes + Examen_Detalle
+// USO: Ejecutar manualmente desde el editor después de setupCompleto()
+// Versión OPTIMIZADA: usa setValues batch en vez de appendRow individual
+// ============================================================
+
+function fixExamenesAhora() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const srcSheet = ss.getSheetByName('ReExVir');
+  if (!srcSheet) {
+    Logger.log('❌ No existe hoja ReExVir. Nada que parsear.');
+    return;
+  }
+  
+  const data = srcSheet.getDataRange().getValues();
+  Logger.log('Filas en ReExVir: ' + data.length);
+  if (data.length <= 1) {
+    Logger.log('Solo headers, sin datos.');
+    return;
+  }
+
+  const headers = data[0].map(h => String(h).trim().toLowerCase().replace(/\s+/g, '_'));
+  const rows = data.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i]);
+    return obj;
+  });
+  
+  const examenesSheet = ss.getSheetByName(SH.EXAMENES);
+  const detalleSheet = ss.getSheetByName(SH.EXAMEN_DETALLE);
+  if (!examenesSheet || !detalleSheet) {
+    Logger.log('❌ Faltan hojas Examenes o Examen_Detalle. Ejecuta setupCompleto() primero.');
+    return;
+  }
+  
+  // Preparar arrays para batch insert
+  const examenesBatch = [];
+  const detalleBatch = [];
+  const seenExams = new Set();
+  const tz = Session.getScriptTimeZone();
+  
+  rows.forEach(r => {
+    const marcaRaw = r.marca_temporal;
+    const marcaDate = marcaRaw instanceof Date ? marcaRaw : new Date(marcaRaw);
+    if (isNaN(marcaDate.getTime())) return;
+    
+    const nombre = String(r.nombre_apellido || '').trim();
+    const cedula = String(r.cedula || '').replace(/[.\s-]/g, '').trim();
+    const puntajeStr = String(r.puntaje || '0/0');
+    const [puntaje, total] = puntajeStr.split('/').map(n => parseInt(n) || 0);
+    const fecha = r.fecha || Utilities.formatDate(marcaDate, tz, 'dd/MM/yyyy');
+    const hora = r.hora || Utilities.formatDate(marcaDate, tz, 'HH:mm:ss');
+    const intento = parseInt(r.intento) || 1;
+    const respuestaBlob = r.respuesta || '';
+    
+    if (!cedula || !nombre) return;
+    
+    const examId = `EXM-${Utilities.formatDate(marcaDate, tz, 'yyyyMMdd')}-${cedula}-${intento}`;
+    
+    if (!seenExams.has(examId)) {
+      seenExams.add(examId);
+      examenesBatch.push([
+        examId,
+        marcaRaw instanceof Date ? Utilities.formatDate(marcaRaw, tz, 'dd/MM/yyyy HH:mm:ss') : String(marcaRaw),
+        nombre,
+        cedula,
+        puntaje,
+        total,
+        fecha,
+        hora,
+        intento
+      ]);
+    }
+    
+    // Parsear respuestas → detalle
+    const lineas = respuestaBlob.split('\n').map(l => l.trim()).filter(l => l);
+    let seccionActual = '', numP = 0;
+    lineas.forEach(linea => {
+      if (linea.match(/^SECCI[OÓ]N\s+[IVX]+/i)) {
+        seccionActual = linea.replace(/^SECCI[OÓ]N\s+[IVX]+\.?\s*/i, '').trim();
+        numP = 0;
+        return;
+      }
+      const m = linea.match(/^([IVX]+\.\d+):\s*(\w+)\s*\|\s*Correcta:\s*(\w+)\s*\|\s*(OK|MAL)\s*\|\s*(.+)$/);
+      if (m) {
+        numP++;
+        detalleBatch.push([
+          examId,
+          seccionActual,
+          numP,
+          m[5].trim(),  // pregunta
+          m[2],         // respuesta del alumno
+          m[3],         // correcta
+          m[4] === 'OK' // acertó?
+        ]);
+      }
+    });
+  });
+  
+  // BATCH INSERT — una sola operación por hoja
+  if (examenesBatch.length) {
+    const startRow = examenesSheet.getLastRow() + 1;
+    examenesSheet.getRange(startRow, 1, examenesBatch.length, 9).setValues(examenesBatch);
+    Logger.log('✅ Examenes creados: ' + examenesBatch.length);
+  } else {
+    Logger.log('⚠️ No se crearon exámenes nuevos.');
+  }
+  
+  if (detalleBatch.length) {
+    const startRow2 = detalleSheet.getLastRow() + 1;
+    detalleSheet.getRange(startRow2, 1, detalleBatch.length, 7).setValues(detalleBatch);
+    Logger.log('✅ Detalles creados: ' + detalleBatch.length);
+  } else {
+    Logger.log('⚠️ No se crearon detalles.');
+  }
+  
+  Logger.log('🏁 fixExamenesAhora() completado.');
+}
+
+// ============================================================
+// doGet — TODOS LOS MODOS DE CONSULTA
+// ============================================================
+
+function doGet(e) {
+  try {
+    const data = e?.parameter || {};
+    if (!validarApiKey_(data.apiKey || data.api_secret)) {
+      return jsonResponse({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
+    }
+    
+    const modo = data.modo || 'asistencia';
+    
+    // ---- CATÁLOGOS ----
+    if (modo === 'catalogos') {
+      const sheet = getSheet_(SH.CATALOGOS);
+      const objetos = sheetToObjects_(sheet);
+      const agrupados = {};
+      objetos.forEach(o => {
+        const tipo = String(o.Tipo || '').trim();
+        if (!agrupados[tipo]) agrupados[tipo] = [];
+        agrupados[tipo].push({ codigo: o.Codigo, nombre: o.Nombre });
+      });
+      return jsonResponse(agrupados);
+    }
+    
+    // ---- ASISTENCIA ----
+    if (modo === 'asistencia' || modo === 'registro') {
+      const sheet = getSheet_(SH.ASISTENCIA);
+      let objetos = sheetToObjects_(sheet);
+      
+      // Filtros opcionales
+      const cedula = (data.cedula || '').replace(/[.\s-]/g, '').trim();
+      const seccion = (data.seccion || '').trim().toUpperCase();
+      const fechaDesde = (data.fecha_desde || '').trim();
+      const fechaHasta = (data.fecha_hasta || '').trim();
+      
+      if (cedula) objetos = objetos.filter(o => String(o.Cedula || '').replace(/[.\s-]/g, '').trim() === cedula);
+      if (seccion) objetos = objetos.filter(o => String(o.Seccion || '').trim().toUpperCase() === seccion);
+      if (fechaDesde) objetos = objetos.filter(o => String(o.Fecha || '') >= fechaDesde);
+      if (fechaHasta) objetos = objetos.filter(o => String(o.Fecha || '') <= fechaHasta);
+      
+      objetos.reverse(); // más recientes primero
+      
+      return jsonResponse({ registros: objetos, total: objetos.length });
+    }
+    
+    // ---- PLANIFICACIONES ----
+    if (modo === 'planificaciones') {
+      const sheet = getSheet_(SH.PLANIFICACIONES);
+      let objetos = sheetToObjects_(sheet);
+      const cedula = (data.cedula || '').replace(/[.\s-]/g, '').trim();
+      if (cedula) objetos = objetos.filter(o => String(o.CedulaDocente || '').replace(/[.\s-]/g, '').trim() === cedula);
+      return jsonResponse({ planificaciones: objetos, total: objetos.length });
+    }
+    
+    // ---- PROGRESO GRUPOS ----
+    if (modo === 'progreso_grupo') {
+      const sheet = getSheet_(SH.PROGRESO_GRUPOS);
+      let objetos = sheetToObjects_(sheet);
+      const cedula = (data.cedula || '').replace(/[.\s-]/g, '').trim();
+      const seccion = (data.seccion || '').trim().toUpperCase();
+      if (cedula) objetos = objetos.filter(o => String(o.CedulaDocente || '').replace(/[.\s-]/g, '').trim() === cedula);
+      if (seccion) objetos = objetos.filter(o => String(o.Seccion || '').trim().toUpperCase() === seccion);
+      return jsonResponse({ progreso: objetos.reverse(), total: objetos.length });
+    }
+    
+    // ---- EXÁMENES ----
+    if (modo === 'examenes') {
+      const sheet = getSheet_(SH.EXAMENES);
+      let objetos = sheetToObjects_(sheet);
+      const cedula = (data.cedula || '').replace(/[.\s-]/g, '').trim();
+      if (cedula) objetos = objetos.filter(o => String(o.Cedula || '').replace(/[.\s-]/g, '').trim() === cedula);
+      return jsonResponse({ examenes: objetos.reverse(), total: objetos.length });
+    }
+
+    // ---- EXÁMENES 999 (legacy) ----
+    if (modo === 'examenes_999') {
+      // Buscar en hoja Examen999 legacy
+      const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+      const sheet = ss.getSheetByName('Examen999') || getSheet_(SH.EXAMENES);
+      let objetos = sheetToObjects_(sheet);
+      return jsonResponse({ examenes: objetos.reverse(), total: objetos.length });
+    }
+    
+    // ---- ESTUDIANTES ----
+    if (modo === 'estudiantes') {
+      const sheet = getSheet_(SH.ESTUDIANTES);
+      let objetos = sheetToObjects_(sheet);
+      const cedula = (data.cedula || '').replace(/[.\s-]/g, '').trim();
+      if (cedula) objetos = objetos.filter(o => String(o.Cedula || '').replace(/[.\s-]/g, '').trim() === cedula);
+      return jsonResponse({ estudiantes: objetos, total: objetos.length });
+    }
+    
+    // ---- DOCENTES ----
+    if (modo === 'docentes') {
+      const sheet = getSheet_(SH.DOCENTES);
+      let objetos = sheetToObjects_(sheet);
+      return jsonResponse({ docentes: objetos, total: objetos.length });
+    }
+    
+    // ---- NOVEDADES ----
+    if (modo === 'novedades') {
+      const sheet = getSheet_(SH.NOVEDADES);
+      let objetos = sheetToObjects_(sheet);
+      return jsonResponse({ novedades: objetos.reverse(), total: objetos.length });
+    }
+    
+    // ---- BUSCAR (legacy) ----
+    if (modo === 'buscar') {
+      return doGet({ parameter: { ...data, modo: 'asistencia', apiKey: API_SECRET } });
+    }
+    
+    // ---- RESÚMEN (legacy) ----
+    if (modo === 'resumen') {
+      const sheet = getSheet_(SH.ASISTENCIA);
+      const objetos = sheetToObjects_(sheet);
+      // Construir resumen agrupado por cédula
+      const mapa = {};
+      const fechas = new Set();
+      objetos.forEach(o => {
+        const c = String(o.Cedula || '').replace(/[.\s-]/g, '').trim();
+        if (!c) return;
+        fechas.add(o.Fecha);
+        if (!mapa[c]) mapa[c] = { nombre: o.Nombre || '', carrera: o.Carrera || '', presente: 0, ausente: 0, justificada: 0, tarde: 0 };
+        const est = String(o.Estado || 'Presente').trim();
+        if (est === 'Presente') mapa[c].presente++;
+        else if (est === 'Ausente') mapa[c].ausente++;
+        else if (est === 'Ausencia Justificada') mapa[c].justificada++;
+        else if (est === 'Tarde') mapa[c].tarde++;
+        else mapa[c].presente++; // default
+      });
+      const totalClases = fechas.size;
+      const resumen = Object.keys(mapa).sort().map(c => {
+        const r = mapa[c];
+        const puntaje = r.presente + r.tarde * 0.5 + r.justificada * 0.5;
+        const ausencias = totalClases - r.presente - r.tarde - r.justificada;
+        return {
+          Cedula: c, Nombre: r.nombre, Carrera: r.carrera,
+          TotalClases: totalClases, Presentes: r.presente,
+          Tardanzas: r.tarde, AusJustificadas: r.justificada,
+          Ausencias: Math.max(0, ausencias),
+          Porcentaje: totalClases > 0 ? Math.round((puntaje / totalClases) * 100) : 0
+        };
+      });
+      return jsonResponse({ resumen });
+    }
+    
+    // ---- JUSTIFICACIONES (legacy) ----
+    if (modo === 'justificaciones') {
+      const sheet = getSheet_(SH.ASISTENCIA);
+      const objetos = sheetToObjects_(sheet);
+      const justificadas = objetos.filter(o => String(o.Estado || '').trim() === 'Ausencia Justificada').reverse();
+      return jsonResponse({ justificaciones: justificadas, total: justificadas.length });
+    }
+    
+    // ---- CSV (legacy) ----
+    if (modo === 'csv') {
+      const sheet = getSheet_(SH.ASISTENCIA);
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
+      const csv = values.map(row => row.map(c => '"' + String(c || '').replace(/"/g, '""') + '"').join(',')).join('\n');
+      return ContentService.createTextOutput(csv).setMimeType(ContentService.MimeType.TEXT);
+    }
+    
+    // ---- PLANIFICACION (GET individual, legacy) ----
+    if (modo === 'planificacion') {
+      const sheet = getSheet_(SH.PLANIFICACIONES);
+      const codigo = (data.codigo || '').trim();
+      if (!codigo) return jsonResponse({ ok: false, error: 'Código requerido' });
+      const objetos = sheetToObjects_(sheet);
+      const encontrada = objetos.find(o => String(o.Codigo || '').trim() === codigo);
+      if (encontrada) return jsonResponse({ ok: true, planificacion: encontrada });
+      return jsonResponse({ ok: false, error: 'No encontrada' });
+    }
+    
+    // fallback: devolver todo
+    return jsonResponse({ ok: false, error: 'Modo no reconocido: ' + modo });
+  } catch (error) {
+    return jsonResponse({ ok: false, error: error.message });
+  }
+}
+
+// ============================================================
+// doPost — TODOS LOS MODOS DE ESCRITURA
+// ============================================================
+
+function doPost(e) {
+  try {
+    if (!e) return jsonResponse({ ok: false, error: 'Ejecutar via Web App, no manualmente' });
+    
+    const data = e.parameter || {};
+    if (!validarApiKey_(data.apiKey || data.api_secret)) {
+      return jsonResponse({ ok: false, error: 'Acceso no autorizado. API key inválida.' });
+    }
+    
+    const modo = data.modo || 'asistencia';
+    const now = new Date();
+    const tz = 'America/Asuncion';
+    const marcaTemp = Utilities.formatDate(now, tz, 'dd/MM/yyyy HH:mm:ss');
+    
+    // ---- GUARDAR PLANIFICACIÓN ----
+    if (modo === 'planificacion' || modo === 'guardar_planificacion') {
+      const sheet = getSheet_(SH.PLANIFICACIONES);
+      const codigo = (data.codigo || '').trim();
+      const cedula = (data.cedula || data.cedulaDocente || '').toString().replace(/[.\s-]/g, '').trim();
+      const nombre = (data.nombre || data.nombreDocente || '').trim().toUpperCase();
+      const codAsignatura = (data.codAsignatura || '').trim();
+      const codSeccion = (data.codSeccion || data.seccion || '').trim();
+      const codCarrera = (data.codCarrera || data.carrera || '').trim();
+      const fechaInicio = (data.fechaInicio || '').trim();
+      const fechaCierre = (data.fechaCierre || '').trim();
+      const sala = (data.sala || '').trim();
+      const sede = (data.sede || '').trim();
+      const modalidad = (data.modalidad || '').trim();
+      const observaciones = (data.observaciones || '').trim();
+      
+      if (!codigo || !cedula || !nombre || !codAsignatura || !codSeccion || !fechaInicio) {
+        return jsonResponse({ ok: false, error: 'Faltan datos requeridos' });
+      }
+      
+      const valores = sheet.getDataRange().getValues();
+      let filaEditar = -1;
+      for (let i = 1; i < valores.length; i++) {
+        if (String(valores[i][0]).trim() === codigo) { filaEditar = i + 1; break; }
+      }
+      
+      const fila = [codigo, cedula, nombre, codAsignatura, codSeccion, codCarrera, fechaInicio, fechaCierre, sala, sede, modalidad, observaciones, marcaTemp];
+      
+      if (filaEditar > 0) {
+        sheet.getRange(filaEditar, 1, 1, fila.length).setValues([fila]);
+        return jsonResponse({ ok: true, mensaje: 'Planificación actualizada', codigo });
+      } else {
+        sheet.appendRow(fila);
+        return jsonResponse({ ok: true, mensaje: 'Planificación guardada', codigo });
+      }
+    }
+    
+    // ---- GUARDAR PROGRESO GRUPO ----
+    if (modo === 'progreso_grupo' || modo === 'guardar_progreso_grupo') {
+      const sheet = getSheet_(SH.PROGRESO_GRUPOS);
+      const codigo = (data.codigo || '').trim();
+      const cedulaDocente = (data.cedulaDocente || data.cedula || '').toString().replace(/[.\s-]/g, '').trim();
+      const seccion = (data.seccion || '').trim();
+      const asignatura = (data.asignatura || '').trim();
+      const unidad = (data.unidad || '').trim();
+      const tema = (data.tema || '').trim();
+      const observaciones = (data.observaciones || '').trim();
+      const fecha = Utilities.formatDate(now, tz, 'dd/MM/yyyy');
+      
+      if (!cedulaDocente || !seccion || !asignatura) {
+        return jsonResponse({ ok: false, error: 'Faltan datos: cedulaDocente, seccion, asignatura' });
+      }
+      
+      if (codigo) {
+        const valores = sheet.getDataRange().getValues();
+        for (let i = 1; i < valores.length; i++) {
+          if (String(valores[i][0]).trim() === codigo) {
+            sheet.getRange(i + 1, 1, 1, 9).setValues([[codigo, cedulaDocente, seccion, asignatura, unidad, tema, fecha, observaciones, marcaTemp]]);
+            return jsonResponse({ ok: true, mensaje: 'Progreso actualizado', codigo });
+          }
+        }
+        return jsonResponse({ ok: false, error: 'Código no encontrado' });
+      } else {
+        const codigoProgreso = 'PG-' + Utilities.formatDate(now, tz, 'yyyyMMddHHmmss') + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+        sheet.appendRow([codigoProgreso, cedulaDocente, seccion, asignatura, unidad, tema, fecha, observaciones, marcaTemp]);
+        return jsonResponse({ ok: true, mensaje: 'Progreso guardado', codigo: codigoProgreso });
+      }
+    }
+    
+    // ---- GUARDAR EXÁMEN ----
+    if (modo === 'guardar_examen' || modo === 'guardar_examen_999') {
+      const targetSheet = modo === 'guardar_examen_999' ? 'Examen999' : SH.EXAMENES;
+      const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(targetSheet) || getSheet_(SH.EXAMENES);
+      const fecha = Utilities.formatDate(now, tz, 'dd/MM/yyyy');
+      const hora = Utilities.formatDate(now, tz, 'HH:mm:ss');
+      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
+      const cedula = (data.studentId || data.cedula || '').toString().replace(/[.\s-]/g, '').trim();
+      const carrera = (data.career || data.carrera || '').trim();
+      const seccion = (data.seccion || data.section || '').trim();
+      const materia = (data.materia || '').trim();
+      const nota = (data.nota || '').trim();
+      const tipoExamen = (data.tipoExamen || 'Parcial').trim();
+      
+      if (!nombre || !cedula || !carrera || !seccion || !materia) {
+        return jsonResponse({ ok: false, error: 'Faltan datos requeridos' });
+      }
+      
+      sheet.appendRow([fecha, hora, nombre, cedula, carrera, seccion, materia, nota, tipoExamen, marcaTemp]);
+      return jsonResponse({ ok: true, mensaje: 'Examen registrado en ' + targetSheet });
+    }
+    
+    // ---- GUARDAR NOVEDAD ----
+    if (modo === 'guardar_novedad' || modo === 'novedad') {
+      const sheet = getSheet_(SH.NOVEDADES);
+      const titulo = (data.titulo || '').trim();
+      const contenido = (data.contenido || '').trim();
+      const autor = (data.autor || '').trim();
+      if (!titulo || !contenido) return jsonResponse({ ok: false, error: 'Título y contenido requeridos' });
+      const id = 'NOV-' + Utilities.formatDate(now, tz, 'yyyyMMddHHmmss');
+      const fecha = Utilities.formatDate(now, tz, 'dd/MM/yyyy');
+      sheet.appendRow([id, titulo, contenido, fecha, autor, 'SI']);
+      return jsonResponse({ ok: true, mensaje: 'Novedad publicada', id });
+    }
+    
+    // ---- JUSTIFICAR AUSENCIA (legacy) ----
+    if (modo === 'justificar') {
+      const sheet = getSheet_(SH.ASISTENCIA);
+      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
+      const cedula = (data.studentId || data.cedula || '').toString().replace(/[.\s-]/g, '').trim();
+      const carrera = (data.career || data.carrera || '').trim();
+      const seccion = (data.seccion || data.section || '').trim();
+      const asignatura = (data.asignatura || data.materia || '').trim();
+      const fechaAusencia = (data.fechaAusencia || data.fecha || '').trim();
+      const motivo = (data.motivo || '').trim();
+      const observacion = (data.notes || data.observacion || '').trim();
+      const fileData = data.fileData || '';
+      const fileName = data.fileName || '';
+      
+      if (!nombre || !cedula || !carrera || !seccion || !fechaAusencia) {
+        return jsonResponse({ ok: false, error: 'Faltan datos requeridos' });
+      }
+      
+      // Subir archivo a Drive si se proporcionó
+      let fileUrl = '';
+      if (fileData && fileName) {
+        try {
+          const folderId = '1mpEs3pytsFEWsb1esJRRay9fiktBh8e0';
+          const folder = DriveApp.getFolderById(folderId);
+          const decoded = Utilities.base64Decode(fileData);
+          const blob = Utilities.newBlob(decoded, getMimeType_(fileName), fileName);
+          const file = folder.createFile(blob);
+          file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+          fileUrl = file.getUrl();
+        } catch (driveError) {
+          console.error('Error al subir a Drive:', driveError);
+        }
+      }
+      
+      let obsCombinada = motivo ? 'Motivo: ' + motivo : '';
+      if (fileUrl) obsCombinada += (obsCombinada ? ' | ' : '') + 'Doc: ' + fileUrl;
+      if (observacion) obsCombinada += (obsCombinada ? ' | ' : '') + 'Obs: ' + observacion;
+      
+      sheet.appendRow([fechaAusencia, nombre, cedula, carrera, seccion, asignatura, 'Ausencia Justificada', obsCombinada, marcaTemp]);
+      return jsonResponse({ ok: true, mensaje: 'Ausencia justificada registrada', fileUrl });
+    }
+    
+    // ---- SUBIR ARCHIVO (legacy) ----
+    if (modo === 'subirArchivo') {
+      const fileData = data.fileData || '';
+      const fileName = data.fileName || '';
+      const cedula = (data.studentId || data.cedula || '').toString().replace(/[.\s-]/g, '').trim();
+      const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
+      
+      if (!fileData || !fileName) return jsonResponse({ ok: false, error: 'No se proporcionó archivo' });
+      
+      let fileUrl = '';
+      try {
+        const folderId = '1mpEs3pytsFEWsb1esJRRay9fiktBh8e0';
+        const folder = DriveApp.getFolderById(folderId);
+        const decoded = Utilities.base64Decode(fileData);
+        const nombreArchivo = cedula + '_' + nombre.replace(/\s+/g, '_') + '_' + fileName;
+        const blob = Utilities.newBlob(decoded, getMimeType_(fileName), nombreArchivo);
+        const file = folder.createFile(blob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        fileUrl = file.getUrl();
+        return jsonResponse({ ok: true, mensaje: 'Archivo subido', fileUrl });
+      } catch (driveError) {
+        return jsonResponse({ ok: false, error: 'Error al subir: ' + driveError.message });
+      }
+    }
+    
+    // ---- ASISTENCIA (default) ----
+    const sheet = getSheet_(SH.ASISTENCIA);
+    const nombre = (data.studentName || data.nombre || '').trim().toUpperCase();
+    const cedula = (data.studentId || data.cedula || '').toString().replace(/[.\s-]/g, '').trim();
+    const carrera = (data.career || data.carrera || '').trim();
+    const seccion = (data.seccion || data.section || '').trim();
+    const asignatura = (data.asignatura || data.materia || '').trim();
+    const observacion = (data.notes || data.observacion || '').trim();
+    const estado = (data.estado || 'Presente').trim();
+    const fechaAusencia = (data.fechaAusencia || '').trim();
+    
+    if (!nombre || !cedula || !carrera || !seccion) {
+      return jsonResponse({ ok: false, error: 'Faltan datos requeridos: nombre, cedula, carrera, seccion' });
+    }
+    
+    // Determinar fecha
+    let fechaStr;
+    if (estado === 'Ausencia Justificada' && fechaAusencia) {
+      const partes = fechaAusencia.split('-');
+      fechaStr = partes.length === 3 ? partes[2] + '/' + partes[1] + '/' + partes[0] : fechaAusencia;
+    } else {
+      fechaStr = Utilities.formatDate(now, tz, 'dd/MM/yyyy');
+    }
+    
+    // Evitar duplicados exactos (solo Presente)
+    if (estado === 'Presente') {
+      const datos = sheet.getDataRange().getValues();
+      const yaExiste = datos.some(row => {
+        const rowCedula = (row[2] || '').toString().replace(/[.\s-]/g, '').trim();
+        return rowCedula === cedula && String(row[0]) === fechaStr && String(row[6] || '').trim() === 'Presente';
+      });
+      if (yaExiste) {
+        return jsonResponse({ ok: false, duplicado: true, mensaje: 'Ya existe registro para esta cédula en la fecha actual' });
+      }
+    }
+    
+    sheet.appendRow([fechaStr, nombre, cedula, carrera, seccion, asignatura, estado, observacion, marcaTemp]);
+    return jsonResponse({ ok: true, mensaje: estado === 'Ausencia Justificada' ? 'Ausencia justificada registrada' : 'Asistencia registrada', duplicado: false });
+    
+  } catch (error) {
+    return jsonResponse({ ok: false, error: error.message });
+  }
+}
+
+// ============================================================
+// doOptions — CORS preflight
+// ============================================================
+
+function doOptions(e) {
+  return jsonResponse({});
+}
+
+// ============================================================
+// FUNCIONES MANUALES (ejecutar desde el editor)
+// ============================================================
+
+function inicializarHojas() {
+  Object.keys(SH).forEach(k => getSheet_(SH[k]));
+  Logger.log('Hojas inicializadas');
+}
 
 function autorizarDrive() {
   try {
     const folderId = '1mpEs3pytsFEWsb1esJRRay9fiktBh8e0';
     const folder = DriveApp.getFolderById(folderId);
-    console.log('Drive autorizado correctamente. Carpeta:', folder.getName());
-    
-    // Crear un archivo de prueba
     const testBlob = Utilities.newBlob('Test', 'text/plain', 'test.txt');
     const testFile = folder.createFile(testBlob);
     testFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    console.log('Archivo de prueba creado:', testFile.getUrl());
-    
-    // Eliminar archivo de prueba
     testFile.setTrashed(true);
-    console.log('Autorización completada exitosamente');
-    
-    return 'Autorización exitosa. Ya puede subir archivos.';
+    Logger.log('Drive autorizado correctamente. Carpeta: ' + folder.getName());
+    return 'Drive autorizado ✅';
   } catch (error) {
-    console.error('Error de autorización:', error);
-    throw new Error('Debe autorizar los permisos de Drive. Vaya a Implementar > Ver implementaciones > Autorizar.');
+    throw new Error('Debe autorizar Drive manualmente: ' + error.message);
   }
+}
+
+function probarEscrituraManual() {
+  const sheet = getSheet_(SH.ASISTENCIA);
+  const now = new Date();
+  const fechaStr = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy');
+  const marcaTemp = Utilities.formatDate(now, 'America/Asuncion', 'dd/MM/yyyy HH:mm:ss');
+  sheet.appendRow([fechaStr, 'TEST MANUAL', '9999999', 'CONTABILIDAD', 'S026', 'SOCIOLOGIA', 'Presente', '', marcaTemp]);
+  Logger.log('Fila de prueba insertada en ' + SH.ASISTENCIA);
+}
+
+function recalcularManualmente() {
+  Logger.log('Función de recálculo manual. Los resúmenes se calculan vía GET modo=resumen.');
 }

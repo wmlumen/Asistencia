@@ -739,7 +739,7 @@
         let dataSource = localStorage.getItem('planilla_fuente') || '';
         let configPlanilla = JSON.parse(localStorage.getItem('planilla_config') || '{}');
         
-        function checkLogin() {
+        async function checkLogin() {
             const input = document.getElementById('loginPassword');
             const error = document.getElementById('loginError');
             const result = loginTeacher(input.value.trim());
@@ -747,7 +747,8 @@
                 document.getElementById('loginOverlay').classList.add('hidden');
                 document.getElementById('mainContent').style.display = 'block';
                 document.getElementById('planilla-header').style.display = 'block';
-                cargarCatalogosPlanilla();
+                // Esperar a que los catálogos se carguen antes de continuar
+                await cargarCatalogosPlanilla();
                 cargarConfigGuardada();
                 // Auto-detectar API si no hay fuente guardada
                 if (!dataSource && typeof getAttendanceApiUrl === 'function' && getAttendanceApiUrl()) {
@@ -771,9 +772,11 @@
             const asignaturas = JSON.parse(localStorage.getItem('cat_asignaturas') || '[]');
             
             // Asegurar que existan las secciones exactas usadas en los datos
+            // Buscar coincidencia parcial (sin prefijo código-) para evitar duplicados
             const extras = ['LV 026', 'MJ 026', 'S 026', 'Otro'];
             extras.forEach(e => {
-                if (!secciones.includes(e)) {
+                const existe = secciones.some(s => s.endsWith('-' + e) || s === e);
+                if (!existe) {
                     secciones.push(e);
                 }
             });

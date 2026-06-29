@@ -327,9 +327,9 @@ async function cargarConfiguracion() {
 
 
 
-            link_respuestas: 'https://docs.google.com/spreadsheets/d/1fMdrHltDZNeSq857KPbXs5K8QXm4SCjCVylCTUX5EdA',
+            link_respuestas: 'https://docs.google.com/spreadsheets/d/1aMr1KYx7FQ4YYh0WgqzWQQ4FZnOytMwae8JWskG5cPQ',
             asistencia_public_url: 'https://wmlumen.github.io/Asistencia/asistencia.html',
-            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbwGi9YIcv-9j55YVZcDVUZ15Ue9mb5dpOpgUFnXrAzbIfAivnX87jQbvpbGZE5qKLqwOQ/exec',
+            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbynHV8nUdTj8OtGWBpU7qY0DjHvRGitQCWbjhXhKsdjw9Wej0MFwnYhZ_ApBPTnVqrh/exec',
             asistencia_csv_url: '',
             asistencia_carreras: 'LICENCIATURA EN ADMINISTRACION DE EMPRESAS|LICENCIATURA EN CONTABILIDAD|LICENCIATURA EN ADMINISTRACION ADUANERA|INGENIERIA COMERCIAL',
             api_secret: 'CenturiaApi2024!',
@@ -8846,7 +8846,8 @@ function requireStudentAuth(redirectUrl) {
     return true;
 }
 
-function renderStudentLoginOverlay(containerId, onSuccess) {
+function renderStudentLoginOverlay(containerId, onSuccess, opts) {
+    opts = opts || {};
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -8872,11 +8873,13 @@ function renderStudentLoginOverlay(containerId, onSuccess) {
                     </button>
                 </div>
                 <div id="student-login-msg" style="margin-top:12px;font-size:13px;min-height:20px;color:#dc3545;font-weight:600;"></div>
+                ${opts.hideHomeLink ? '' : `
                 <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border,#e2e8f0);">
                     <a href="index.html" style="color:var(--primary,#2563eb);text-decoration:none;font-size:13px;font-weight:600;">
                         <i class="fas fa-home"></i> Volver al inicio
                     </a>
                 </div>
+                `}
             </div>
         </div>
     `;
