@@ -8922,7 +8922,15 @@ const SYSTEM_MODULES = {
     teacher_planilla:     { label: 'Planilla',              icon: 'fa-table',             category: 'docente',    desc: 'Planilla tradicional P/A/AJ' },
     teacher_planificacion:{ label: 'Planificación',         icon: 'fa-calendar-alt',      category: 'docente',    desc: 'Códigos de vinculación y planificación' },
     teacher_panel:        { label: 'Panel Docente',         icon: 'fa-chart-line',        category: 'docente',    desc: 'Estadísticas y gestión docente' },
-    admin_panel:          { label: 'Administración',        icon: 'fa-cogs',              category: 'admin',      desc: 'Gestión de catálogos, estilos y seguridad' }
+    admin_panel:          { label: 'Administración',        icon: 'fa-cogs',              category: 'admin',      desc: 'Gestión de catálogos, estilos y seguridad' },
+    
+    // Unidades de Estudio (1-6)
+    unidad_1:             { label: 'Unidad 1',              icon: 'fa-book',              category: 'estudiante', desc: 'La Sociología: Orígenes, Autores y Doctrinas', html: 'UNIDAD_1_MATERIAL_DE_ESTUDIO.html' },
+    unidad_2:             { label: 'Unidad 2',              icon: 'fa-book',              category: 'estudiante', desc: 'Definiciones y Campos de la Sociología',          html: 'UNIDAD_2_MATERIAL_DE_ESTUDIO.html' },
+    unidad_3:             { label: 'Unidad 3',              icon: 'fa-book',              category: 'estudiante', desc: 'Conducta Humana y Cultura',                       html: 'UNIDAD_3_MATERIAL_DE_ESTUDIO.html' },
+    unidad_4:             { label: 'Unidad 4',              icon: 'fa-book',              category: 'estudiante', desc: 'El Hombre como Ser Social',                      html: 'UNIDAD_4_MATERIAL_DE_ESTUDIO.html' },
+    unidad_5:             { label: 'Unidad 5',              icon: 'fa-book',              category: 'estudiante', desc: 'Libertad y Existencia Humana',                   html: 'UNIDAD_5_MATERIAL_DE_ESTUDIO.html' },
+    unidad_6:             { label: 'Unidad 6',              icon: 'fa-book',              category: 'estudiante', desc: 'Cambio y Conflicto Social',                      html: 'UNIDAD_6_MATERIAL_DE_ESTUDIO.html' }
 };
 
 function getFeaturesConfig() {

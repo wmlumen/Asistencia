@@ -486,6 +486,25 @@
             </div>
         </div>
 
+        <!-- Control de Unidades de Estudio -->
+        <div class="css-editor-section" style="border-top-color: #059669;">
+            <h3 style="color: #059669;"><i class="fas fa-book-open"></i> Control de Unidades de Estudio</h3>
+            <p>Administre la visibilidad de cada unidad en el panel del estudiante. Si una unidad está <strong>Apagada</strong>, no aparecerá en la sección "Lecciones" del alumno.</p>
+            
+            <div class="action-bar" style="margin-bottom: 16px;">
+                <button class="btn btn-success" onclick="habilitarTodasLasUnidades()">
+                    <i class="fas fa-check-double"></i> Mostrar Todas
+                </button>
+                <button class="btn btn-danger" onclick="deshabilitarTodasLasUnidades()">
+                    <i class="fas fa-ban"></i> Apagar Todas
+                </button>
+            </div>
+            
+            <div id="unidades-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px;">
+                <!-- Se renderiza dinámicamente desde JS -->
+            </div>
+        </div>
+
         <!-- Editor CSS -->
         <div class="css-editor-section">
             <h3><i class="fas fa-paint-brush"></i> Editor de Estilos</h3>
@@ -1157,11 +1176,86 @@
             mostrarStatus('Configuración restaurada', 'success');
         }
         
+        /* ============================================================
+           CONTROL DE UNIDADES DE ESTUDIO
+           ============================================================ */
+        
+        const UNIDADES = [
+            { key: 'unidad_1', num: 1, titulo: 'La Sociología: Orígenes, Autores y Doctrinas', html: 'UNIDAD_1_MATERIAL_DE_ESTUDIO.html' },
+            { key: 'unidad_2', num: 2, titulo: 'Definiciones y Campos de la Sociología',          html: 'UNIDAD_2_MATERIAL_DE_ESTUDIO.html' },
+            { key: 'unidad_3', num: 3, titulo: 'Conducta Humana y Cultura',                       html: 'UNIDAD_3_MATERIAL_DE_ESTUDIO.html' },
+            { key: 'unidad_4', num: 4, titulo: 'El Hombre como Ser Social',                      html: 'UNIDAD_4_MATERIAL_DE_ESTUDIO.html' },
+            { key: 'unidad_5', num: 5, titulo: 'Libertad y Existencia Humana',                   html: 'UNIDAD_5_MATERIAL_DE_ESTUDIO.html' },
+            { key: 'unidad_6', num: 6, titulo: 'Cambio y Conflicto Social',                      html: 'UNIDAD_6_MATERIAL_DE_ESTUDIO.html' }
+        ];
+        
+        function renderizarUnidadesAdmin() {
+            const container = document.getElementById('unidades-container');
+            if (!container) return;
+            
+            const config = getFeaturesConfig();
+            let html = '';
+            
+            UNIDADES.forEach(function(u) {
+                const enabled = config[u.key] !== false;
+                const colors = ['#177447', '#2563eb', '#d97706', '#7c3aed', '#db2777', '#dc2626'];
+                const color = colors[u.num - 1];
+                
+                html += '<div style="background: white; border-radius: 8px; border: 1px solid #e0e0e0; overflow: hidden; ' + (enabled ? '' : 'opacity: 0.6;') + '">';
+                html += '<div style="display: flex; align-items: center; gap: 12px; padding: 14px; border-bottom: 1px solid #f0f0f0;">';
+                html += '<div style="width: 36px; height: 36px; border-radius: 50%; background: ' + color + '; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0;">' + u.num + '</div>';
+                html += '<div style="flex: 1; min-width: 0;">';
+                html += '<div style="font-size: 13px; font-weight: 600; color: ' + (enabled ? '#333' : '#999') + ';">Unidad ' + u.num + '</div>';
+                html += '<div style="font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + u.titulo + '</div>';
+                html += '</div>';
+                html += '<label class="toggle-switch">';
+                html += '<input type="checkbox" ' + (enabled ? 'checked' : '') + ' onchange="toggleUnidadAdmin(\'' + u.key + '\', this.checked)">';
+                html += '<span class="toggle-slider" style="background-color: ' + (enabled ? color : '#ccc') + ';"></span>';
+                html += '</label>';
+                html += '</div>';
+                html += '<div style="display: flex; gap: 6px; padding: 10px 14px; background: #fafafa;">';
+                html += '<a href="' + u.html + '" target="_blank" class="btn btn-info" style="flex: 1; justify-content: center; font-size: 12px; text-decoration: none;"><i class="fas fa-eye"></i> Mostrar</a>';
+                html += '<a href="' + u.html + '" target="_blank" class="btn btn-warning" style="flex: 1; justify-content: center; font-size: 12px; text-decoration: none;"><i class="fas fa-edit"></i> Editar</a>';
+                html += '<button class="btn btn-danger" style="flex: 1; justify-content: center; font-size: 12px;" onclick="eliminarUnidadAdmin(\'' + u.key + '\', \'' + u.num + '\')"><i class="fas fa-trash"></i> Eliminar</button>';
+                html += '</div>';
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function toggleUnidadAdmin(moduleKey, enabled) {
+            toggleModule(moduleKey, enabled);
+            renderizarUnidadesAdmin();
+            mostrarStatus('Unidad ' + moduleKey.replace('unidad_', '') + ' ' + (enabled ? 'visible para estudiantes' : 'oculta para estudiantes'), enabled ? 'success' : 'info');
+        }
+        
+        function habilitarTodasLasUnidades() {
+            UNIDADES.forEach(function(u) { toggleModule(u.key, true); });
+            renderizarUnidadesAdmin();
+            mostrarStatus('Todas las unidades visibles para estudiantes', 'success');
+        }
+        
+        function deshabilitarTodasLasUnidades() {
+            if (!confirm('¿Apagar todas las unidades? No serán visibles para los estudiantes.')) return;
+            UNIDADES.forEach(function(u) { toggleModule(u.key, false); });
+            renderizarUnidadesAdmin();
+            mostrarStatus('Todas las unidades ocultas para estudiantes', 'info');
+        }
+        
+        function eliminarUnidadAdmin(moduleKey, num) {
+            if (!confirm('¿Está seguro de eliminar la Unidad ' + num + '? Esta acción ocultará la unidad del panel del estudiante.')) return;
+            toggleModule(moduleKey, false);
+            renderizarUnidadesAdmin();
+            mostrarStatus('Unidad ' + num + ' eliminada del panel del estudiante', 'info');
+        }
+        
         // Inicializar
         aplicarCSSGuardado();
         cargarCSSPersonalizado();
         cargarConfiguracionSeguridad();
         renderizarModulosAdmin();
+        renderizarUnidadesAdmin();
         cargarCatalogos().catch(err => {
             console.error('Error inicializando:', err);
             cargarDefaults();

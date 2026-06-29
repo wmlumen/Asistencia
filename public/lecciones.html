@@ -6,6 +6,7 @@
     <title>Lecciones - Sociología - Instituto Superior Centuria</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="student-premium.css">
+    <script src="script.js?v=2"></script>
     <style>
         .units-grid {
             max-width: 1000px;
@@ -129,8 +130,13 @@
         </div>
     </header>
 
+    <div id="empty-unidades-msg" style="display: none; text-align: center; padding: 60px 20px; max-width: 1000px; margin: 0 auto;">
+        <i class="fas fa-book-open" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+        <h3 style="color: #999; font-size: 18px; margin-bottom: 8px;">No hay unidades disponibles</h3>
+        <p style="color: #bbb; font-size: 13px;">El docente ha deshabilitado todas las unidades de estudio. Consulta con tu profesor para más información.</p>
+    </div>
     <div class="units-grid">
-        <a href="UNIDAD_1_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-1">
+        <a href="UNIDAD_1_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-1" id="card-u1">
             <div class="card-top">
                 <div class="unit-number">1</div>
                 <div class="unit-title">La Sociología: Orígenes, Autores y Doctrinas</div>
@@ -139,7 +145,7 @@
             <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
         </a>
 
-        <a href="UNIDAD_2_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-2">
+        <a href="UNIDAD_2_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-2" id="card-u2">
             <div class="card-top">
                 <div class="unit-number u2">2</div>
                 <div class="unit-title">Definiciones y Campos de la Sociología</div>
@@ -148,7 +154,7 @@
             <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
         </a>
 
-        <a href="UNIDAD_3_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-3">
+        <a href="UNIDAD_3_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-3" id="card-u3">
             <div class="card-top">
                 <div class="unit-number u3">3</div>
                 <div class="unit-title">Conducta Humana y Cultura</div>
@@ -157,7 +163,7 @@
             <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
         </a>
 
-        <a href="UNIDAD_4_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-4">
+        <a href="UNIDAD_4_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-4" id="card-u4">
             <div class="card-top">
                 <div class="unit-number u4">4</div>
                 <div class="unit-title">El Hombre como Ser Social</div>
@@ -166,7 +172,7 @@
             <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
         </a>
 
-        <a href="UNIDAD_5_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-5">
+        <a href="UNIDAD_5_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-5" id="card-u5">
             <div class="card-top">
                 <div class="unit-number u5">5</div>
                 <div class="unit-title">Libertad y Existencia Humana</div>
@@ -175,7 +181,7 @@
             <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
         </a>
 
-        <a href="UNIDAD_6_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-6">
+        <a href="UNIDAD_6_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-6" id="card-u6">
             <div class="card-top">
                 <div class="unit-number u6">6</div>
                 <div class="unit-title">Cambio y Conflicto Social</div>
@@ -188,6 +194,50 @@
     <footer class="premium-footer">
         <i class="fas fa-graduation-cap"></i> Instituto Superior Centuria — Sociología — Material de Estudio
     </footer>
+
+<script>
+// Respetar visibilidad de unidades configurada desde admin.html
+function aplicarVisibilidadUnidades() {
+    function check() {
+        if (typeof isModuleEnabled !== 'function') {
+            setTimeout(check, 100);
+            return;
+        }
+        
+        const unidades = [
+            { key: 'unidad_1', cardId: 'card-u1' },
+            { key: 'unidad_2', cardId: 'card-u2' },
+            { key: 'unidad_3', cardId: 'card-u3' },
+            { key: 'unidad_4', cardId: 'card-u4' },
+            { key: 'unidad_5', cardId: 'card-u5' },
+            { key: 'unidad_6', cardId: 'card-u6' }
+        ];
+        
+        let visibles = 0;
+        unidades.forEach(function(u) {
+            const card = document.getElementById(u.cardId);
+            if (card) {
+                const enabled = isModuleEnabled(u.key);
+                card.style.display = enabled ? '' : 'none';
+                if (enabled) visibles++;
+            }
+        });
+        
+        // Si ninguna unidad está visible, mostrar mensaje
+        const emptyMsg = document.getElementById('empty-unidades-msg');
+        if (emptyMsg) {
+            emptyMsg.style.display = visibles === 0 ? 'block' : 'none';
+        }
+    }
+    check();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', aplicarVisibilidadUnidades);
+} else {
+    aplicarVisibilidadUnidades();
+}
+</script>
 
 </body>
 </html>
