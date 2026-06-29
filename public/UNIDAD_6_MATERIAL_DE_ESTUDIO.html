@@ -7,86 +7,20 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="student-premium.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap');
-        
-        :root {
-            --primary: #28a745;
-            --primary-dark: #1c7c4a;
-            --primary-light: #eafaf1;
-            --color-secondary: #1e1e1e;
-            --font-title: 'Playfair Display', serif;
-            --font-body: 'Open Sans', sans-serif;
-        }
-
-        body {
-            font-family: var(--font-body);
-        }
-        
-        h1, h2, h3, h4, .font-title {
-            font-family: var(--font-title);
-            color: var(--color-secondary);
-        }
-
-        .step-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            margin-bottom: 2rem;
-            overflow: hidden;
-            border-left: 6px solid var(--primary);
-        }
-
-        .step-header {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        /* Acento verde para step-number (coherente con el logo Centuria) */
         .step-number {
-            background: var(--primary);
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
-
-        .content-padding {
-            padding: 1.5rem;
-        }
-
-        .highlight-box {
-            background: var(--primary-light);
-            border-radius: 8px;
-            padding: 1rem;
-            border: 1px solid #bbd7f5;
-        }
-
-        .highlight-box h3, .highlight-box h4 {
-            color: var(--primary-dark) !important;
+            background: #28a745 !important;
         }
 
         .glossary-term {
-            color: var(--primary);
+            color: #28a745;
             font-weight: 600;
         }
-
-        .text-primary { color: var(--primary); }
-        .bg-primary { background-color: var(--primary); }
-        .text-secondary { color: var(--color-secondary); }
 
         @media print {
             .no-print { display: none; }
             body { background: white; padding: 0; margin: 0; }
-            .step-card { box-shadow: none; border: 1px solid #e2e8f0; border-left: 6px solid var(--primary); page-break-inside: avoid; }
+            .step-card { box-shadow: none; border: 1px solid #e2e8f0; border-left: 6px solid #28a745; page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -432,7 +366,6 @@
                     <p style="color:var(--text-secondary);font-style:italic;font-size:11px;">Después de estudiar Sociología, ¿tengo una visión más amplia y empática de los conflictos organizacionales, o sigo creyendo que todo se resuelve con "más autoridad y castigo"?</p>
                 </div>
             </div>
-        </section>
         </section>
 
         <!-- 8. BIBLIOGRAFÍA DE LA CÁTEDRA -->
