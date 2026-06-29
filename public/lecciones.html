@@ -5,124 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lecciones - Sociología - Instituto Superior Centuria</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="student-premium.css">
+    <link rel="stylesheet" href="lesson.css">
     <script src="script.js?v=2"></script>
-    <style>
-        .units-grid {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 32px 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
 
-        .unit-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-            transition: var(--transition);
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            border-left: 5px solid var(--primary);
-        }
-
-        .unit-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .unit-card .card-top {
-            padding: 20px 20px 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .unit-card .unit-number {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .unit-card .unit-number.u2 { background: #2563eb; }
-        .unit-card .unit-number.u3 { background: #d97706; }
-        .unit-card .unit-number.u4 { background: #7c3aed; }
-        .unit-card .unit-number.u5 { background: #db2777; }
-        .unit-card .unit-number.u6 { background: #dc2626; }
-
-        .unit-card .unit-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text);
-            line-height: 1.3;
-        }
-
-        .unit-card .card-body {
-            padding: 0 20px 16px;
-            font-size: 12px;
-            color: var(--text-muted);
-            flex: 1;
-        }
-
-        .unit-card .card-footer {
-            padding: 10px 20px;
-            border-top: 1px solid var(--border);
-            font-size: 11px;
-            color: var(--primary);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .unit-card:hover .card-footer {
-            color: var(--primary-dark);
-        }
-
-        .unidad-1 { border-left-color: var(--primary); }
-        .unidad-2 { border-left-color: #2563eb; }
-        .unidad-3 { border-left-color: #d97706; }
-        .unidad-4 { border-left-color: #7c3aed; }
-        .unidad-5 { border-left-color: #db2777; }
-        .unidad-6 { border-left-color: #dc2626; }
-
-        .premium-footer {
-            text-align: center;
-            padding: 24px;
-            font-size: 11px;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border);
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .premium-footer i {
-            margin-right: 4px;
-        }
-
-        @media (max-width: 640px) {
-            .page-header h1 { font-size: 20px; }
-            .units-grid { grid-template-columns: 1fr; padding: 16px; gap: 14px; }
-            .unit-card .unit-title { font-size: 14px; }
-        }
-    </style>
+    <!-- Sin estilos específicos de página — todo en lesson.css -->
 </head>
 <body>
 
-    <header class="page-header">
-        <img class="page-header-logo" src="logo_centuria_blanco_1.png" alt="Centuria">
+    <header class="lesson-header">
         <h1><i class="fas fa-book-open"></i> Lecciones</h1>
         <p>Material de Estudio — Sociología — Unidades 1 a 6</p>
         <div class="header-nav">
@@ -130,68 +20,76 @@
         </div>
     </header>
 
-    <div id="empty-unidades-msg" style="display: none; text-align: center; padding: 60px 20px; max-width: 1000px; margin: 0 auto;">
-        <i class="fas fa-book-open" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
-        <h3 style="color: #999; font-size: 18px; margin-bottom: 8px;">No hay unidades disponibles</h3>
-        <p style="color: #bbb; font-size: 13px;">El docente ha deshabilitado todas las unidades de estudio. Consulta con tu profesor para más información.</p>
+    <div class="lesson-container">
+
+        <!-- Mensaje de estado vacío (cuando el docente apaga todas) -->
+        <div id="empty-unidades-msg" class="empty-state no-print" style="display: none;">
+            <i class="fas fa-book-open"></i>
+            <h3>No hay unidades disponibles</h3>
+            <p>El docente ha deshabilitado todas las unidades de estudio. Consulta con tu profesor para más información.</p>
+        </div>
+
+        <!-- Grid de tarjetas de unidades -->
+        <div class="units-grid">
+
+            <a href="UNIDAD_1_MATERIAL_DE_ESTUDIO.html" class="lesson-card unidad-1" id="card-u1">
+                <div class="card-header">
+                    <div class="card-number">1</div>
+                    <div class="card-title">La Sociología: Orígenes, Autores y Doctrinas</div>
+                </div>
+                <div class="card-body">Comte, Spencer, Durkheim, Weber, Marx y Pareto — Los padres fundadores y las primeras doctrinas sociológicas.</div>
+                <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
+            </a>
+
+            <a href="UNIDAD_2_MATERIAL_DE_ESTUDIO.html" class="lesson-card unidad-2" id="card-u2">
+                <div class="card-header">
+                    <div class="card-number u2">2</div>
+                    <div class="card-title">Definiciones y Campos de la Sociología</div>
+                </div>
+                <div class="card-body">Objeto de estudio, micro y macrosociología, especialidades, imaginación sociológica y relación con otras ciencias.</div>
+                <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
+            </a>
+
+            <a href="UNIDAD_3_MATERIAL_DE_ESTUDIO.html" class="lesson-card unidad-3" id="card-u3">
+                <div class="card-header">
+                    <div class="card-number u3">3</div>
+                    <div class="card-title">Conducta Humana y Cultura</div>
+                </div>
+                <div class="card-body">Socialización primaria y secundaria, cultura material e inmaterial, etnocentrismo, relativismo cultural y agentes de socialización.</div>
+                <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
+            </a>
+
+            <a href="UNIDAD_4_MATERIAL_DE_ESTUDIO.html" class="lesson-card unidad-4" id="card-u4">
+                <div class="card-header">
+                    <div class="card-number u4">4</div>
+                    <div class="card-title">El Hombre como Ser Social</div>
+                </div>
+                <div class="card-body">Integración social, individualismo, colectivismo, masificación, grupos primarios/secundarios, democracia y anomia.</div>
+                <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
+            </a>
+
+            <a href="UNIDAD_5_MATERIAL_DE_ESTUDIO.html" class="lesson-card unidad-5" id="card-u5">
+                <div class="card-header">
+                    <div class="card-number u5">5</div>
+                    <div class="card-title">Libertad y Existencia Humana</div>
+                </div>
+                <div class="card-body">Acción humana, libertad negativa y positiva, agencia humana, mala fe, seguridad jurídica y realización personal.</div>
+                <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
+            </a>
+
+            <a href="UNIDAD_6_MATERIAL_DE_ESTUDIO.html" class="lesson-card unidad-6" id="card-u6">
+                <div class="card-header">
+                    <div class="card-number u6">6</div>
+                    <div class="card-title">Cambio y Conflicto Social</div>
+                </div>
+                <div class="card-body">Estratificación y movilidad social, modernización, globalización, resistencia al cambio y movimientos sociales.</div>
+                <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
+            </a>
+
+        </div>
     </div>
-    <div class="units-grid">
-        <a href="UNIDAD_1_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-1" id="card-u1">
-            <div class="card-top">
-                <div class="unit-number">1</div>
-                <div class="unit-title">La Sociología: Orígenes, Autores y Doctrinas</div>
-            </div>
-            <div class="card-body">Comte, Spencer, Durkheim, Weber, Marx y Pareto — Los padres fundadores y las primeras doctrinas sociológicas.</div>
-            <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
-        </a>
 
-        <a href="UNIDAD_2_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-2" id="card-u2">
-            <div class="card-top">
-                <div class="unit-number u2">2</div>
-                <div class="unit-title">Definiciones y Campos de la Sociología</div>
-            </div>
-            <div class="card-body">Objeto de estudio, micro y macrosociología, especialidades, imaginación sociológica y relación con otras ciencias.</div>
-            <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
-        </a>
-
-        <a href="UNIDAD_3_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-3" id="card-u3">
-            <div class="card-top">
-                <div class="unit-number u3">3</div>
-                <div class="unit-title">Conducta Humana y Cultura</div>
-            </div>
-            <div class="card-body">Socialización primaria y secundaria, cultura material e inmaterial, etnocentrismo, relativismo cultural y agentes de socialización.</div>
-            <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
-        </a>
-
-        <a href="UNIDAD_4_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-4" id="card-u4">
-            <div class="card-top">
-                <div class="unit-number u4">4</div>
-                <div class="unit-title">El Hombre como Ser Social</div>
-            </div>
-            <div class="card-body">Integración social, individualismo, colectivismo, masificación, grupos primarios/secundarios, democracia y anomia.</div>
-            <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
-        </a>
-
-        <a href="UNIDAD_5_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-5" id="card-u5">
-            <div class="card-top">
-                <div class="unit-number u5">5</div>
-                <div class="unit-title">Libertad y Existencia Humana</div>
-            </div>
-            <div class="card-body">Acción humana, libertad negativa y positiva, agencia humana, mala fe, seguridad jurídica y realización personal.</div>
-            <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
-        </a>
-
-        <a href="UNIDAD_6_MATERIAL_DE_ESTUDIO.html" class="unit-card unidad-6" id="card-u6">
-            <div class="card-top">
-                <div class="unit-number u6">6</div>
-                <div class="unit-title">Cambio y Conflicto Social</div>
-            </div>
-            <div class="card-body">Estratificación y movilidad social, modernización, globalización, resistencia al cambio y movimientos sociales.</div>
-            <div class="card-footer"><i class="fas fa-arrow-right"></i> Ir a la lección</div>
-        </a>
-    </div>
-
-    <footer class="premium-footer">
+    <footer class="lesson-footer">
         <i class="fas fa-graduation-cap"></i> Instituto Superior Centuria — Sociología — Material de Estudio
     </footer>
 
@@ -203,7 +101,7 @@ function aplicarVisibilidadUnidades() {
             setTimeout(check, 100);
             return;
         }
-        
+
         const unidades = [
             { key: 'unidad_1', cardId: 'card-u1' },
             { key: 'unidad_2', cardId: 'card-u2' },
@@ -212,7 +110,7 @@ function aplicarVisibilidadUnidades() {
             { key: 'unidad_5', cardId: 'card-u5' },
             { key: 'unidad_6', cardId: 'card-u6' }
         ];
-        
+
         let visibles = 0;
         unidades.forEach(function(u) {
             const card = document.getElementById(u.cardId);
@@ -222,8 +120,7 @@ function aplicarVisibilidadUnidades() {
                 if (enabled) visibles++;
             }
         });
-        
-        // Si ninguna unidad está visible, mostrar mensaje
+
         const emptyMsg = document.getElementById('empty-unidades-msg');
         if (emptyMsg) {
             emptyMsg.style.display = visibles === 0 ? 'block' : 'none';
