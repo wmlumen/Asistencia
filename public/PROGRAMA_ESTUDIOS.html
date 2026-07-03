@@ -102,6 +102,50 @@
         @media (max-width: 768px) {
             #doc-content { padding: 1.5rem !important; }
         }
+
+        #editorToolbar {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 10px;
+            background: #0f172a;
+            color: #e2e8f0;
+            border-bottom: 1px solid #1e293b;
+        }
+        #editorToolbar button,
+        #editorToolbar label {
+            font-size: 13px;
+        }
+        #editorToolbar button[data-cmd] {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #f8fafc;
+            cursor: pointer;
+        }
+        #editorToolbar button[data-cmd]:hover {
+            background: #334155;
+        }
+        #editorToolbar label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        #editorToolbar input,
+        #editorToolbar select {
+            font-size: 13px;
+        }
+        .editor-actions {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            margin-left: auto;
+        }
     </style>
 </head>
 <body>
@@ -118,6 +162,219 @@
             <button onclick="exportWord()"><i class="fas fa-file-word"></i> Exportar a Word</button>
         </div>
     </header>
+
+    <div class="editor-toolbar" id="editorToolbar">
+        <button type="button" data-cmd="bold" title="Negrita"><b>B</b></button>
+        <button type="button" data-cmd="italic" title="Cursiva"><i>I</i></button>
+        <button type="button" data-cmd="underline" title="Subrayado"><u>U</u></button>
+        <button type="button" data-cmd="justifyLeft" title="Alinear izquierda">Izq</button>
+        <button type="button" data-cmd="justifyCenter" title="Centrar">Centro</button>
+        <button type="button" data-cmd="insertUnorderedList" title="Lista">UL</button>
+        <button type="button" data-cmd="insertOrderedList" title="Numerada">OL</button>
+        <label title="Tamaño">Tamaño <input type="number" id="editorSize" value="16" min="10" max="72"></label>
+        <label title="Fuente">Fuente
+            <select id="editorFont">
+                <option value="Arial">Arial</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+            </select>
+        </label>
+        <span class="editor-actions">
+            <button type="button" id="btnSaveLocal" title="Guardar en este navegador">Guardar local</button>
+            <button type="button" id="btnImportJson" title="Importar JSON guardado">Importar JSON</button>
+            <input type="file" id="importJsonFile" accept="application/json" style="display:none">
+            <button type="button" id="btnExportDocx" title="Exportar a documento Word (HTML)">Exportar Word</button>
+            <button type="button" id="btnPublishJson" title="Exportar JSON para actualizar online">Publicar JSON</button>
+        </span>
+    </div>
+
+    <div style="position:fixed;bottom:18px;right:18px;z-index:9999;background:rgba(0,0,0,0.55);color:#fff;padding:8px 10px;border-radius:10px;font-size:13px;">
+        <label style="cursor:pointer"><input type="checkbox" id="editorToggle"> Modo edición</label>
+    </div>
+
+    <script>
+        (function () {
+            const TOOLBAR = document.getElementById('editorToolbar');
+            const TOGGLE = document.getElementById('editorToggle');
+            const ROOT = document.getElementById('doc-content');
+            const sizeInput = document.getElementById('editorSize');
+            const fontSelect = document.getElementById('editorFont');
+            const AUTO_SAVE_DELAY = 800;
+            let autoSaveTimer = null;
+
+            TOGGLE.addEventListener('change', function () {
+                if (!TOGGLE.checked) {
+                    ROOT.contentEditable = 'false';
+                    document.querySelectorAll('.ce-paragraph.clicked')
+                        .forEach(n => n.style.outline = '');
+                    return;
+                }
+                ROOT.contentEditable = 'true';
+                try { document.documentElement.style.userSelect = 'text'; } catch (e) {}
+                try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
+                ROOT.addEventListener('keydown', function (e) {
+                    try {
+                        if (e.key === 'Tab') {
+                            e.preventDefault();
+                            const ok = document.queryCommandSupported('insertHTML');
+                            document.execCommand(ok ? 'insertHTML' : 'insertText', false, '\u00A0\u00A0\u00A0\u00A0');
+                        }
+                    } catch (err) {}
+                }, true);
+            });
+
+            TOOLBAR.addEventListener('mousedown', function (e) {
+                const btn = e.target.closest('button[data-cmd]');
+                if (!btn) return;
+                e.preventDefault();
+                const cmd = btn.getAttribute('data-cmd');
+                ROOT.focus();
+                if (cmd === 'fontSize') {
+                    document.execCommand('fontSize', false, parseInt(sizeInput.value, 10) || 3);
+                } else if (cmd === 'fontName') {
+                    document.execCommand('fontName', false, fontSelect.value || 'Arial');
+                } else {
+                    document.execCommand(cmd, false, null);
+                }
+                scheduleAutoSave();
+            });
+
+            sizeInput.addEventListener('input', () => {
+                ROOT.focus();
+                document.execCommand('fontSize', false, parseInt(sizeInput.value, 10) || 3);
+                scheduleAutoSave();
+            });
+            fontSelect.addEventListener('change', () => {
+                ROOT.focus();
+                document.execCommand('fontName', false, fontSelect.value || 'Arial');
+                scheduleAutoSave();
+            });
+
+            ROOT.addEventListener('input', scheduleAutoSave);
+
+            function scheduleAutoSave() {
+                if (autoSaveTimer) clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(flushToStorage, AUTO_SAVE_DELAY);
+            }
+            function flushToStorage() {
+                try {
+                    localStorage.setItem('CE_programa_estudios_html', ROOT.innerHTML);
+                    showStatus('Cambios guardados');
+                } catch (err) {
+                    showStatus('No se pudo guardar');
+                }
+            }
+
+            try {
+                const saved = localStorage.getItem('CE_programa_estudios_html');
+                if (saved) {
+                    ROOT.innerHTML = saved;
+                }
+            } catch (err) { }
+
+            document.getElementById('btnSaveLocal').addEventListener('click', function () {
+                flushToStorage();
+            });
+
+            document.getElementById('btnExportDocx').addEventListener('click', function () {
+                const htmlContent = buildExportHtml();
+                const blob = new Blob(['\ufeff<!DOCTYPE html><html><head><meta charset="utf-8"><title>Programa de Estudios</title></head><body>' + htmlContent + '</body></html>'], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'PROGRAMA_ESTUDIOS.doc';
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+                showStatus('Exportación lista');
+            });
+
+            document.getElementById('btnPublishJson').addEventListener('click', function () {
+                const payload = {
+                    url: location.href,
+                    title: document.title,
+                    updatedAt: new Date().toISOString(),
+                    html: ROOT.innerHTML
+                };
+                const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'PROGRAMA_ESTUDIOS.update.json';
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+                showStatus('JSON listo para subir o importar');
+            });
+
+            const importFileInput = document.getElementById('importJsonFile');
+            document.getElementById('btnImportJson').addEventListener('click', function () {
+                if (importFileInput) importFileInput.click();
+            });
+            if (importFileInput) {
+                importFileInput.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function (ev) {
+                        try {
+                            const payload = JSON.parse(ev.target.result || '{}');
+                            if (payload.html) {
+                                ROOT.innerHTML = payload.html;
+                                flushToStorage();
+                                showStatus('JSON importado');
+                            } else {
+                                showStatus('JSON inválido');
+                            }
+                        } catch (err) {
+                            showStatus('Error leyendo JSON');
+                        }
+                    };
+                    reader.readAsText(file);
+                });
+            }
+
+            function buildExportHtml() {
+                const tmp = document.createElement('div');
+                tmp.appendChild(ROOT.cloneNode(true));
+                const editable = tmp.querySelector('[contenteditable]');
+                if (editable) editable.removeAttribute('contenteditable');
+                tmp.querySelectorAll('script').forEach(n => n.remove());
+                const hideToolbar = tmp.querySelector('#editorToolbar');
+                if (hideToolbar) hideToolbar.remove();
+                return tmp.innerHTML;
+            }
+
+            let statusTimer = null;
+            function showStatus(message) {
+                let badge = TOOLBAR.querySelector('.editor-status');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'editor-status';
+                    badge.style.marginLeft = '10px';
+                    TOOLBAR.appendChild(badge);
+                }
+                badge.textContent = message;
+                if (statusTimer) clearTimeout(statusTimer);
+                statusTimer = setTimeout(() => { badge.textContent = ''; }, 1800);
+            }
+        })();
+    </script>
+
+    <script>
+        function exportWord() {
+            var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Programa de Estudios</title></head><body>";
+            var footer = "</body></html>";
+            var sourceHTML = header + document.getElementById("doc-content").innerHTML + footer;
+            
+            var source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            var fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = 'Programa_Estudios_Sociologia.doc';
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+        }
+    </script>
 
     <div class="premium-container">
         <div class="premium-card" style="margin-bottom:24px;">
