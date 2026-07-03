@@ -1318,15 +1318,52 @@
             .side-panel { height: auto; max-height: 500px; margin-top: 16px; }
         }
 
-        @media (max-width: 640px) {
-            .main-wrapper { padding: 12px; gap: 12px; }
-            .header-card { padding: 16px 18px; }
+        @media (max-width: 880px) {
+            .main-wrapper { padding: 14px; gap: 14px; }
+            .top-row { grid-template-columns: 1fr; }
+            .qr-top-card { flex-direction: row; align-items: center; gap: 12px; padding: 12px; }
+            .qr-top-wrap { height: 56px; width: auto; flex: 0 0 auto; }
+            .qr-top-card.active,
+            .qr-top-card.active-double { position: fixed; inset: 0; width: 100vw; height: 100vh; border-radius: 0; padding: 24px; background: rgba(255,255,255,0.97); }
+            .qr-top-card.active .qr-top-wrap,
+            .qr-top-card.active-double .qr-top-wrap { height: auto; max-width: min(90vw, 420px); width: 100%; }
+            .link-box { flex-wrap: wrap; gap: 8px; }
+            .link-box button { width: 100%; justify-content: center; }
+            .form-row { grid-template-columns: 1fr; }
+            .career-list { grid-template-columns: 1fr; }
+            .side-panel { max-height: none; }
             .header-card h1 { font-size: 18px; }
             .header-card h1 i { width: 32px; height: 32px; font-size: 14px; }
             .form-card { padding: 14px; }
+            .btn-submit { padding: 12px 16px; font-size: 14px; }
+            input, select, textarea { font-size: 14px; }
             .career-btn { padding: 10px 12px; font-size: 12px; }
             .career-btn .icon-box { width: 28px; height: 28px; font-size: 12px; }
-            .btn-submit { padding: 10px 16px; font-size: 13px; }
+
+            /* Tabla mobile-first */
+            .table-wrap { overflow-x: auto; }
+            table { min-width: 520px; }
+            thead th { font-size: 10px; padding: 6px 8px; }
+            tbody td { font-size: 11px; padding: 6px 8px; }
+            .estado-badge { font-size: 10px; padding: 3px 8px; }
+        }
+
+        @media (max-width: 480px) {
+            html { font-size: 15px; }
+            body { font-size: 15px; }
+            .main-wrapper { padding: 10px; gap: 10px; }
+            .header-card { padding: 14px; }
+            .header-card h1 { font-size: 16px; }
+            .header-card h1 i { width: 28px; height: 28px; font-size: 13px; }
+            .header-card p { font-size: 12px; }
+            .form-card { padding: 12px; }
+            .btn-submit { padding: 12px; font-size: 14px; }
+            input, select, textarea { font-size: 15px; padding: 10px 12px; }
+            .career-btn { padding: 10px 14px; font-size: 13px; }
+            table { min-width: 480px; }
+            .institutional-header { padding: 12px 14px; }
+            .institutional-header h1 { font-size: 15px; }
+            .institutional-header p { font-size: 11px; }
         }
 
         /* === Loading State === */
