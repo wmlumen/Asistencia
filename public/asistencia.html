@@ -1305,7 +1305,7 @@
             color: #856404;
         }
 
-        /* === Responsive === */
+        /* === Responsive Base === */
         @media (max-width: 1200px) {
             body { overflow: auto; height: auto; }
             .main-wrapper {
@@ -1318,20 +1318,41 @@
             .side-panel { height: auto; max-height: 500px; margin-top: 16px; }
         }
 
-        @media (max-width: 880px) {
-            .main-wrapper { padding: 14px; gap: 14px; }
+        @media (max-width: 1100px) {
             .top-row { grid-template-columns: 1fr; }
-            .qr-top-card { flex-direction: row; align-items: center; gap: 12px; padding: 12px; }
-            .qr-top-wrap { height: 56px; width: auto; flex: 0 0 auto; }
+            .qr-top-card { 
+                flex-direction: row; 
+                align-items: center; 
+                gap: 12px; 
+                padding: 12px; 
+            }
+            .qr-top-wrap { 
+                height: 56px; 
+                width: auto; 
+                flex: 0 0 auto; 
+            }
             .qr-top-card.active,
-            .qr-top-card.active-double { position: fixed; inset: 0; width: 100vw; height: 100vh; border-radius: 0; padding: 24px; background: rgba(255,255,255,0.97); }
+            .qr-top-card.active-double { 
+                position: fixed; 
+                inset: 0; 
+                width: 100vw; 
+                height: 100vh; 
+                border-radius: 0; 
+                padding: 24px; 
+                background: rgba(255,255,255,0.98); 
+                backdrop-filter: blur(8px);
+            }
             .qr-top-card.active .qr-top-wrap,
-            .qr-top-card.active-double .qr-top-wrap { height: auto; max-width: min(90vw, 420px); width: 100%; }
+            .qr-top-card.active-double .qr-top-wrap { 
+                height: auto; 
+                max-width: min(85vw, 380px); 
+                width: 100%; 
+            }
             .link-box { flex-wrap: wrap; gap: 8px; }
             .link-box button { width: 100%; justify-content: center; }
-            .form-row { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr !important; }
             .career-list { grid-template-columns: 1fr; }
-            .side-panel { max-height: none; }
+            .side-panel { max-height: none; height: auto; }
             .header-card h1 { font-size: 18px; }
             .header-card h1 i { width: 32px; height: 32px; font-size: 14px; }
             .form-card { padding: 14px; }
@@ -1339,31 +1360,210 @@
             input, select, textarea { font-size: 14px; }
             .career-btn { padding: 10px 12px; font-size: 12px; }
             .career-btn .icon-box { width: 28px; height: 28px; font-size: 12px; }
-
-            /* Tabla mobile-first */
-            .table-wrap { overflow-x: auto; }
-            table { min-width: 520px; }
-            thead th { font-size: 10px; padding: 6px 8px; }
-            tbody td { font-size: 11px; padding: 6px 8px; }
-            .estado-badge { font-size: 10px; padding: 3px 8px; }
+            .estado-toggle { flex-wrap: wrap; }
+            .estado-btn { min-width: 120px; }
         }
 
-        @media (max-width: 480px) {
-            html { font-size: 15px; }
-            body { font-size: 15px; }
-            .main-wrapper { padding: 10px; gap: 10px; }
-            .header-card { padding: 14px; }
-            .header-card h1 { font-size: 16px; }
-            .header-card h1 i { width: 28px; height: 28px; font-size: 13px; }
-            .header-card p { font-size: 12px; }
-            .form-card { padding: 12px; }
-            .btn-submit { padding: 12px; font-size: 14px; }
-            input, select, textarea { font-size: 15px; padding: 10px 12px; }
-            .career-btn { padding: 10px 14px; font-size: 13px; }
-            table { min-width: 480px; }
-            .institutional-header { padding: 12px 14px; }
+        /* Tablet pequeño / phablet */
+        @media (max-width: 768px) {
+            .main-wrapper { padding: 12px; gap: 12px; }
+            .institutional-header { padding: 10px 14px; }
+            .institutional-header img { height: 32px; }
             .institutional-header h1 { font-size: 15px; }
             .institutional-header p { font-size: 11px; }
+            .institutional-header button, 
+            .institutional-header a { 
+                padding: 6px 12px; 
+                font-size: 11px; 
+            }
+            .header-card { padding: 14px 16px; }
+            .header-card h1 { font-size: 16px; }
+            .header-card p { font-size: 12px; line-height: 1.4; }
+            .form-card { padding: 12px; }
+            .form-group label { font-size: 12px; }
+            .btn-submit { padding: 12px; font-size: 14px; }
+            input, select, textarea { 
+                font-size: 14px; 
+                padding: 10px 12px; 
+            }
+            .career-btn { 
+                padding: 10px 12px; 
+                font-size: 12px; 
+                min-height: 48px;
+            }
+            .career-btn .check { width: 18px; height: 18px; font-size: 10px; }
+            .qr-top-wrap { height: 50px; }
+            .qr-top-label { font-size: 8px; }
+            .qr-top-hint { font-size: 8px; }
+            .status-msg { font-size: 11px; padding: 8px 10px; }
+
+            /* Tabla responsiva mejorada */
+            .table-wrap { 
+                overflow-x: auto; 
+                -webkit-overflow-scrolling: touch;
+            }
+            table { 
+                min-width: 540px;
+                font-size: 11px;
+            }
+            thead th { 
+                font-size: 10px; 
+                padding: 6px 8px;
+                white-space: nowrap;
+            }
+            tbody td { 
+                font-size: 11px; 
+                padding: 6px 8px;
+                word-wrap: break-word;
+            }
+            .fecha-header td { padding: 5px 8px !important; }
+            .fecha-texto { font-size: 10px; }
+            .fecha-count { font-size: 9px; padding: 1px 6px; }
+            .registros-count { padding: 6px 10px; }
+            .registros-count .number { font-size: 18px; }
+            .registros-count .label { font-size: 7px; }
+        }
+
+        /* Móvil pequeño */
+        @media (max-width: 540px) {
+            html, body { 
+                font-size: 14px;
+                -webkit-text-size-adjust: 100%;
+            }
+            .main-wrapper { padding: 10px; gap: 10px; }
+            
+            /* Header institucional responsive */
+            .institutional-header { 
+                padding: 8px 10px; 
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .institutional-header img { height: 28px; }
+            .institutional-header > div {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .institutional-header h1 { font-size: 13px; }
+            .institutional-header p { font-size: 10px; }
+            .institutional-header button,
+            .institutional-header a { 
+                padding: 5px 10px; 
+                font-size: 10px; 
+                border-radius: 16px;
+            }
+            
+            /* Top row */
+            .top-row { gap: 10px; }
+            .header-card { padding: 12px; }
+            .header-card h1 { font-size: 15px; }
+            .header-card p { font-size: 11px; }
+            .qr-top-card { padding: 10px; gap: 8px; }
+            .qr-top-wrap { height: 44px; }
+            .qr-top-label { font-size: 7px; letter-spacing: 0.05em; }
+            .qr-top-hint { font-size: 7px; }
+            .qr-top-card.active .qr-top-wrap,
+            .qr-top-card.active-double .qr-top-wrap { 
+                max-width: min(90vw, 320px); 
+            }
+            
+            /* Formulario */
+            .form-card { padding: 10px; }
+            .form-row { gap: 8px; }
+            .form-group { margin-bottom: 10px; }
+            .form-group label { font-size: 11px; }
+            input, select, textarea { 
+                font-size: 14px; 
+                padding: 10px 12px;
+                min-height: 44px;
+            }
+            .btn-submit { 
+                padding: 12px 16px; 
+                font-size: 14px;
+                min-height: 48px;
+            }
+            
+            /* Career buttons */
+            .career-btn { 
+                padding: 10px 12px; 
+                font-size: 11px;
+                min-height: 48px;
+            }
+            .career-btn .icon-box { 
+                width: 26px; 
+                height: 26px; 
+                font-size: 11px;
+            }
+            .career-btn .sub { font-size: 10px; }
+            
+            /* Estado toggle */
+            .estado-toggle { gap: 6px; }
+            .estado-btn { 
+                min-width: 100px;
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+            .estado-btn i { font-size: 11px; }
+            
+            /* Link box */
+            .link-box { flex-direction: column; gap: 6px; }
+            .link-box button { width: 100%; padding: 8px 12px; font-size: 11px; }
+            .link-label { font-size: 10px; }
+            
+            /* Status messages */
+            .status-msg { 
+                font-size: 10px; 
+                padding: 8px 10px;
+                line-height: 1.4;
+            }
+            
+            /* Tabla scrolleable */
+            .table-wrap { overflow-x: auto; }
+            table { min-width: 460px; }
+            thead th { font-size: 9px; padding: 5px 6px; }
+            tbody td { font-size: 10px; padding: 5px 6px; }
+            .registro-row td { font-size: 10px; padding: 5px 6px; }
+            .hora-cell { font-size: 10px; }
+            .empty-state { padding: 30px 12px; }
+            .empty-state i { font-size: 24px; }
+            .empty-state-text { font-size: 12px; }
+            .estado-badge { font-size: 9px; padding: 2px 6px; }
+        }
+
+        /* Móvil muy pequeño / iPhone SE */
+        @media (max-width: 380px) {
+            html, body { font-size: 13px; }
+            .institutional-header { padding: 6px 8px; }
+            .institutional-header img { height: 24px; }
+            .institutional-header h1 { font-size: 12px; }
+            .institutional-header p { font-size: 9px; }
+            .institutional-header button,
+            .institutional-header a { 
+                padding: 4px 8px; 
+                font-size: 9px; 
+            }
+            .main-wrapper { padding: 8px; gap: 8px; }
+            .header-card { padding: 10px; }
+            .header-card h1 { font-size: 14px; }
+            .header-card p { font-size: 10px; }
+            .form-card { padding: 8px; }
+            input, select, textarea { 
+                font-size: 13px; 
+                padding: 8px 10px;
+            }
+            .btn-submit { font-size: 13px; padding: 10px; }
+            .career-btn { padding: 8px 10px; font-size: 10px; }
+            .estado-btn { font-size: 10px; padding: 6px 4px; min-width: 80px; }
+            table { min-width: 400px; }
+        }
+
+        /* Landscape mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .qr-top-card.active-double { padding: 16px; }
+            .qr-top-card.active-double .qr-top-wrap { 
+                max-height: 70vh; 
+            }
+            .institutional-header { padding: 6px 14px; }
+            .institutional-header img { height: 28px; }
         }
 
         /* === Loading State === */
