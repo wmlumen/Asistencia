@@ -1817,7 +1817,7 @@
                     }
                 }
 
-                function validarFormularioAsistencia(form) {
+                async function validarFormularioAsistencia(form) {
                     const estado = document.getElementById('attendance-estado').value;
                     const campos = {
                         'attendance-id': 'Cédula de Identidad',
@@ -1860,13 +1860,149 @@
                             primerCampo.focus();
                             primerCampo.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
-                        return false; // Evitar envío
+                        return false;
                     }
                     
-                    // Si todo OK, dejar que el handler de script.js procese el submit
+                    // Mostrar estado de envío
                     status.className = 'status-msg info';
-                    status.innerHTML = '<i class="fas fa-info-circle"></i><span>Enviando ' + (estado === 'Ausencia Justificada' ? 'ausencia justificada' : 'asistencia') + '...</span>';
-                    return true;
+                    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Guardando asistencia...</span>';
+                    
+                    // ========== RECOLECTAR DATOS ==========
+                    const nombre = document.getElementById('attendance-name').value.trim().toUpperCase();
+                    const cedula = document.getElementById('attendance-id').value.trim().replace(/\./g, '');
+                    const carrera = document.getElementById('attendance-career').value;
+                    const seccion = document.getElementById('attendance-section').value;
+                    const mes = document.getElementById('attendance-mes').value;
+                    const observacion = document.getElementById('attendance-notes').value.trim();
+                    const fechaAusencia = document.getElementById('attendance-fecha-ausencia') ? document.getElementById('attendance-fecha-ausencia').value : '';
+                    const motivo = document.getElementById('attendance-motivo') ? document.getElementById('attendance-motivo').value : '';
+                    
+                    const record = {
+                        marcaTemporal: new Date().toISOString(),
+                        nombre: nombre,
+                        cedula: cedula,
+                        carrera: carrera,
+                        seccion: seccion,
+                        mes: mes,
+                        estado: estado,
+                        fechaAusencia: fechaAusencia,
+                        motivo: motivo,
+                        observacion: observacion
+                    };
+                    
+                    // ========== GUARDAR EN localStorage ==========
+                    try {
+                        // Usar el mismo key que usa script.js (attendanceRecords)
+                        if (typeof saveAttendanceRecords === 'function') {
+                            const appRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+                            appRecords.push(record);
+                            saveAttendanceRecords(appRecords);
+                        }
+                        // También guardar en attendance_records (usado por buscarAlumnoPorCedula)
+                        const records = JSON.parse(localStorage.getItem('attendance_records') || '[]');
+                        records.push(record);
+                        localStorage.setItem('attendance_records', JSON.stringify(records));
+                    } catch (e) {
+                        console.warn('Error saving to localStorage:', e);
+                    }
+                    
+                    // ========== ENVIAR A GOOGLE SHEETS VIA API ==========
+                    let apiOk = false;
+                    try {
+                        const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
+                        const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
+                        if (apiUrl && apiKey) {
+                            const params = new URLSearchParams();
+                            params.append('apiKey', apiKey);
+                            params.append('nombre', nombre);
+                            params.append('cedula', cedula);
+                            params.append('carrera', carrera);
+                            params.append('seccion', seccion);
+                            params.append('mes', mes);
+                            if (estado === 'Ausencia Justificada') {
+                                params.append('modo', 'justificar');
+                                params.append('fechaAusencia', fechaAusencia);
+                                params.append('motivo', motivo);
+                                params.append('observacion', observacion);
+                            } else {
+                                params.append('modo', 'asistencia');
+                                if (observacion) params.append('observacion', observacion);
+                            }
+                            
+                            const resp = await fetch(apiUrl, {
+                                method: 'POST',
+                                mode: 'no-cors',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: params.toString()
+                            });
+                            apiOk = true;
+                        }
+                    } catch (e) {
+                        console.warn('Error sending to API (non-blocking):', e);
+                    }
+                    
+                    // ========== ACTUALIZAR TABLA ASISTENCIAS RECIENTES ==========
+                    try {
+                        if (typeof refreshAttendanceData === 'function') {
+                            // La funcion refresh ya carga de API + localStorage y renderiza
+                            refreshAttendanceData();
+                        } else if (typeof renderPublicAttendancePreview === 'function') {
+                            const records = JSON.parse(localStorage.getItem('attendance_records') || '[]');
+                            renderPublicAttendancePreview(records);
+                        }
+                    } catch (e) {
+                        console.warn('Error refreshing table:', e);
+                    }
+                    
+                    // ========== MOSTAR ÉXITO ==========
+                    status.className = 'status-msg success';
+                    if (estado === 'Ausencia Justificada') {
+                        status.innerHTML = '<i class="fas fa-check-circle"></i><span>Ausencia justificada registrada correctamente.</span>';
+                    } else {
+                        status.innerHTML = '<i class="fas fa-check-circle"></i><span>Asistencia registrada correctamente para <strong>' + nombre + '</strong>.</span>';
+                    }
+                    
+                    // ========== REINICIAR FORMULARIO ==========
+                    setTimeout(function() {
+                        form.reset();
+                        // Reset estado buttons
+                        var btnP = document.getElementById('btn-presente');
+                        var btnA = document.getElementById('btn-ausencia');
+                        if (btnP) {
+                            btnP.className = 'estado-btn active';
+                            btnP.style.borderColor = '#28a745';
+                            btnP.style.background = '#28a745';
+                            btnP.style.color = 'white';
+                        }
+                        if (btnA) {
+                            btnA.className = 'estado-btn';
+                            btnA.style.borderColor = '#e2e8f0';
+                            btnA.style.background = 'white';
+                            btnA.style.color = 'var(--text-secondary)';
+                        }
+                        document.getElementById('attendance-estado').value = 'Presente';
+                        var ca = document.getElementById('campos-ausencia');
+                        if (ca) ca.style.display = 'none';
+                        // Restaurar borde de form-card
+                        var fc = document.querySelector('.form-card');
+                        if (fc) {
+                            fc.style.borderColor = 'var(--border)';
+                            fc.style.boxShadow = 'var(--shadow)';
+                        }
+                        // Restaurar boton submit
+                        var bs = document.getElementById('btn-submit-form');
+                        if (bs) {
+                            bs.style.background = 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)';
+                            bs.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
+                        }
+                        // Reset status after 5 seconds
+                        setTimeout(function() {
+                            status.className = 'status-msg info';
+                            status.innerHTML = '<i class="fas fa-info-circle"></i><span>Complete todos los campos para registrar su asistencia.</span>';
+                        }, 5000);
+                    }, 1500);
+                    
+                    return false; // Siempre prevenir el envío normal del formulario
                 }
 
                 // Variable para controlar el timeout de búsqueda
@@ -2318,28 +2454,38 @@
         inicializarCatalogosAsistencia();
     </script>
     
-    <!-- Autenticación de estudiante -->
+    <!-- Inicialización: no bloquea la pagina publica -->
     <script>
     (function() {
-        function initStudentAuth() {
-            if (typeof isStudentSessionActive !== 'function') {
-                setTimeout(initStudentAuth, 100);
-                return;
+        function initAsistenciaPage() {
+            // La pagina funciona en modo publico por defecto (QR/formulario abierto)
+            // Solo si hay sesion activa de docente o estudiante se activan funciones extra
+            
+            // Verificar si hay sesion de docente activa
+            if (typeof isTeacherSessionActive === 'function' && isTeacherSessionActive()) {
+                console.log('Asistencia: sesion docente activa');
+                if (typeof renderTeacherPanel === 'function') {
+                    renderTeacherPanel();
+                }
             }
-            if (!isStudentSessionActive()) {
-                document.body.innerHTML = '';
-                const div = document.createElement('div');
-                div.id = 'student-login-container';
-                document.body.appendChild(div);
-                renderStudentLoginOverlay('student-login-container', function() {
-                    window.location.reload();
-                });
+            
+            // Verificar si hay sesion de estudiante activa (para autocompletar datos)
+            if (typeof isStudentSessionActive === 'function' && isStudentSessionActive()) {
+                console.log('Asistencia: sesion estudiante activa');
+                if (typeof renderStudentPanel === 'function') {
+                    renderStudentPanel();
+                }
             }
+            
+            // En modo publico (standalone), el formulario de asistencia funciona sin login
+            console.log('Asistencia: pagina iniciada en modo ' + 
+                (typeof isStudentSessionActive === 'function' ? 'con sesion' : 'publico/standalone'));
         }
+        
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initStudentAuth);
+            document.addEventListener('DOMContentLoaded', initAsistenciaPage);
         } else {
-            initStudentAuth();
+            initAsistenciaPage();
         }
     })();
     </script>
@@ -2358,6 +2504,25 @@
             document.addEventListener('DOMContentLoaded', generarQRAsistencia);
         } else {
             generarQRAsistencia();
+        }
+    </script>
+    <script>
+        // Cargar asistencias recientes al iniciar la pagina
+        function initAsistenciasRecientes() {
+            if (typeof refreshAttendanceData === 'function') {
+                refreshAttendanceData().then(function(records) {
+                    console.log('Asistencias recientes cargadas:', records ? records.length : 0, 'registros');
+                }).catch(function(err) {
+                    console.warn('Error al cargar asistencias recientes:', err);
+                });
+            } else {
+                setTimeout(initAsistenciasRecientes, 200);
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAsistenciasRecientes);
+        } else {
+            initAsistenciasRecientes();
         }
     </script>
     <script>
