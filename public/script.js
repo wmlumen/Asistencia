@@ -6,7 +6,7 @@
 
 
 
-// SCRIPT DE CARGA DE CONFIGURACIÃ“N
+// SCRIPT DE CARGA DE CONFIGURACIÓN
 
 
 
@@ -14,7 +14,7 @@
 
 
 
-// Lectura de Datos_asistencia.txt y reemplazo de placeholders
+// Lectura de Datos_Generales.txt y reemplazo de placeholders
 
 
 
@@ -47,23 +47,38 @@
 
 
 let CONFIG = {};
+function coerceConfigValue(value) {
+    if (typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    if (/^\d+$/.test(trimmed)) return Number(trimmed);
+    if (/^(true|false)$/i.test(trimmed)) return trimmed.toLowerCase() === 'true';
+    return trimmed;
+}
 
-// ============================================
-// CSS PERSONALIZADO - Aplicar en todas las páginas
-// ============================================
-(function aplicarCSSPersonalizadoGlobal() {
-    const css = localStorage.getItem('css_personalizado_centuria');
-    if (css && css.trim()) {
-        let styleTag = document.getElementById('css-personalizado');
-        if (!styleTag) {
-            styleTag = document.createElement('style');
-            styleTag.id = 'css-personalizado';
-            document.head.appendChild(styleTag);
-        }
-        styleTag.textContent = css;
+function normalizeConfig(config) {
+    const normalized = {};
+    Object.entries(config || {}).forEach(([key, value]) => {
+        const cleanValue = coerceConfigValue(value);
+        normalized[key] = cleanValue;
+        normalized[key.replace(/_([a-z])/g, (_, chr) => chr.toUpperCase())] = cleanValue;
+    });
+
+    if (normalized.cedula_panel_docente && !normalized.cedula_docente) {
+        normalized.cedula_docente = normalized.cedula_panel_docente;
+        normalized.cedulaDocente = normalized.cedula_panel_docente;
     }
-})();
 
+    return normalized;
+}
+
+function repairMojibakeText(text) {
+    if (typeof text !== 'string' || !/[ÃÂâ]/.test(text)) return text;
+    try {
+        return decodeURIComponent(escape(text));
+    } catch (error) {
+        return text;
+    }
+}
 
 
 
@@ -98,9 +113,24 @@ async function cargarConfiguracion() {
 
 
 
-        let respuesta = await fetch('Datos_asistencia.txt');
+        let respuesta = await fetch('Datos_Generales.txt');
+
+
+
         if (!respuesta.ok) {
-            console.log('No se pudo cargar Datos_asistencia.txt, usando valores por defecto');
+
+            respuesta = await fetch('../data/Datos_Generales.txt');
+
+        }
+
+
+
+        if (!respuesta.ok) {
+
+
+
+            console.log('No se pudo cargar Datos_Generales.txt, usando valores por defecto');
+
 
 
             throw new Error(`Error: ${respuesta.status}`);
@@ -119,7 +149,7 @@ async function cargarConfiguracion() {
 
 
 
-        CONFIG = parsearConfig(texto);
+        CONFIG = normalizeConfig(parsearConfig(texto));
 
 
 
@@ -135,6 +165,71 @@ async function cargarConfiguracion() {
 
 
         console.log('CONFIG loaded from file:', CONFIG);
+
+
+
+
+
+        // Intentar cargar config local (no trackeada) que sobreescribe
+
+
+
+
+        try {
+
+
+
+
+            const localResp = await fetch('Datos_Generales.local.txt');
+
+
+
+
+            if (localResp.ok) {
+
+
+
+
+                const localTexto = await localResp.text();
+
+
+
+
+                const localConfig = parsearConfig(localTexto);
+
+
+
+
+                Object.assign(CONFIG, normalizeConfig(localConfig));
+
+
+
+
+                console.log('CONFIG merged with local overrides');
+
+
+
+
+            }
+
+
+
+
+        } catch (localErr) {
+
+
+
+
+            // No hay config local, se usa solo la principal
+
+
+
+
+        }
+
+
+
+
 
 
 
@@ -158,7 +253,7 @@ async function cargarConfiguracion() {
 
 
 
-        console.log('Usando configuraciÃ³n por defecto:', error.message);
+        console.log('Usando configuración por defecto:', error.message);
 
 
 
@@ -182,7 +277,14 @@ async function cargarConfiguracion() {
 
 
 
-        CONFIG = {
+        CONFIG = normalizeConfig({
+
+
+
+
+
+
+            name_docente: 'Christhian Keim',
 
 
 
@@ -190,7 +292,7 @@ async function cargarConfiguracion() {
 
 
 
-            name_docente: 'Docente',
+            cedula_docente: '1340130',
 
 
 
@@ -198,9 +300,7 @@ async function cargarConfiguracion() {
 
 
 
-
-            cedula_docente: '',
-
+            cedula_prueba: '99',
 
 
 
@@ -208,18 +308,7 @@ async function cargarConfiguracion() {
 
 
 
-            cedula_prueba: '',
-
-
-
-
-
-
-
-
-            grupo: 'S026',
-
-
+            grupo: 'S 026, LV 026 y MJ 026',
 
 
 
@@ -227,7 +316,6 @@ async function cargarConfiguracion() {
 
 
             materia: 'Sociologia',
-
 
 
 
@@ -243,10 +331,7 @@ async function cargarConfiguracion() {
 
 
 
-
-            fecha_examen: '19/05/2026',
-
-
+            fecha_examen: 'S 026: Sábado 27 de 13:00 a 14:00 hs. | LV 026: Sábado 27 de 20:30 a 21:30 hs. | MJ 026: Sábado 27 de 20:30 a 21:30 hs.',
 
 
 
@@ -254,7 +339,6 @@ async function cargarConfiguracion() {
 
 
             tiempo_limite: 60,
-
 
 
 
@@ -270,9 +354,7 @@ async function cargarConfiguracion() {
 
 
 
-
             preguntas_seleccion_multiple: 15,
-
 
 
 
@@ -288,9 +370,7 @@ async function cargarConfiguracion() {
 
 
 
-
             puntaje_total: 30,
-
 
 
 
@@ -306,36 +386,30 @@ async function cargarConfiguracion() {
 
 
 
-
-            link_google_forms: 'https://TU_USUARIO.github.io/Asistencia/asistencia.html',
-
+            link_google_forms: 'https://docs.google.com/forms/d/1vChM_H3-KlrlvSOJPKdSpv4W-80Uv-ObKQKGv99aQUw/viewform',
 
 
 
+            link_asistencia: 'https://docs.google.com/spreadsheets/d/1mMd2UbVxCQqLz4IaMUX88CE-Ov6F4ndp1NjxE9m-pY4',
 
 
 
-
-
-            link_asistencia: 'https://docs.google.com/spreadsheets/d/TU_SHEET_ID/edit',
-
+            link_respuestas: 'https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R3fm8H6pnPxcp_eOHb5s',
 
 
 
-
-
-
-
-
-            link_respuestas: 'https://docs.google.com/spreadsheets/d/1aMr1KYx7FQ4YYh0WgqzWQQ4FZnOytMwae8JWskG5cPQ',
-            asistencia_public_url: 'https://wmlumen.github.io/Asistencia/asistencia.html',
             asistencia_api_url: 'https://script.google.com/macros/s/AKfycbyecUVEJPCYlRSbgA6XiP2vdkpoJ4x9-j6fLPRgHhFh-9dsefSsh9qSdWsXcuJN3eE/exec',
-            asistencia_csv_url: '',
-            asistencia_carreras: 'LICENCIATURA EN ADMINISTRACION DE EMPRESAS|LICENCIATURA EN CONTABILIDAD|LICENCIATURA EN ADMINISTRACION ADUANERA|INGENIERIA COMERCIAL',
-            api_secret: 'CenturiaApi2024!',
-            teacherPassword: 'Docente2026',
-            studentPassword: 'Alumno2026'
-        };
+
+
+
+            api_secret: ''  # definir en config local
+
+
+
+
+
+
+        });
 
 
 
@@ -367,28 +441,22 @@ async function cargarConfiguracion() {
 
 
     reemplazarPlaceholders();
-    
-    // Notificar que CONFIG está listo
-    window.dispatchEvent(new CustomEvent('configLoaded', { detail: CONFIG }));
-    console.log('Evento configLoaded disparado');
+
 }
 
+// ============================================
+// HELPERS DE CONFIGURACIÓN PARA API / SHEETS
+// ============================================
 
+function getAttendanceApiUrl() {
+    return (CONFIG.asistencia_api_url || '').trim();
+}
 
-
-
-
-
-
-
-
-
-
-
-
+function getApiKey() {
+    return ((CONFIG.apiSecret || CONFIG.api_secret || '')).trim();
+}
 
 function parsearConfig(texto) {
-
 
 
 
@@ -443,7 +511,7 @@ function parsearConfig(texto) {
 
 
 
-        // Ignorar lÃ­neas vacÃ­as o comentarios
+        // Ignorar líneas vacías o comentarios
 
 
 
@@ -659,7 +727,7 @@ function reemplazarPlaceholders() {
 
 
 
-    // FunciÃ³n recursiva para buscar y reemplazar en todos los nodos
+    // Función recursiva para buscar y reemplazar en todos los nodos
 
 
 
@@ -683,8 +751,7 @@ function reemplazarPlaceholders() {
 
 
 
-            const texto = nodo.textContent;
-
+            const texto = repairMojibakeText(nodo.textContent);
 
 
 
@@ -771,8 +838,7 @@ function reemplazarPlaceholders() {
 
 
 
-                nodo.textContent = nuevoTexto;
-
+                nodo.textContent = repairMojibakeText(nuevoTexto);
 
 
 
@@ -827,8 +893,7 @@ function reemplazarPlaceholders() {
 
 
 
-                    const valor = nodo.getAttribute(attr);
-
+                    const valor = repairMojibakeText(nodo.getAttribute(attr));
 
 
 
@@ -867,8 +932,7 @@ function reemplazarPlaceholders() {
 
 
 
-                        nodo.setAttribute(attr, nuevoValor);
-
+                        nodo.setAttribute(attr, repairMojibakeText(nuevoValor));
 
 
 
@@ -899,113 +963,7 @@ function reemplazarPlaceholders() {
 
 
 
-
-/* ============================================================
-   CARGAR CATÁLOGOS DESDE GOOGLE SHEETS
-   ============================================================ */
-
-async function cargarCatalogosDesdeAPI() {
-    try {
-        const apiUrl = getApiUrl();
-        const apiKey = getApiKeyLocal();
-        
-        if (!apiUrl || !apiKey) {
-            console.log('API no configurada, usando localStorage');
-            return false;
-        }
-        
-        const url = apiUrl + '?modo=catalogos&apiKey=' + encodeURIComponent(apiKey);
-        console.log('Cargando catálogos desde:', url);
-        
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        
-        const data = await resp.json();
-        
-        if (data.asignaturas && data.secciones && data.carreras) {
-            // Guardar en localStorage en formato compatible
-            const asignaturasFormat = data.asignaturas.map(a => a.codigo + '-' + a.nombre);
-            const seccionesFormat = data.secciones.map(s => s.codigo + '-' + s.nombre);
-            const carrerasFormat = data.carreras.map(c => c.codigo + '-' + c.nombre);
             
-            localStorage.setItem('cat_asignaturas', JSON.stringify(asignaturasFormat));
-            localStorage.setItem('cat_secciones', JSON.stringify(seccionesFormat));
-            localStorage.setItem('cat_carreras', JSON.stringify(carrerasFormat));
-            
-            // También guardar en formato admin
-            const catalogos = {
-                asignaturas: data.asignaturas,
-                secciones: data.secciones,
-                carreras: data.carreras
-            };
-            localStorage.setItem('admin_catalogos_centuria', JSON.stringify(catalogos));
-            
-            console.log('Catálogos cargados desde Sheets:', {
-                asignaturas: data.asignaturas.length,
-                secciones: data.secciones.length,
-                carreras: data.carreras.length
-            });
-            
-            return true;
-        }
-        
-        return false;
-    } catch (err) {
-        console.error('Error cargando catálogos desde API:', err);
-        return false;
-    }
-}
-
-// Función para que las páginas carguen catálogos automáticamente
-async function inicializarCatalogos() {
-    // Intentar cargar desde Sheets primero
-    const cargado = await cargarCatalogosDesdeAPI();
-    
-    if (!cargado) {
-        // Si no se pudo, verificar si hay datos en localStorage
-        const asignaturas = localStorage.getItem('cat_asignaturas');
-        const carreras = localStorage.getItem('cat_carreras');
-        if (!asignaturas || asignaturas === '[]' || !carreras || carreras === '[]') {
-            // Si no hay nada, cargar defaults
-            console.log('No hay catálogos, cargando valores por defecto');
-            const defaults = {
-                asignaturas: [
-                    { codigo: '01', nombre: 'Sociología' },
-                    { codigo: '02', nombre: 'Contabilidad' },
-                    { codigo: '03', nombre: 'Administración' },
-                    { codigo: '04', nombre: 'Derecho' },
-                    { codigo: '05', nombre: 'Economía' },
-                    { codigo: '06', nombre: 'Matemáticas' },
-                    { codigo: '07', nombre: 'Informática' },
-                    { codigo: '08', nombre: 'Pedagogía' },
-                    { codigo: '09', nombre: 'Psicología' },
-                    { codigo: '10', nombre: 'Comunicación' }
-                ],
-                secciones: [
-                    { codigo: '01', nombre: 'S 026' },
-                    { codigo: '02', nombre: 'LV 026' },
-                    { codigo: '03', nombre: 'MJ 026' },
-                    { codigo: '04', nombre: 'Otro' }
-                ],
-                carreras: [
-                    { codigo: '01', nombre: 'Licenciatura Administración de Empresas' },
-                    { codigo: '02', nombre: 'Licenciatura Contabilidad' },
-                    { codigo: '03', nombre: 'Ingeniería Comercial' },
-                    { codigo: '04', nombre: 'Licenciatura Administración Aduanera' },
-                    { codigo: '05', nombre: 'Licenciatura Administración y Gestión Pública' },
-                    { codigo: '06', nombre: 'Maestría Administración y Gestión Pública' },
-                    { codigo: '07', nombre: 'Otro' }
-                ]
-            };
-            
-            localStorage.setItem('admin_catalogos_centuria', JSON.stringify(defaults));
-            localStorage.setItem('cat_asignaturas', JSON.stringify(defaults.asignaturas.map(a => a.codigo + '-' + a.nombre)));
-            localStorage.setItem('cat_secciones', JSON.stringify(defaults.secciones.map(s => s.codigo + '-' + s.nombre)));
-            localStorage.setItem('cat_carreras', JSON.stringify(defaults.carreras.map(c => c.codigo + '-' + c.nombre)));
-        }
-    }
-}
-
 
 
 
@@ -1144,9 +1102,48 @@ async function inicializarCatalogos() {
 
 
 
-
     if (headerGrupo) headerGrupo.textContent = (CONFIG.grupo ? `${CONFIG.grupo} - ` : '') + (CONFIG.ano || 'Periodo Lectivo Actual');
 
+    const examScheduleList = document.getElementById('exam-schedule-list');
+    if (examScheduleList) {
+        const rawSchedule = String(CONFIG.fecha_examen || '').trim();
+        const parts = rawSchedule
+            .split('|')
+            .map(item => item.trim())
+            .filter(Boolean);
+
+        examScheduleList.innerHTML = parts.length
+            ? `
+                <table class="w-full table-fixed border-collapse text-left text-sm text-slate-700">
+                    <thead>
+                        <tr class="bg-emerald-700 text-[10px] font-bold uppercase tracking-[0.12em] text-white">
+                            <th class="px-3 py-2 w-[84px]">Grupo</th>
+                            <th class="px-3 py-2 w-[96px]">Día</th>
+                            <th class="px-3 py-2">Hora habilitada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                ${parts.map(item => {
+                const separatorIndex = item.indexOf(':');
+                const group = separatorIndex >= 0 ? item.slice(0, separatorIndex).trim() : '';
+                const schedule = separatorIndex >= 0 ? item.slice(separatorIndex + 1).trim() : item.trim();
+                const horaMatch = schedule.match(/(\d{1,2}(?::\d{2})?\s*a\s*\d{1,2}(?::\d{2})?\s*hs\.?)/i);
+                const hora = horaMatch ? horaMatch[1].replace(/\s+/g, ' ').trim() : schedule;
+                const dia = horaMatch ? schedule.replace(horaMatch[1], '').trim().replace(/\s+de$/, '').trim() : schedule;
+
+                return `
+                    <tr class="border-t border-emerald-100 bg-white/90 align-top">
+                        <td class="px-3 py-3 font-extrabold text-slate-900">${group || '-'}</td>
+                        <td class="px-3 py-3 font-semibold text-slate-800">${dia || '-'}</td>
+                        <td class="px-3 py-3 font-semibold text-slate-800">${hora || '-'}</td>
+                    </tr>
+                `;
+            }).join('')}
+                    </tbody>
+                </table>
+            `
+            : '<div class="px-3 py-2 text-sm font-semibold text-slate-700">Horario pendiente de configuración</div>';
+    }
 
 
 
@@ -1253,7 +1250,7 @@ async function inicializarCatalogos() {
 
 
 
-// INICIALIZACIÃ“N - EJECUTAR UNA VEZ
+// INICIALIZACIÓN - EJECUTAR UNA VEZ
 
 
 
@@ -1358,7 +1355,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
 
         initTeacherPanel();
-        initAttendanceRegistrationPage();
+
 
 
 
@@ -1398,7 +1395,6 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
 
             initTeacherPanel();
-            initAttendanceRegistrationPage();
 
 
 
@@ -1575,7 +1571,64 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
 
 const STORAGE_KEY = 'teacherRecords';
+const STUDENT_RESULTS_KEY = 'socioResults';
 
+function readArrayStorage(key) {
+    try {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : [];
+    } catch (error) {
+        console.warn(`No se pudo leer ${key}:`, error);
+        return [];
+    }
+}
+
+function normalizeTeacherRecord(record) {
+    if (!record || typeof record !== 'object') return null;
+
+    const fullName = (record.name || record.nombre || '').trim();
+    const score = parseFloat(record.score ?? record.puntaje ?? 0) || 0;
+    const total = parseFloat(record.puntajeTotal ?? CONFIG.puntaje_total ?? 30) || 30;
+    const attempt = parseInt(record.attempt ?? record.intento ?? 1, 10) || 1;
+    const cedula = (record.ci || record.cedula || '').toString().replace(/\D/g, '');
+
+    return {
+        ...record,
+        cedula,
+        nombre: fullName || (record.nombre || ''),
+        apellido: record.apellido || '',
+        puntaje: score,
+        puntajeTotal: total,
+        intento: attempt,
+        fecha: record.date || record.fecha || '',
+        hora: record.time || record.hora || '',
+        respuesta: record.rawAnswers || record.respuesta || '',
+        estadoEnvio: record.googleFormStatus || record.estadoEnvio || '',
+        materia: record.materia || CONFIG.materia || '',
+        grupo: record.grupo || CONFIG.grupo || '',
+        datetime: record.datetime || record.fechaHora || ''
+    };
+}
+
+function mergeTeacherRecords(records) {
+    const merged = new Map();
+
+    records.forEach(record => {
+        const normalized = normalizeTeacherRecord(record);
+        if (!normalized) return;
+        const key = [
+            normalized.cedula || 'sin-ci',
+            normalized.intento || 1,
+            normalized.fecha || '',
+            normalized.hora || '',
+            normalized.datetime || '',
+            normalized.puntaje || 0
+        ].join('|');
+        merged.set(key, { ...(merged.get(key) || {}), ...normalized });
+    });
+
+    return Array.from(merged.values());
+}
 
 
 
@@ -1606,16 +1659,15 @@ function loadRecords() {
 
 
 
-    const data = localStorage.getItem(STORAGE_KEY);
+    const teacherRecords = readArrayStorage(STORAGE_KEY);
+    const studentRecords = readArrayStorage(STUDENT_RESULTS_KEY);
 
 
 
 
 
 
-
-    return data ? JSON.parse(data) : [];
-
+    return mergeTeacherRecords([...teacherRecords, ...studentRecords]);
 
 
 
@@ -1654,8 +1706,7 @@ function saveRecords(records) {
 
 
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mergeTeacherRecords(records)));
 
 
 
@@ -1687,7 +1738,7 @@ function saveRecords(records) {
 
 
 function renderAll() {
-
+    if (!document.getElementById('teacher-panel')) return;
 
 
 
@@ -3223,7 +3274,7 @@ function showExamDetail(r) {
 
 
 
-                    <span class="text-[11px] font-semibold text-slate-600">Puntaje VÃ¡lido</span>
+                    <span class="text-[11px] font-semibold text-slate-600">Puntaje Válido</span>
 
 
 
@@ -4199,7 +4250,7 @@ function formatearRespuestaPDF(texto) {
 
 
 
-                        <span style="display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:bold;text-transform:uppercase;background:${badgeBg};color:${badgeColor};">${esOk ? 'âœ“' : 'âœ—'} ${estado}</span>
+                        <span style="display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:bold;text-transform:uppercase;background:${badgeBg};color:${badgeColor};">${esOk ? '✓' : '✗'} ${estado}</span>
 
 
 
@@ -4439,7 +4490,7 @@ function generarActa(cedula) {
 
 
 
-    if (!allAttempts.length) { alert('No se encontraron registros para esta cÃ©dula.'); return; }
+    if (!allAttempts.length) { alert('No se encontraron registros para esta cédula.'); return; }
 
 
 
@@ -4823,7 +4874,7 @@ function generarActa(cedula) {
 
 
 
-        <div class="subtitle">Acta de Examen â€” ${CONFIG.materia || 'SociologÃ­a'}</div>
+        <div class="subtitle">Acta de Examen — ${CONFIG.materia || 'Sociología'}</div>
 
 
 
@@ -4855,7 +4906,7 @@ function generarActa(cedula) {
 
 
 
-            <p><strong>CÃ©dula:</strong> ${cedula}</p>
+            <p><strong>Cédula:</strong> ${cedula}</p>
 
 
 
@@ -4919,7 +4970,7 @@ function generarActa(cedula) {
 
 
 
-            <div class="pct">${bestPct}% â€” ${aprobado ? 'APROBADO' : 'REPROBADO'}</div>
+            <div class="pct">${bestPct}% — ${aprobado ? 'APROBADO' : 'REPROBADO'}</div>
 
 
 
@@ -5039,7 +5090,7 @@ function generarActa(cedula) {
 
 
 
-        <div class="footer">Documento generado el ${new Date().toLocaleDateString('es-ES')} â€” Sistema de GestiÃ³n AcadÃ©mica</div>
+        <div class="footer">Documento generado el ${new Date().toLocaleDateString('es-ES')} — Sistema de Gestión Académica</div>
 
 
 
@@ -5287,7 +5338,7 @@ function exportAllPDF() {
 
 
 
-/** AutoÃ¢â‚¬â€˜refresh toggle */
+/** Autoâ€‘refresh toggle */
 
 
 
@@ -5495,7 +5546,7 @@ function updateSelectedFilesLabel() {
 
 
 
-        label.textContent = 'NingÃºn archivo seleccionado';
+        label.textContent = 'Ningún archivo seleccionado';
 
 
 
@@ -5591,7 +5642,7 @@ function updateSelectedConfigLabel() {
 
 
 
-        label.textContent = 'NingÃºn archivo de configuraciÃ³n seleccionado';
+        label.textContent = 'Ningún archivo de configuración seleccionado';
 
 
 
@@ -5671,7 +5722,7 @@ function importConfigFile() {
 
 
 
-        alert('Seleccione el archivo Datos_asistencia.txt para cargar la configuraciÃ³n.');
+        alert('Seleccione el archivo Datos_Generales.txt para cargar la configuración.');
 
 
 
@@ -5759,7 +5810,7 @@ function importConfigFile() {
 
 
 
-                alert('El archivo de configuraciÃ³n no tiene datos vÃ¡lidos.');
+                alert('El archivo de configuración no tiene datos válidos.');
 
 
 
@@ -5807,7 +5858,7 @@ function importConfigFile() {
 
 
 
-            alert('ConfiguraciÃ³n de Datos_asistencia cargada correctamente.');
+            alert('Configuración de Datos_Generales cargada correctamente.');
 
 
 
@@ -5823,7 +5874,7 @@ function importConfigFile() {
 
 
 
-            console.error('Error al leer Datos_asistencia.txt:', err);
+            console.error('Error al leer Datos_Generales.txt:', err);
 
 
 
@@ -5831,7 +5882,7 @@ function importConfigFile() {
 
 
 
-            alert('No se pudo leer el archivo de configuraciÃ³n. Verifique que sea un archivo de texto vÃ¡lido.');
+            alert('No se pudo leer el archivo de configuración. Verifique que sea un archivo de texto válido.');
 
 
 
@@ -5993,7 +6044,7 @@ function updateSelectedCSVLabel() {
 
 
 
-    if (!input.files.length) { label.textContent = 'NingÃºn archivo CSV seleccionado'; return; }
+    if (!input.files.length) { label.textContent = 'Ningún archivo CSV seleccionado'; return; }
 
 
 
@@ -6041,7 +6092,7 @@ function importCSVWithUI() {
 
 
 
-            if (!rows.length) { alert('El archivo CSV no contiene datos vÃ¡lidos.'); return; }
+            if (!rows.length) { alert('El archivo CSV no contiene datos válidos.'); return; }
 
 
 
@@ -6237,7 +6288,7 @@ function limpiarResultados() {
 
 
 
-    if (confirm('Â¿Eliminar todos los resultados?')) {
+    if (confirm('¿Eliminar todos los resultados?')) {
 
 
 
@@ -6305,199 +6356,6 @@ function limpiarResultados() {
 
 const ATTENDANCE_KEY = 'attendanceRecords';
 
-const DEFAULT_ATTENDANCE_CAREERS = ['Ingenieria Comercial', 'Contabilidad'];
-
-function getAttendanceApiUrl() {
-    return (CONFIG.asistencia_api_url || '').trim();
-}
-
-function getApiKey() {
-    return ((CONFIG.apiSecret || CONFIG.api_secret || '') ).trim();
-}
-
-function getAttendancePublicUrl() {
-    // El QR y el enlace publico apuntan a la PAGINA WEB (asistencia.html)
-    // El Google Form se abre solo desde el boton "Abrir Formulario"
-    const configured = (CONFIG.asistencia_public_url || '').trim();
-    if (configured) return configured;
-
-    try {
-        return new URL('asistencia.html', window.location.href).toString();
-    } catch (error) {
-        return 'asistencia.html';
-    }
-}
-
-function getAttendanceCsvUrl() {
-    return (CONFIG.asistencia_csv_url || '').trim();
-}
-
-function parseCSVToAttendance(csvText) {
-    const lines = csvText.split(/\r?\n/).filter(line => line.trim());
-    if (lines.length < 2) return [];
-
-    const parseRow = (line) => {
-        const result = [];
-        let current = '';
-        let inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-                result.push(current.trim());
-                current = '';
-            } else {
-                current += char;
-            }
-        }
-        result.push(current.trim());
-        return result.map(v => v.replace(/^"|"$/g, ''));
-    };
-
-    const headers = parseRow(lines[0]).map(h => h.toLowerCase().replace(/\s/g, ''));
-    const findHeader = (...candidates) => {
-        for (const c of candidates) {
-            const idx = headers.indexOf(c.toLowerCase().replace(/\s/g, ''));
-            if (idx !== -1) return idx;
-        }
-        return -1;
-    };
-
-    const idxNombre = findHeader('nombre', 'name', 'studentname', 'alumno', 'nombreyapellido');
-    const idxCedula = findHeader('cedula', 'id', 'studentid', 'ci', 'documento', 'matricula', 'ceduladeidentidad', 'ceduladeidentidad');
-    const idxCarrera = findHeader('carrera', 'career', 'curso', 'carrerauniversitaria');
-    const idxObs = findHeader('observacion', 'notes', 'observation', 'comentario', 'obs');
-    const idxEstado = findHeader('estado', 'state', 'status', 'asistencia', 'condicion');
-    const idxFecha = findHeader('marcatemporal', 'timestamp', 'fecha', 'date', 'hora', 'fechahora');
-
-    const records = [];
-    for (let i = 1; i < lines.length; i++) {
-        const values = parseRow(lines[i]);
-        const nombre = values[idxNombre] || '';
-        const cedula = (values[idxCedula] || '').toString().replace(/\./g, '').trim();
-        const carrera = values[idxCarrera] || '';
-        const observacion = values[idxObs] || '';
-        const estado = (values[idxEstado] || 'Presente').trim();
-        const marcaTemporal = values[idxFecha] || '';
-
-        if (nombre || cedula) {
-            records.push({ nombre, cedula, carrera, observacion, estado, marcaTemporal });
-        }
-    }
-    return records;
-}
-
-async function getAttendanceCareers() {
-    let allCareers = [];
-
-    try {
-        const response = await fetch('cursos.json');
-        if (response.ok) {
-            const data = await response.json();
-            if (Array.isArray(data) && data.length > 0) {
-                allCareers.push(...data.map(c => c.nombre));
-            }
-        }
-    } catch (e) {
-        console.warn('Could not load cursos.json', e);
-    }
-
-    const raw = CONFIG.asistencia_carreras || CONFIG.seccion || '';
-    const configCareers = raw.split(/[\n|,;]+/).map(item => item.trim()).filter(Boolean);
-    allCareers.push(...configCareers);
-
-    if (allCareers.length === 0) {
-        allCareers = DEFAULT_ATTENDANCE_CAREERS;
-    }
-
-    // Filtrar aquellas que tengan un asterisco (*)
-    const activeCareers = allCareers.filter(c => c.includes('*'));
-
-    let finalNames = [];
-    if (activeCareers.length > 0) {
-        // Si hay alguna con asterisco, SOLO mostramos esas (quitando el asterisco)
-        finalNames = activeCareers.map(c => c.replace(/\*/g, '').trim());
-    } else {
-        // Si no hay asteriscos, mostramos todas
-        finalNames = allCareers.map(c => c.replace(/\*/g, '').trim());
-    }
-
-    return [...new Set(finalNames)];
-}
-
-function normalizeAttendanceRecord(record) {
-    const normalized = {
-        marcaTemporal: record.marcaTemporal || record.timestamp || '',
-        nombre: record.nombre || record.studentName || '',
-        cedula: (record.cedula || record.studentId || '').toString().replace(/\./g, '').trim(),
-        carrera: record.carrera || record.career || '',
-        seccion: record.seccion || record.section || '',
-        observacion: record.observacion || record.notes || '',
-        estado: record.estado || 'Presente'
-    };
-
-    return corregirRecord(normalized);
-}
-
-function parseAttendanceResponse(payload) {
-    const source = Array.isArray(payload) ? payload : (Array.isArray(payload?.records) ? payload.records : (Array.isArray(payload?.registros) ? payload.registros : []));
-    return source.map(normalizeAttendanceRecord).filter(r => r.nombre || r.cedula);
-}
-
-async function fetchAttendanceRemoteRecords() {
-    // Intentar leer desde CSV publico primero
-    const csvUrl = getAttendanceCsvUrl();
-    if (csvUrl) {
-        try {
-            const response = await fetch(csvUrl);
-            if (response.ok) {
-                const text = await response.text();
-                const records = parseCSVToAttendance(text);
-                if (records && records.length) return records;
-            }
-        } catch (e) {
-            console.warn('No se pudo leer CSV publico:', e);
-        }
-    }
-
-    const apiUrl = getAttendanceApiUrl();
-    const apiKey = getApiKey();
-    if (apiUrl) {
-        const url = apiKey ? (apiUrl + (apiUrl.includes('?') ? '&' : '?') + 'apiKey=' + encodeURIComponent(apiKey)) : apiUrl;
-        const response = await fetch(url, { method: 'GET' });
-        if (!response.ok) {
-            throw new Error('No se pudo leer la asistencia desde Drive.');
-        }
-        const payload = await response.json();
-        return parseAttendanceResponse(payload);
-    }
-
-    return null;
-}
-
-async function syncAttendanceFromRemote() {
-    const records = await fetchAttendanceRemoteRecords();
-    if (!records) return loadAttendanceRecords();
-    saveAttendanceRecords(records);
-    return records;
-}
-
-function updateAttendanceSourceStatus(message, isError = false) {
-    const target = document.getElementById('attendance-source-status');
-    if (!target) return;
-
-    target.textContent = message;
-    target.className = isError
-        ? 'text-xs text-rose-600 font-medium'
-        : 'text-xs text-slate-500 font-medium';
-}
-
-function updateAttendancePublicLink() {
-    const link = document.getElementById('attendance-public-link');
-    if (!link) return;
-    link.href = getAttendancePublicUrl();
-}
 
 
 
@@ -6559,6 +6417,7 @@ function saveAttendanceRecords(records) {
 
 
 
+
     localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(records));
 
 
@@ -6566,155 +6425,25 @@ function saveAttendanceRecords(records) {
 
 
 
+
 }
 
-async function submitAttendanceRecord(payload) {
-    const apiUrl = getAttendanceApiUrl();
-    const apiKey = getApiKey();
-    const normalized = normalizeAttendanceRecord(payload);
 
-    if (apiUrl) {
-        const body = {
-            studentName: normalized.nombre,
-            studentId: normalized.cedula,
-            career: normalized.carrera,
-            seccion: normalized.seccion || '',
-            notes: normalized.observacion,
-            estado: normalized.estado,
-            timestamp: normalized.marcaTemporal,
-            sourcePage: getAttendancePublicUrl()
-        };
-        
-        // Si es ausencia justificada, enviar fecha de ausencia
-        if (normalized.estado === 'Ausencia Justificada' && payload.fechaAusencia) {
-            body.fechaAusencia = payload.fechaAusencia;
-        }
-        
-        if (apiKey) body.apiKey = apiKey;
 
-        // Enviar datos como query params (mas confiable con Apps Script)
-        const params = new URLSearchParams();
-        Object.keys(body).forEach(key => {
-            if (body[key] !== undefined && body[key] !== null) {
-                params.append(key, body[key]);
-            }
-        });
-        
-        const postUrl = apiUrl + '?' + params.toString();
-        console.log('Enviando POST a:', postUrl);
 
-        let response, responseText;
-        try {
-            response = await fetch(postUrl, { method: 'POST', mode: 'cors', redirect: 'follow', cache: 'no-store', headers: { 'Accept': 'application/json' } });
-            responseText = response.ok ? await response.text() : '';
-        } catch (fetchErr) {
-            console.warn('Fallo de red al guardar asistencia:', fetchErr);
-            throw new Error('Falla de red. Revisá conexión o URL de la API.');
-        }
 
-        let result = {};
-        try { result = JSON.parse(responseText); } catch(e) {}
 
-        if (!response.ok || result.ok === false) {
-            const errText = result.error || result.mensaje || ('HTTP ' + response.status + ': ' + String(responseText || '').slice(0, 200));
-            throw new Error(errText);
-        }
 
-        return normalized;
-    }
 
-    const records = loadAttendanceRecords();
-    records.unshift(normalized);
-    saveAttendanceRecords(records);
-    return normalized;
-}
 
-async function refreshAttendanceData() {
-    try {
-        // Intentar leer desde API (Apps Script Web App)
-        const apiUrl = getAttendanceApiUrl();
-        if (apiUrl) {
-            const records = await syncAttendanceFromRemote();
-            updateAttendanceSourceStatus('Fuente: Drive sincronizado');
-            renderAttendance();
-            renderPublicAttendancePreview(records);
-            return records;
-        }
 
-        // Intentar leer desde CSV publico del Google Form
-        const csvUrl = getAttendanceCsvUrl();
-        if (csvUrl) {
-            try {
-                const response = await fetch(csvUrl);
-                if (response.ok) {
-                    const text = await response.text();
-                    const records = parseCSVToAttendance(text);
-                    updateAttendanceSourceStatus('Fuente: Formulario Google (CSV)');
-                    renderAttendance();
-                    renderPublicAttendancePreview(records);
-                    return records;
-                }
-            } catch (csvError) {
-                console.warn('No se pudo leer CSV:', csvError);
-            }
-        }
 
-        // Fallback: localStorage
-        const records = loadAttendanceRecords();
-        updateAttendanceSourceStatus('Fuente: almacenamiento local');
-        renderAttendance();
-        renderPublicAttendancePreview(records);
-        return records;
-    } catch (error) {
-        updateAttendanceSourceStatus(error.message || 'Error al sincronizar asistencia', true);
-        renderAttendance();
-        renderPublicAttendancePreview(loadAttendanceRecords());
-        throw error;
-    }
-}
 
-function escapeHtml(text) {
-    if (text == null) return '';
-    return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
 
-function renderAttendance(records) {
-    const tbody = document.getElementById('attendance-body');
-    const badge = document.getElementById('attendance-count-badge');
-    const sidebarBadge = document.getElementById('sidebar-attendance-badge');
-    if (!tbody) return;
 
-    const safeRecords = Array.isArray(records) ? records : loadAttendanceRecords();
-    const cedulasUnicas = new Set(safeRecords.map(r => (r.cedula || r.Cedula || r.studentId || '').toString().replace(/\./g, '').trim()).filter(Boolean)).size;
-    const countText = cedulasUnicas + ' asistentes';
-    if (badge) badge.textContent = countText;
-    if (sidebarBadge) sidebarBadge.textContent = cedulasUnicas;
-
-    if (!safeRecords.length) {
-        tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-400"><i class="fas fa-clipboard text-2xl text-slate-300 mb-2 block"></i>Use el módulo de carga para importar los registros de asistencia.</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = safeRecords.slice(0, 100).map(r => {
-        const marcaTemporal = r.marcaTemporal || r['Marca Temporal'] || r['Timestamp'] || r.timestamp || r.Fecha || '';
-        const nombre = r.nombre || r['Nombre'] || r.studentName || r.Nombre || '';
-        const cedula = r.cedula || r['Cédula'] || r['Cedula'] || r.studentId || r.Cedula || '';
-        const carrera = r.carrera || r['Carrera'] || r.career || r.Carrera || '';
-        return '<tr class="hover:bg-slate-50/80 transition-all border-b border-slate-100">' +
-            '<td class="py-3 px-5 text-slate-500">' + escapeHtml(marcaTemporal) + '</td>' +
-            '<td class="py-3 px-5 font-medium text-slate-900">' + escapeHtml(normalizarNombre(nombre)) + '</td>' +
-            '<td class="py-3 px-5 text-slate-600">' + escapeHtml(cedula) + '</td>' +
-            '<td class="py-3 px-5 text-slate-500">' + escapeHtml(carrera) + '</td>' +
-        '</tr>';
-    }).join('');
-}
 
 function updateSelectedAttendanceLabel() {
+
 
 
 
@@ -6745,7 +6474,7 @@ function updateSelectedAttendanceLabel() {
 
 
 
-    label.textContent = input.files.length ? input.files[0].name : 'NingÃºn archivo seleccionado';
+    label.textContent = input.files.length ? input.files[0].name : 'Ningún archivo seleccionado';
 
 
 
@@ -7694,7 +7423,7 @@ async function procesarTodo() {
 
 
 
-    if (results.config) msg.push('configuraciÃ³n cargada');
+    if (results.config) msg.push('configuración cargada');
 
 
 
@@ -7710,7 +7439,7 @@ async function procesarTodo() {
 
 
 
-    const success = msg.length ? 'âœ“ ' + msg.join(', ') + '.' : '';
+    const success = msg.length ? '✓ ' + msg.join(', ') + '.' : '';
 
 
 
@@ -7718,7 +7447,7 @@ async function procesarTodo() {
 
 
 
-    const errorMsg = errors.length ? '\nÃ¢Å¡Â  ' + errors.join('\n') : '';
+    const errorMsg = errors.length ? '\nâš  ' + errors.join('\n') : '';
 
 
 
@@ -7750,44 +7479,349 @@ async function procesarTodo() {
 
 
 
+function renderAttendance() {
 
 
-function renderPublicAttendancePreview(records = loadAttendanceRecords()) {
-    const tbody = document.getElementById('public-attendance-body');
-    const counter = document.getElementById('public-attendance-count');
+
+
+
+
+
+    const records = loadAttendanceRecords();
+
+
+
+
+
+
+
+    const tbody = document.getElementById('attendance-body');
+
+
+
+
+
+
+
+    const badge = document.getElementById('attendance-count-badge');
+
+
+
+
+
+
+
     if (!tbody) return;
 
-    const safeRecords = Array.isArray(records) ? records : [];
-    if (counter) counter.textContent = String(safeRecords.length);
 
-    if (!safeRecords.length) {
-        tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Aun no hay registros para mostrar.</td></tr>';
+
+
+
+
+
+    tbody.innerHTML = '';
+
+
+
+
+
+
+
+    if (badge) badge.textContent = `${records.length} registros`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    if (!records.length) {
+
+
+
+
+
+
+
+        tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-slate-400 bg-slate-200/10">Use el botón "Cargar Asistencia" en el módulo de sincronización para importar los registros.</td></tr>';
+
+
+
+
+
+
+
         return;
+
+
+
+
+
+
+
     }
 
-    tbody.innerHTML = safeRecords.slice(0, 12).map(r => {
-        // Normalizar campos (CSV de Google Form usa nombres diferentes)
-        const marcaTemporal = r.marcaTemporal || r['Marca Temporal'] || r['Timestamp'] || r.timestamp || r.Fecha || '';
-        const nombre = r.nombre || r['Nombre'] || r.studentName || r.Nombre || '';
-        const cedula = r.cedula || r['Cédula'] || r['Cedula'] || r.studentId || r.Cedula || '';
-        const carrera = r.carrera || r['Carrera'] || r.career || r.Carrera || '';
-        
-        return `
-        <tr class="border-b border-slate-100">
-            <td class="px-4 py-3 text-slate-500">${escapeHtml(marcaTemporal)}</td>
-            <td class="px-4 py-3 font-medium text-slate-900">${escapeHtml(normalizarNombre(nombre))}</td>
-            <td class="px-4 py-3 text-slate-600">${escapeHtml(cedula)}</td>
-            <td class="px-4 py-3 text-slate-500">${escapeHtml(carrera)}</td>
-        </tr>
-    `}).join('');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    const unique = [];
+
+
+
+
+
+
+
+    const seen = new Set();
+
+
+
+
+
+
+
+    records.forEach(r => {
+
+
+
+
+
+
+
+        const key = r.cedula + '|' + r.marcaTemporal;
+
+
+
+
+
+
+
+        if (!seen.has(key)) {
+
+
+
+
+
+
+
+            seen.add(key);
+
+
+
+
+
+
+
+            unique.push(r);
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    unique.forEach(r => {
+
+
+
+
+
+
+
+        const tr = document.createElement('tr');
+
+
+
+
+
+
+
+        tr.className = "hover:bg-slate-50/80 transition-all border-b border-slate-100";
+
+
+
+
+
+
+
+        tr.innerHTML = `
+
+
+
+
+
+
+
+            <td class="py-3 px-4 text-[11px] text-slate-500">${escapeHtml(r.marcaTemporal || '')}</td>
+
+
+
+
+
+
+
+            <td class="py-3 px-4 font-medium text-slate-900">${escapeHtml(normalizarNombre(r.nombre))}</td>
+
+
+
+
+
+
+
+            <td class="py-3 px-4 font-mono text-slate-600">${escapeHtml(r.cedula || '')}</td>
+
+
+
+
+
+
+
+            <td class="py-3 px-4 text-slate-500">${escapeHtml(r.carrera || 'Sin especificar')}</td>
+
+
+
+
+
+
+
+        `;
+
+
+
+
+
+
+
+        tbody.appendChild(tr);
+
+
+
+
+
+
+
+    });
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function escapeHtml(text) {
+
+
+
+
+
+
+
+    const div = document.createElement('div');
+
+
+
+
+
+
+
+    div.textContent = text;
+
+
+
+
+
+
+
+    return div.innerHTML;
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function corregirTexto(text) {
 
 
+
     if (typeof text !== 'string') return text;
 
-    // Fix Ãƒ + char U+0080-U+00BF -> original U+00C0-U+00FF
+    // Fix Ã + char U+0080-U+00BF -> original U+00C0-U+00FF
 
     return text.replace(/\u00c3([\u0080-\u00bf])/g, (_, c) =>
 
@@ -8215,6 +8249,178 @@ function cerrarPanel() {
 
 
 
+/** Auto-load data files from ../data/ folder */
+
+async function autoLoadDataFiles() {
+
+    const dataDir = '../data';
+
+    const results = [];
+
+
+
+    // 1. Try to load CSV
+
+    try {
+
+        const resp = await fetch(dataDir + '/Examen (respuestas).csv');
+
+        if (resp.ok) {
+
+            const text = await resp.text();
+
+            const rows = parseCSV(text);
+
+            if (rows.length) {
+
+                const carreraDefault = CONFIG.seccion || '';
+
+                const newRecs = rows.map(r => {
+
+                    const pp = (r['Puntaje'] || '0/0').split('/');
+
+                    const fh = (r['Marca temporal'] || '').split(' ');
+
+                    return {
+
+                        cedula: (r['Cedula'] || '').replace(/\./g, ''),
+
+                        nombre: (r['Nombre Apellido'] || '').trim(),
+
+                        apellido: '',
+
+                        carrera: r['CARRERA'] || carreraDefault,
+
+                        puntaje: parseFloat(pp[0]) || 0,
+
+                        puntajeTotal: parseInt(pp[1]) || 30,
+
+                        intento: parseInt(r['Intento']) || 1,
+
+                        fecha: fh[0] || r['Fecha'] || '',
+
+                        hora: fh[1] || r['Hora'] || '',
+
+                        estado: 'Entregado',
+
+                        respuesta: r['Respuesta'] || ''
+
+                    };
+
+                }).map(corregirRecord);
+
+                const records = loadRecords();
+
+                records.push(...newRecs);
+
+                saveRecords(records);
+
+                results.push(newRecs.length + ' CSV');
+
+            }
+
+        }
+
+    } catch (e) { /* silent */ }
+
+
+
+    // 2. Try to load attendance
+
+    try {
+
+        const resp = await fetch(dataDir + '/asistencia.txt');
+
+        if (resp.ok) {
+
+            const text = await resp.text();
+
+            const lines = text.split('\n').filter(l => l.trim());
+
+            if (lines.length > 1) {
+
+                const attRecs = [];
+
+                for (let i = 1; i < lines.length; i++) {
+
+                    const parts = lines[i].split('\t');
+
+                    if (parts.length < 3) continue;
+
+                    attRecs.push({
+
+                        marcaTemporal: (parts[0] || '').trim(),
+
+                        nombre: (parts[1] || '').trim(),
+
+                        cedula: (parts[2] || '').trim().replace(/\./g, ''),
+
+                        carrera: (parts[3] || '').trim()
+
+                    });
+
+                }
+
+                const corrected = attRecs.map(corregirRecord);
+
+                saveAttendanceRecords(corrected);
+
+                const badge = document.getElementById('sidebar-attendance-badge');
+
+                if (badge) badge.textContent = corrected.length;
+
+                results.push(corrected.length + ' asistencia');
+
+            }
+
+        }
+
+    } catch (e) { /* silent */ }
+
+
+
+    // 3. Try to load config
+
+    try {
+
+        const resp = await fetch(dataDir + '/Datos_Generales.txt');
+
+        if (resp.ok) {
+
+            const text = await resp.text();
+
+            const parsed = parsearConfig(text);
+
+            if (Object.keys(parsed).length) {
+
+                CONFIG = { ...CONFIG, ...parsed };
+
+                reemplazarPlaceholders();
+
+                results.push('config');
+
+            }
+
+        }
+
+    } catch (e) { /* silent */ }
+
+
+
+    if (results.length) {
+
+        console.log('autoLoadDataFiles: ' + results.join(', '));
+
+        renderAll();
+
+        renderAttendance();
+
+    }
+
+}
+
+
+
 /** Initialize after configuration */
 
 
@@ -8222,14 +8428,15 @@ function cerrarPanel() {
 function initTeacherPanel() {
     if (!document.getElementById('teacher-panel')) return;
 
-
-
     renderAll();
 
-    updateAttendancePublicLink();
-    refreshAttendanceData().catch(() => {});
+
+    autoLoadDataFiles();
+
+
 
     // Event delegation for generar-acta buttons
+
 
 
     document.addEventListener('click', function(e) {
@@ -8527,858 +8734,85 @@ function initTeacherPanel() {
 
 
 
-function initAttendanceRegistrationPage() {
-    const form = document.getElementById('attendance-registration-form');
-    if (!form) return;
-
-    const careerInput = document.getElementById('attendance-career');
-    const qrTarget = document.getElementById('attendance-qr');
-    const pageLink = document.getElementById('attendance-page-link');
-    const status = document.getElementById('attendance-form-status');
-
-    if (pageLink) {
-        const publicUrl = getAttendancePublicUrl();
-        pageLink.href = publicUrl;
-        pageLink.textContent = publicUrl;
-    }
-
-    const btnOficial = document.getElementById('btn-formulario-oficial');
-    if (btnOficial) {
-        const formUrl = (CONFIG.link_google_forms || '').trim();
-        if (formUrl) {
-            btnOficial.href = formUrl;
-        }
-    }
-
-    if (qrTarget && typeof QRCode !== 'undefined') {
-        qrTarget.innerHTML = '';
-        new QRCode(qrTarget, {
-            text: getAttendancePublicUrl(),
-            width: 210,
-            height: 210
-        });
-    }
-
-    refreshAttendanceData().catch(() => {});
-
-    const idInput = document.getElementById('attendance-id');
-    const nameInput = document.getElementById('attendance-name');
-
-    if (idInput && nameInput) {
-        idInput.addEventListener('blur', function() {
-            const ced = this.value.trim().replace(/\./g, '');
-            if (!ced) return;
-
-            let found = loadRecords().find(r => r.cedula === ced);
-            if (!found) {
-                found = loadAttendanceRecords().find(r => r.cedula === ced);
-            }
-
-            if (found && found.nombre) {
-                if (!nameInput.value.trim()) {
-                    nameInput.value = found.nombre;
-                }
-                // Seleccionar carrera automáticamente si coincide
-                if (found.carrera) {
-                    const careerSelect = document.getElementById('attendance-career');
-                    if (careerSelect) careerSelect.value = found.carrera;
-                }
-                // Seleccionar sección automáticamente si coincide
-                if (found.seccion) {
-                    const sectionSelect = document.getElementById('attendance-section');
-                    if (sectionSelect) sectionSelect.value = found.seccion;
-                }
-            }
-        });
-    }
-
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-
-        const estado = document.getElementById('attendance-estado')?.value || 'Presente';
-        const fechaAusencia = document.getElementById('attendance-fecha-ausencia')?.value || '';
-        const motivo = document.getElementById('attendance-motivo')?.value || '';
-        const observacion = document.getElementById('attendance-notes')?.value.trim() || '';
-        
-        // Construir observación según el estado
-        let obsFinal = observacion;
-        if (estado === 'Ausencia Justificada') {
-            let obsParts = [];
-            if (motivo) obsParts.push('Motivo: ' + motivo);
-            if (observacion) obsParts.push('Obs: ' + observacion);
-            obsFinal = obsParts.join(' | ');
-        }
-        
-        const payload = {
-            nombre: document.getElementById('attendance-name')?.value.trim() || '',
-            cedula: document.getElementById('attendance-id')?.value.trim() || '',
-            carrera: document.getElementById('attendance-career')?.value || '',
-            seccion: (document.getElementById('attendance-section')?.value || '') + (document.getElementById('attendance-mes')?.value ? ' - ' + document.getElementById('attendance-mes').value : ''),
-            observacion: obsFinal,
-            estado: estado,
-            fechaAusencia: fechaAusencia,
-            marcaTemporal: new Date().toLocaleString('es-PY')
-        };
-
-        if (!payload.nombre || !payload.cedula || !payload.carrera || !payload.seccion) {
-            if (status) {
-                let faltantes = [];
-                if (!payload.nombre) faltantes.push('Nombre');
-                if (!payload.cedula) faltantes.push('Cédula');
-                if (!payload.carrera) faltantes.push('Carrera');
-                if (!payload.seccion) faltantes.push('Sección');
-                status.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Complete: ' + faltantes.join(', ');
-                status.className = 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700';
-            }
-            return;
-        }
-        
-        // Validar campos adicionales para ausencia
-        if (estado === 'Ausencia Justificada' && (!fechaAusencia || !motivo)) {
-            if (status) {
-                let faltantes = [];
-                if (!fechaAusencia) faltantes.push('Fecha de Ausencia');
-                if (!motivo) faltantes.push('Motivo');
-                status.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Complete: ' + faltantes.join(', ');
-                status.className = 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700';
-            }
-            return;
-        }
-
-        try {
-            await submitAttendanceRecord(payload);
-            form.reset();
-            // Restaurar estado a Presente
-            cambiarEstado('Presente');
-            if (status) {
-                const msg = estado === 'Ausencia Justificada' 
-                    ? 'Ausencia justificada registrada correctamente.' 
-                    : 'Asistencia registrada correctamente.';
-                status.innerHTML = '<i class="fas fa-check-circle mr-1"></i> ' + msg;
-                status.className = 'rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 font-semibold';
-            }
-            await refreshAttendanceData();
-        } catch (error) {
-            if (status) {
-                status.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> ' + (error.message || 'No se pudo registrar.');
-                status.className = 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700';
-            }
-        }
-    });
-}
-
 // link.google.forms -> link_google_forms
-
-
-
-
-
-
 // link.asistencia -> link_asistencia
-
-
-
-
-
-
-
 // link.respuestas -> link_respuestas
 
+// ============================================
+// LISTADO DE ALUMNOS - Validación unificada
+// ============================================
+// Cargado desde data/Listado_Alumnos.csv
+// Los mismos datos sirven para asistencia y para habilitar el examen
 
+let listaAlumnosGlobal = [];
 
-
-
-
-
-
-
-
-
-
-
-/* ============================================================
-   AUTENTICACIÓN DOCENTE (Modo Docente)
-   ============================================================ */
-
-const TEACHER_SESSION_KEY = 'teacher_session_active';
-const TEACHER_TIMESTAMP_KEY = 'teacher_session_timestamp';
-
-function isTeacherSessionActive() {
-    const active = localStorage.getItem(TEACHER_SESSION_KEY);
-    if (!active) return false;
-    // La sesión persiste en localStorage hasta que el usuario cierre sesión explícitamente
-    return true;
-}
-
-function getTeacherPassword() {
-    // Primero intenta obtener de la configuración de seguridad guardada
-    const config = getSecurityConfig();
-    if (config.teacherPassword) return config.teacherPassword;
-    // Fallback a CONFIG o default
-    return (typeof CONFIG !== 'undefined' && CONFIG.teacherPassword) ? CONFIG.teacherPassword : 'Docente2026';
-}
-
-function loginTeacher(password) {
-    // Usar el login mejorado que soporta global e individual
-    return loginTeacherEnhanced(password);
-}
-
-function logoutTeacher() {
-    localStorage.removeItem(TEACHER_SESSION_KEY);
-    localStorage.removeItem(TEACHER_TIMESTAMP_KEY);
-}
-
-function requireTeacherAuth(redirectUrl) {
-    if (!isTeacherSessionActive()) {
-        if (redirectUrl) {
-            window.location.href = redirectUrl;
-        }
-        return false;
-    }
-    return true;
-}
-
-function renderTeacherLoginOverlay(containerId, onSuccess) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    if (isTeacherSessionActive()) {
-        if (typeof onSuccess === 'function') onSuccess();
-        return;
-    }
-
-    container.innerHTML = `
-        <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;padding:20px;">
-            <div style="background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:16px;padding:32px;max-width:400px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
-                <img src="logo_centuria.png" alt="Logo Centuria" style="height:70px;margin-bottom:12px;">
-                <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:white;font-size:22px;">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;color:var(--text,#1a202c);">Acceso restringido</h2>
-                <p style="font-size:14px;color:var(--text-secondary,#4a5568);margin-bottom:20px;">Esta sección contiene datos personales de los alumnos. Ingrese la contraseña de docente para continuar.</p>
-                <div style="display:flex;gap:8px;">
-                    <input type="password" id="teacher-login-input" placeholder="Contraseña docente" style="flex:1;padding:10px 14px;border:2px solid var(--border,#e2e8f0);border-radius:8px;font-size:14px;outline:none;"
-                        onkeydown="if(event.key==='Enter')document.getElementById('teacher-login-btn').click()">
-                    <button id="teacher-login-btn" style="padding:10px 18px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;white-space:nowrap;">
-                        <i class="fas fa-sign-in-alt"></i> Entrar
-                    </button>
-                </div>
-                <div id="teacher-login-msg" style="margin-top:12px;font-size:13px;min-height:20px;color:#dc3545;font-weight:600;"></div>
-                <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border,#e2e8f0);">
-                    <a href="index.html" style="color:var(--primary,#667eea);text-decoration:none;font-size:13px;font-weight:600;">
-                        <i class="fas fa-home"></i> Volver al inicio
-                    </a>
-                </div>
-            </div>
-        </div>
-    `;
-
-    const btn = document.getElementById('teacher-login-btn');
-    const input = document.getElementById('teacher-login-input');
-    const msg = document.getElementById('teacher-login-msg');
-
-    btn.addEventListener('click', function() {
-        const val = input.value.trim();
-        if (!val) {
-            msg.textContent = 'Ingrese la contraseña.';
-            return;
-        }
-        const result = loginTeacher(val);
-        if (result.ok) {
-            if (typeof onSuccess === 'function') onSuccess();
-        } else {
-            msg.textContent = result.error;
-            input.value = '';
-            input.focus();
-        }
-    });
-}
-
-function addTeacherLogoutButton(targetSelector) {
-    const target = document.querySelector(targetSelector);
-    if (!target) return;
-    const btn = document.createElement('button');
-    btn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Cerrar sesión docente';
-    btn.style.cssText = 'background:rgba(255,255,255,0.2);color:white;border:none;padding:4px 10px;border-radius:20px;font-size:11px;cursor:pointer;backdrop-filter:blur(10px);margin-left:auto;';
-    btn.addEventListener('click', function() {
-        logoutTeacher();
-        window.location.href = 'index.html';
-    });
-    target.appendChild(btn);
-}
-
-/* ============================================================
-   LOGIN DE ESTUDIANTE
-   ============================================================ */
-
-const STUDENT_SESSION_KEY = 'student_session_active';
-const STUDENT_TIMESTAMP_KEY = 'student_session_timestamp';
-const STUDENT_DATA_KEY = 'student_data';
-
-function isStudentSessionActive() {
-    const active = localStorage.getItem(STUDENT_SESSION_KEY);
-    if (!active) return false;
-    return true;
-}
-
-function getStudentPassword() {
-    // Primero intenta obtener de la configuración de seguridad guardada
-    const config = getSecurityConfig();
-    if (config.studentPassword) return config.studentPassword;
-    // Fallback a CONFIG o default
-    return (typeof CONFIG !== 'undefined' && CONFIG.studentPassword) ? CONFIG.studentPassword : 'Alumno2026';
-}
-
-function loginStudent(password) {
-    // Usar el login mejorado que soporta global e individual
-    return loginStudentEnhanced(password);
-}
-
-function logoutStudent() {
-    localStorage.removeItem(STUDENT_SESSION_KEY);
-    localStorage.removeItem(STUDENT_TIMESTAMP_KEY);
-    localStorage.removeItem(STUDENT_DATA_KEY);
-}
-
-function requireStudentAuth(redirectUrl) {
-    if (!isStudentSessionActive()) {
-        if (redirectUrl) {
-            window.location.href = redirectUrl;
-        }
-        return false;
-    }
-    return true;
-}
-
-function renderStudentLoginOverlay(containerId, onSuccess, opts) {
-    opts = opts || {};
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    if (isStudentSessionActive()) {
-        if (typeof onSuccess === 'function') onSuccess();
-        return;
-    }
-
-    container.innerHTML = `
-        <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;padding:20px;">
-            <div style="background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:16px;padding:32px;max-width:400px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
-                <img src="logo_centuria.png" alt="Logo Centuria" style="height:70px;margin-bottom:12px;">
-                <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:white;font-size:22px;">
-                    <i class="fas fa-user-graduate"></i>
-                </div>
-                <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;color:var(--text,#1a202c);">Portal de Estudiantes</h2>
-                <p style="font-size:14px;color:var(--text-secondary,#4a5568);margin-bottom:20px;">Ingrese la contraseña de estudiante para acceder al portal.</p>
-                <div style="display:flex;gap:8px;">
-                    <input type="password" id="student-login-input" placeholder="Contraseña estudiante" style="flex:1;padding:10px 14px;border:2px solid var(--border,#e2e8f0);border-radius:8px;font-size:14px;outline:none;"
-                        onkeydown="if(event.key==='Enter')document.getElementById('student-login-btn').click()">
-                    <button id="student-login-btn" style="padding:10px 18px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;white-space:nowrap;">
-                        <i class="fas fa-sign-in-alt"></i> Entrar
-                    </button>
-                </div>
-                <div id="student-login-msg" style="margin-top:12px;font-size:13px;min-height:20px;color:#dc3545;font-weight:600;"></div>
-                ${opts.hideHomeLink ? '' : `
-                <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border,#e2e8f0);">
-                    <a href="index.html" style="color:var(--primary,#2563eb);text-decoration:none;font-size:13px;font-weight:600;">
-                        <i class="fas fa-home"></i> Volver al inicio
-                    </a>
-                </div>
-                `}
-            </div>
-        </div>
-    `;
-
-    const btn = document.getElementById('student-login-btn');
-    const input = document.getElementById('student-login-input');
-    const msg = document.getElementById('student-login-msg');
-
-    btn.addEventListener('click', function() {
-        const val = input.value.trim();
-        if (!val) {
-            msg.textContent = 'Ingrese la contraseña.';
-            return;
-        }
-        const result = loginStudent(val);
-        if (result.ok) {
-            if (typeof onSuccess === 'function') onSuccess();
-        } else {
-            msg.textContent = result.error;
-            input.value = '';
-            input.focus();
-        }
-    });
-}
-
-/* ============================================================
-   GESTIÓN DE MÓDULOS / FEATURES HABILITADOS
-   ============================================================ */
-
-const FEATURES_CONFIG_KEY = 'centuria_features_config';
-
-// Definición de todos los módulos del sistema
-const SYSTEM_MODULES = {
-    student_portal:       { label: 'Portal Estudiante',     icon: 'fa-user-graduate',     category: 'estudiante', desc: 'Acceso general al portal de estudiantes' },
-    student_asistencia:   { label: 'Registrar Asistencia',  icon: 'fa-clipboard-check',   category: 'estudiante', desc: 'Formulario de registro de asistencia' },
-    student_examen:       { label: 'Examen Parcial',       icon: 'fa-file-alt',          category: 'estudiante', desc: 'Registro de examen parcial virtual' },
-    student_consultar:    { label: 'Consultar Estado',      icon: 'fa-search',            category: 'estudiante', desc: 'Consulta de estado de asistencia' },
-    student_validar:      { label: 'Validar',               icon: 'fa-check-double',      category: 'estudiante', desc: 'Validación de justificaciones' },
-    teacher_portal:       { label: 'Portal Docente',        icon: 'fa-chalkboard-teacher',  category: 'docente',    desc: 'Acceso general al portal de docentes' },
-    teacher_planilla:     { label: 'Planilla',              icon: 'fa-table',             category: 'docente',    desc: 'Planilla tradicional P/A/AJ' },
-    teacher_planificacion:{ label: 'Planificación',         icon: 'fa-calendar-alt',      category: 'docente',    desc: 'Códigos de vinculación y planificación' },
-    teacher_panel:        { label: 'Panel Docente',         icon: 'fa-chart-line',        category: 'docente',    desc: 'Estadísticas y gestión docente' },
-    admin_panel:          { label: 'Administración',        icon: 'fa-cogs',              category: 'admin',      desc: 'Gestión de catálogos, estilos y seguridad' },
-    
-    // Unidades de Estudio (1-6)
-    unidad_1:             { label: 'Unidad 1',              icon: 'fa-book',              category: 'estudiante', desc: 'La Sociología: Orígenes, Autores y Doctrinas', html: 'UNIDAD_1_MATERIAL_DE_ESTUDIO.html' },
-    unidad_2:             { label: 'Unidad 2',              icon: 'fa-book',              category: 'estudiante', desc: 'Definiciones y Campos de la Sociología',          html: 'UNIDAD_2_MATERIAL_DE_ESTUDIO.html' },
-    unidad_3:             { label: 'Unidad 3',              icon: 'fa-book',              category: 'estudiante', desc: 'Conducta Humana y Cultura',                       html: 'UNIDAD_3_MATERIAL_DE_ESTUDIO.html' },
-    unidad_4:             { label: 'Unidad 4',              icon: 'fa-book',              category: 'estudiante', desc: 'El Hombre como Ser Social',                      html: 'UNIDAD_4_MATERIAL_DE_ESTUDIO.html' },
-    unidad_5:             { label: 'Unidad 5',              icon: 'fa-book',              category: 'estudiante', desc: 'Libertad y Existencia Humana',                   html: 'UNIDAD_5_MATERIAL_DE_ESTUDIO.html' },
-    unidad_6:             { label: 'Unidad 6',              icon: 'fa-book',              category: 'estudiante', desc: 'Cambio y Conflicto Social',                      html: 'UNIDAD_6_MATERIAL_DE_ESTUDIO.html' }
-};
-
-function getFeaturesConfig() {
+/**
+ * Carga el listado de alumnos desde el CSV.
+ * El archivo se busca primero en la raíz (public/) y luego en ../data/
+ */
+async function cargarListadoAlumnos() {
     try {
-        const stored = localStorage.getItem(FEATURES_CONFIG_KEY);
-        if (stored) return JSON.parse(stored);
-    } catch (e) {}
-    // Por defecto todo habilitado
-    const defaults = {};
-    Object.keys(SYSTEM_MODULES).forEach(k => defaults[k] = true);
-    return defaults;
-}
-
-function saveFeaturesConfig(config) {
-    localStorage.setItem(FEATURES_CONFIG_KEY, JSON.stringify(config));
-}
-
-function isModuleEnabled(moduleKey) {
-    const config = getFeaturesConfig();
-    return config[moduleKey] !== false; // true por defecto
-}
-
-function toggleModule(moduleKey, enabled) {
-    const config = getFeaturesConfig();
-    config[moduleKey] = !!enabled;
-    saveFeaturesConfig(config);
-    return config;
-}
-
-function resetAllModules(enabled = true) {
-    const config = {};
-    Object.keys(SYSTEM_MODULES).forEach(k => config[k] = enabled);
-    saveFeaturesConfig(config);
-    return config;
-}
-
-/* ============================================================
-   GESTIÓN DE SEGURIDAD Y USUARIOS (Admin)
-   ============================================================ */
-
-const SECURITY_CONFIG_KEY = 'centuria_security_config';
-const USERS_LIST_KEY = 'centuria_users_list';
-
-// Estructura de configuración de seguridad
-function getSecurityConfig() {
-    try {
-        const stored = localStorage.getItem(SECURITY_CONFIG_KEY);
-        if (stored) return JSON.parse(stored);
-    } catch (e) {}
-    return {
-        teacherPassword: (typeof CONFIG !== 'undefined' && CONFIG.teacherPassword) ? CONFIG.teacherPassword : 'Docente2026',
-        studentPassword: (typeof CONFIG !== 'undefined' && CONFIG.studentPassword) ? CONFIG.studentPassword : 'Alumno2026',
-        useIndividualPasswords: false, // false = todos usan la misma; true = cada uno tiene la suya
-        lastChanged: null
-    };
-}
-
-function saveSecurityConfig(config) {
-    config.lastChanged = new Date().toISOString();
-    localStorage.setItem(SECURITY_CONFIG_KEY, JSON.stringify(config));
-}
-
-// Obtener contraseña actual (global o individual)
-function getCurrentTeacherPassword() {
-    const config = getSecurityConfig();
-    return config.teacherPassword || 'Docente2026';
-}
-
-function getCurrentStudentPassword() {
-    const config = getSecurityConfig();
-    return config.studentPassword || 'Alumno2026';
-}
-
-// Actualizar contraseñas globales desde admin
-function updateGlobalPassword(role, newPassword) {
-    if (!newPassword || newPassword.length < 4) {
-        return { ok: false, error: 'La contraseña debe tener al menos 4 caracteres.' };
-    }
-    const config = getSecurityConfig();
-    if (role === 'teacher') {
-        config.teacherPassword = newPassword;
-    } else if (role === 'student') {
-        config.studentPassword = newPassword;
-    } else {
-        return { ok: false, error: 'Rol no válido.' };
-    }
-    saveSecurityConfig(config);
-    return { ok: true };
-}
-
-// Gestión de usuarios individuales (preparado para futuro)
-function getUsersList() {
-    try {
-        const stored = localStorage.getItem(USERS_LIST_KEY);
-        if (stored) return JSON.parse(stored);
-    } catch (e) {}
-    return [];
-}
-
-function saveUsersList(users) {
-    localStorage.setItem(USERS_LIST_KEY, JSON.stringify(users));
-}
-
-function addUser(userData) {
-    const users = getUsersList();
-    const newUser = {
-        id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-        cedula: (userData.cedula || '').toString().replace(/\./g, '').trim(),
-        nombre: userData.nombre || '',
-        rol: userData.rol || 'student', // 'teacher' | 'student' | 'admin'
-        password: userData.password || '',
-        activo: userData.activo !== false,
-        creado: new Date().toISOString()
-    };
-    
-    // Validar duplicado por cédula
-    const existe = users.find(u => u.cedula === newUser.cedula && u.rol === newUser.rol);
-    if (existe) {
-        return { ok: false, error: 'Ya existe un usuario con esa cédula y rol.' };
-    }
-    
-    users.push(newUser);
-    saveUsersList(users);
-    return { ok: true, user: newUser };
-}
-
-function updateUser(userId, updates) {
-    const users = getUsersList();
-    const idx = users.findIndex(u => u.id === userId);
-    if (idx === -1) return { ok: false, error: 'Usuario no encontrado.' };
-    
-    if (updates.password !== undefined) users[idx].password = updates.password;
-    if (updates.nombre !== undefined) users[idx].nombre = updates.nombre;
-    if (updates.activo !== undefined) users[idx].activo = updates.activo;
-    if (updates.rol !== undefined) users[idx].rol = updates.rol;
-    users[idx].actualizado = new Date().toISOString();
-    
-    saveUsersList(users);
-    return { ok: true, user: users[idx] };
-}
-
-function deleteUser(userId) {
-    let users = getUsersList();
-    const inicial = users.length;
-    users = users.filter(u => u.id !== userId);
-    if (users.length === inicial) return { ok: false, error: 'Usuario no encontrado.' };
-    saveUsersList(users);
-    return { ok: true };
-}
-
-// Login mejorado: soporta global e individual
-function loginTeacherEnhanced(password, cedula) {
-    const config = getSecurityConfig();
-    
-    // Modo individual (futuro)
-    if (config.useIndividualPasswords && cedula) {
-        const users = getUsersList();
-        const user = users.find(u => u.cedula === cedula.replace(/\./g, '').trim() && u.rol === 'teacher' && u.activo);
-        if (user && user.password === password) {
-            localStorage.setItem(TEACHER_SESSION_KEY, '1');
-            localStorage.setItem(TEACHER_TIMESTAMP_KEY, Date.now().toString());
-            localStorage.setItem('teacher_user_id', user.id);
-            return { ok: true, user };
+        let resp = await fetch('Listado_Alumnos.csv');
+        if (!resp.ok) {
+            resp = await fetch('../data/Listado_Alumnos.csv');
         }
-        return { ok: false, error: 'Credenciales incorrectas.' };
-    }
-    
-    // Modo global (actual)
-    const expected = config.teacherPassword || getTeacherPassword();
-    if (password === expected) {
-        localStorage.setItem(TEACHER_SESSION_KEY, '1');
-        localStorage.setItem(TEACHER_TIMESTAMP_KEY, Date.now().toString());
-        return { ok: true };
-    }
-    return { ok: false, error: 'Contraseña incorrecta' };
-}
+        if (!resp.ok) throw new Error('No se pudo cargar el listado');
 
-function loginStudentEnhanced(password, cedula) {
-    const config = getSecurityConfig();
-    
-    // Modo individual (futuro)
-    if (config.useIndividualPasswords && cedula) {
-        const users = getUsersList();
-        const user = users.find(u => u.cedula === cedula.replace(/\./g, '').trim() && u.rol === 'student' && u.activo);
-        if (user && user.password === password) {
-            localStorage.setItem(STUDENT_SESSION_KEY, '1');
-            localStorage.setItem(STUDENT_TIMESTAMP_KEY, Date.now().toString());
-            localStorage.setItem('student_user_id', user.id);
-            return { ok: true, user };
+        const texto = await resp.text();
+        const lineas = texto.split('\n');
+        const alumnos = [];
+
+        // Saltar encabezado (i=0)
+        for (let i = 1; i < lineas.length; i++) {
+            const linea = lineas[i].trim();
+            if (!linea) continue;
+
+            // Formato CSV con comillas: "Carrera","Cedula","Nombre","Ficha","Factura","Estado"
+            const partes = linea.match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g);
+            if (!partes || partes.length < 6) continue;
+
+            const carrera = partes[0].replace(/"/g, '').trim();
+            const cedula  = partes[1].replace(/"/g, '').trim();
+            const nombre  = partes[2].replace(/"/g, '').trim();
+            const estado  = partes[5].replace(/"/g, '').trim();
+
+            // Solo incluir habilitados (*)
+            if (estado === '*') {
+                alumnos.push({ carrera, cedula, nombre, estado });
+            }
         }
-        return { ok: false, error: 'Credenciales incorrectas.' };
-    }
-    
-    // Modo global (actual)
-    const expected = config.studentPassword || getStudentPassword();
-    if (password === expected) {
-        localStorage.setItem(STUDENT_SESSION_KEY, '1');
-        localStorage.setItem(STUDENT_TIMESTAMP_KEY, Date.now().toString());
-        return { ok: true };
-    }
-    return { ok: false, error: 'Contraseña incorrecta' };
-}
 
-/* ============================================================
-   DETECCIÓN DE INACTIVIDAD (30 minutos)
-   ============================================================ */
+        listaAlumnosGlobal = alumnos;
+        console.log(`Listado de alumnos cargado: ${alumnos.length} habilitados`);
+        return alumnos;
 
-const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos en ms
-const WARNING_TIMEOUT = 5000; // 5 segundos de advertencia
-let inactivityTimer = null;
-let warningTimer = null;
-let inactivityWarningShown = false;
-
-function resetInactivityTimer() {
-    // Limpiar timers existentes
-    if (inactivityTimer) {
-        clearTimeout(inactivityTimer);
-        inactivityTimer = null;
-    }
-    if (warningTimer) {
-        clearTimeout(warningTimer);
-        warningTimer = null;
-    }
-    
-    // Ocultar advertencia si existe
-    hideInactivityWarning();
-    inactivityWarningShown = false;
-    
-    // Solo activar si hay sesión activa (docente o estudiante)
-    const hasSession = isTeacherSessionActive() || isStudentSessionActive();
-    if (!hasSession) return;
-    
-    // Iniciar nuevo timer
-    inactivityTimer = setTimeout(showInactivityWarning, INACTIVITY_TIMEOUT);
-}
-
-function showInactivityWarning() {
-    if (inactivityWarningShown) return;
-    inactivityWarningShown = true;
-    
-    // Crear overlay de advertencia
-    const overlay = document.createElement('div');
-    overlay.id = 'inactivity-warning-overlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(4px);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: fadeIn 0.3s ease;
-    `;
-    
-    overlay.innerHTML = `
-        <div style="background: white; border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease;">
-            <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; font-size: 28px;">
-                <i class="fas fa-clock"></i>
-            </div>
-            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px; color: #1a202c;">Sesión por expirar</h2>
-            <p style="font-size: 14px; color: #4a5568; margin-bottom: 20px;">
-                Su sesión se cerrará automáticamente en <strong id="countdown-seconds" style="color: #dc2626; font-size: 18px;">5</strong> segundos por inactividad.
-            </p>
-            <button onclick="stayActive()" style="padding: 12px 24px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px;">
-                <i class="fas fa-hand-pointer"></i> Mantener sesión activa
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(overlay);
-    
-    // Iniciar countdown visual
-    let seconds = 5;
-    const countdownEl = document.getElementById('countdown-seconds');
-    const countdownInterval = setInterval(() => {
-        seconds--;
-        if (countdownEl) countdownEl.textContent = seconds;
-        if (seconds <= 0) {
-            clearInterval(countdownInterval);
-        }
-    }, 1000);
-    
-    // Timer para cerrar sesión
-    warningTimer = setTimeout(() => {
-        clearInterval(countdownInterval);
-        performInactivityLogout();
-    }, WARNING_TIMEOUT);
-}
-
-function hideInactivityWarning() {
-    const overlay = document.getElementById('inactivity-warning-overlay');
-    if (overlay) {
-        overlay.remove();
-    }
-}
-
-function stayActive() {
-    hideInactivityWarning();
-    if (warningTimer) {
-        clearTimeout(warningTimer);
-        warningTimer = null;
-    }
-    inactivityWarningShown = false;
-    resetInactivityTimer();
-}
-
-function performInactivityLogout() {
-    hideInactivityWarning();
-    
-    // Cerrar sesión según el rol activo
-    if (isTeacherSessionActive()) {
-        logoutTeacher();
-    }
-    if (isStudentSessionActive()) {
-        logoutStudent();
-    }
-    
-    // Mostrar mensaje final y redirigir
-    const msg = document.createElement('div');
-    msg.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #dc2626;
-        color: white;
-        padding: 16px 24px;
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: 600;
-        z-index: 10000;
-        box-shadow: 0 10px 40px rgba(220, 38, 38, 0.3);
-        animation: slideInRight 0.3s ease;
-    `;
-    msg.innerHTML = '<i class="fas fa-info-circle"></i> Sesión cerrada por inactividad';
-    document.body.appendChild(msg);
-    
-    setTimeout(() => {
-        window.location.href = 'index.html';
-    }, 2000);
-}
-
-function initInactivityDetection() {
-    // Eventos que resetean el timer
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click', 'keydown'];
-    events.forEach(event => {
-        document.addEventListener(event, resetInactivityTimer, true);
-    });
-    
-    // Iniciar timer inicial
-    resetInactivityTimer();
-}
-
-// Inicializar detección de inactividad cuando el DOM esté listo
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initInactivityDetection);
-} else {
-    initInactivityDetection();
-}
-
-/* ============================================================
-   FUNCIONES DE PLANIFICACIÓN (planificacion.html)
-   ============================================================ */
-
-function loadPlanificaciones() {
-    try {
-        return JSON.parse(localStorage.getItem('planificaciones_centuria') || '[]');
     } catch (e) {
+        console.warn('No se pudo cargar Listado_Alumnos.csv — validación desactivada', e.message);
         return [];
     }
 }
 
-function buscarPlanificacionPorCodigo(codigo) {
-    const planifs = loadPlanificaciones();
-    return planifs.find(p => p.codigo === codigo) || null;
+/**
+ * Busca un alumno por su número de cédula (limpia puntos y espacios).
+ * Retorna el objeto alumno o null si no se encuentra.
+ */
+function buscarAlumno(ci) {
+    const ciLimpio = String(ci).replace(/\./g, '').replace(/\s/g, '').trim();
+    return listaAlumnosGlobal.find(function(a) {
+        return a.cedula === ciLimpio;
+    }) || null;
 }
 
-function buscarPlanificacionPorCedula(cedula) {
-    const planifs = loadPlanificaciones();
-    const cedulaLimpia = cedula.toString().replace(/\./g, '').trim();
-    return planifs.filter(p => p.cedula === cedulaLimpia);
+/**
+ * Obtiene el listado de carreras únicas desde los alumnos cargados.
+ */
+function obtenerCarreras() {
+    const carreras = {};
+    listaAlumnosGlobal.forEach(function(a) {
+        if (a.carrera) carreras[a.carrera] = true;
+    });
+    return Object.keys(carreras).sort();
 }
-
-function autocompletarDesdePlanificacion(codigo, campos) {
-    const planif = buscarPlanificacionPorCodigo(codigo);
-    if (!planif) return false;
-    
-    // campos = { cedula: 'id-cedula', nombre: 'id-nombre', carrera: 'id-carrera', seccion: 'id-seccion', asignatura: 'id-asignatura' }
-    let completados = [];
-    
-    if (campos.cedula && planif.cedula) {
-        const el = document.getElementById(campos.cedula);
-        if (el) { el.value = planif.cedula; completados.push('Cédula'); }
-    }
-    if (campos.nombre && planif.nombre) {
-        const el = document.getElementById(campos.nombre);
-        if (el) { el.value = planif.nombre; completados.push('Nombre'); }
-    }
-    if (campos.carrera && planif.codCarrera) {
-        const el = document.getElementById(campos.carrera);
-        if (el) { 
-            // Extraer solo el nombre sin el código
-            const nombreCarrera = planif.codCarrera.split('-').slice(1).join('-').trim();
-            el.value = nombreCarrera; 
-            completados.push('Carrera'); 
-        }
-    }
-    if (campos.seccion && planif.codSeccion) {
-        const el = document.getElementById(campos.seccion);
-        if (el) { 
-            const nombreSeccion = planif.codSeccion.split('-').slice(1).join('-').trim();
-            el.value = nombreSeccion; 
-            completados.push('Sección'); 
-        }
-    }
-    if (campos.asignatura && planif.codAsignatura) {
-        const el = document.getElementById(campos.asignatura);
-        if (el) { 
-            const nombreAsig = planif.codAsignatura.split('-').slice(1).join('-').trim();
-            el.value = nombreAsig; 
-            completados.push('Asignatura'); 
-        }
-    }
-    
-    return completados;
-}
-
-function extraerCodigoPlanif(codigoCompleto) {
-    // Formato: CEDULA-COD_ASIG-COD_SEC-CORRELATIVO
-    const partes = codigoCompleto.split('-');
-    if (partes.length >= 4) {
-        return {
-            cedula: partes[0],
-            codAsig: partes[1],
-            codSec: partes[2],
-            correlativo: partes[3]
-        };
-    }
-    return null;
-}
-
 
 
 

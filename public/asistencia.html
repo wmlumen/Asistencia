@@ -1939,7 +1939,7 @@
                             try {
                                 const apiUrl = typeof CONFIG !== 'undefined' && CONFIG.asistencia_api_url ? CONFIG.asistencia_api_url : '';
                                 if (apiUrl) {
-                                    const response = await fetch(apiUrl + '?modo=buscar&cedula=' + encodeURIComponent(cedulaLimpia) + '&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
+                                    const response = await fetch(apiUrl + '?modo=buscar&cedula=' + encodeURIComponent(cedulaLimpia) + '&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : ''));
                                     if (response.ok) {
                                         const data = await response.json();
                                         if (data && data.registros && data.registros.length > 0) {

@@ -465,7 +465,7 @@
         
         // URL hardcodeada como fallback (la misma que está en script.js y Datos_asistencia.txt)
         const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbz5MUkxeYtwzDt3x-mMSImyQl7EjAUCzgvxTwCZbjmIkzszRQsSDaFfjgcXzheZ9XXdGw/exec';
-        const DEFAULT_API_KEY = 'CenturiaApi2024!';
+        const DEFAULT_API_KEY = '';
         
         function getApiUrl() {
             // Intentar obtener de CONFIG (si ya cargó script.js)
@@ -491,7 +491,7 @@
             const apiKey = getApiKeyLocal();
             
             // Si no hay API key, mostrar error (debe esperar a configLoaded)
-            if (!apiKey || apiKey === 'CenturiaApi2024!') {
+            if (!apiKey) {
                 console.log('CONFIG no disponible aún, esperando evento configLoaded...');
                 status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Esperando configuración...';
                 return;

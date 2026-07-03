@@ -27,6 +27,7 @@ npm-debug.log*
 # Configuración con credenciales reales
 public/Datos_asistencia.txt
 public/*.txt
+!public/Datos_Generales.txt
 !public/*.txt.example
 
 # Base de datos local

@@ -374,7 +374,7 @@
                     try {
                         const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
                         if (apiUrl) {
-                            const resp = await fetch(apiUrl + '?modo=buscar&cedula=' + encodeURIComponent(cedulaLimpia) + '&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
+                            const resp = await fetch(apiUrl + '?modo=buscar&cedula=' + encodeURIComponent(cedulaLimpia) + '&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : ''));
                             if (resp.ok) {
                                 const data = await resp.json();
                                 if (data && data.registros && data.registros.length > 0) {
@@ -447,7 +447,7 @@
 
             try {
                 const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
-                const apiKey = (typeof getApiKey === 'function') ? getApiKey() : 'CenturiaApi2024!';
+                const apiKey = (typeof getApiKey === 'function') ? getApiKey() : '';
 
                 // Enviar a hoja Examen999 (prueba)
                 const url = apiUrl + '?' + [
@@ -507,7 +507,7 @@
                 const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
                 if (!apiUrl) return;
 
-                const resp = await fetch(apiUrl + '?modo=examenes_999&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
+                const resp = await fetch(apiUrl + '?modo=examenes_999&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : ''));
                 if (!resp.ok) return;
 
                 const data = await resp.json();

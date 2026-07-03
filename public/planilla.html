@@ -941,13 +941,13 @@
                 if (dataSource === 'api') {
                     const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
                     if (apiUrl) {
-                        const resp = await fetch(apiUrl + '?modo=registro&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
+                        const resp = await fetch(apiUrl + '?modo=registro&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : ''));
                         if (resp.ok) {
                             const data = await resp.json();
                             records = data.registros || [];
                         }
                         
-                        const respJ = await fetch(apiUrl + '?modo=justificaciones&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
+                        const respJ = await fetch(apiUrl + '?modo=justificaciones&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : ''));
                         if (respJ.ok) {
                             const dataJ = await respJ.json();
                             justificaciones = dataJ.justificaciones || [];
@@ -1132,7 +1132,7 @@
                 if (dataSource === 'api') {
                     const apiUrl = (typeof getAttendanceApiUrl === 'function') ? getAttendanceApiUrl() : '';
                     if (apiUrl) {
-                        const resp = await fetch(apiUrl + '?modo=registro&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : 'CenturiaApi2024!'));
+                        const resp = await fetch(apiUrl + '?modo=registro&apiKey=' + encodeURIComponent(typeof getApiKey === 'function' ? getApiKey() : ''));
                         if (resp.ok) {
                             const data = await resp.json();
                             records = data.registros || [];
