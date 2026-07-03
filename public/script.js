@@ -452,6 +452,16 @@ function getAttendanceApiUrl() {
     return (CONFIG.asistencia_api_url || '').trim();
 }
 
+function getAttendancePublicUrl() {
+    const configured = (CONFIG.asistencia_public_url || '').trim();
+    if (configured) return configured;
+    try {
+        return new URL('asistencia.html', window.location.href).toString();
+    } catch (error) {
+        return 'asistencia.html';
+    }
+}
+
 function getApiKey() {
     return ((CONFIG.apiSecret || CONFIG.api_secret || '')).trim();
 }
