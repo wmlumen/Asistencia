@@ -12,8 +12,8 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         html, body {
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-y: auto;
             font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
             background: var(--light-bg, #f4f4f4);
         }
@@ -21,7 +21,7 @@
         .page-container {
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            min-height: 100vh;
         }
         
         /* Header compacto */
