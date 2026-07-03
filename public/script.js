@@ -329,7 +329,7 @@ async function cargarConfiguracion() {
 
             link_respuestas: 'https://docs.google.com/spreadsheets/d/1aMr1KYx7FQ4YYh0WgqzWQQ4FZnOytMwae8JWskG5cPQ',
             asistencia_public_url: 'https://wmlumen.github.io/Asistencia/asistencia.html',
-            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbynHV8nUdTj8OtGWBpU7qY0DjHvRGitQCWbjhXhKsdjw9Wej0MFwnYhZ_ApBPTnVqrh/exec',
+            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbyecUVEJPCYlRSbgA6XiP2vdkpoJ4x9-j6fLPRgHhFh-9dsefSsh9qSdWsXcuJN3eE/exec',
             asistencia_csv_url: '',
             asistencia_carreras: 'LICENCIATURA EN ADMINISTRACION DE EMPRESAS|LICENCIATURA EN CONTABILIDAD|LICENCIATURA EN ADMINISTRACION ADUANERA|INGENIERIA COMERCIAL',
             api_secret: 'CenturiaApi2024!',
@@ -6603,17 +6603,21 @@ async function submitAttendanceRecord(payload) {
         const postUrl = apiUrl + '?' + params.toString();
         console.log('Enviando POST a:', postUrl);
 
-        const response = await fetch(postUrl, { method: 'POST' });
-
-        console.log('Response status:', response.status);
-        const responseText = await response.text();
-        console.log('Response text:', responseText);
+        let response, responseText;
+        try {
+            response = await fetch(postUrl, { method: 'POST', mode: 'cors', redirect: 'follow', cache: 'no-store', headers: { 'Accept': 'application/json' } });
+            responseText = response.ok ? await response.text() : '';
+        } catch (fetchErr) {
+            console.warn('Fallo de red al guardar asistencia:', fetchErr);
+            throw new Error('Falla de red. Revisá conexión o URL de la API.');
+        }
 
         let result = {};
         try { result = JSON.parse(responseText); } catch(e) {}
 
         if (!response.ok || result.ok === false) {
-            throw new Error(result.error || result.mensaje || 'Error ' + response.status + ': ' + responseText.substring(0, 200));
+            const errText = result.error || result.mensaje || ('HTTP ' + response.status + ': ' + String(responseText || '').slice(0, 200));
+            throw new Error(errText);
         }
 
         return normalized;
