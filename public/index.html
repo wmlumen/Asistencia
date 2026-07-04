@@ -196,6 +196,7 @@ function accederPanel(tipo) {
 
     if (password === correctPassword) {
         errorDiv.classList.remove('show');
+        localStorage.setItem('userRole', tipo);
         window.location.href = destino;
     } else {
         errorText.textContent = 'Contrase\u00f1a incorrecta. Intente nuevamente.';

@@ -8839,10 +8839,49 @@ function obtenerCarreras() {
     return Object.keys(carreras).sort();
 }
 
+// ============================================================
+// FUNCIONES DE NAVEGACION SEGUN ROL (Estudiante / Docente)
+// ============================================================
 
+function getPanelUrl() {
+    var role = localStorage.getItem('userRole');
+    if (role === 'docente') {
+        return 'teacher_panel.html';
+    } else if (role === 'estudiante') {
+        return 'student_panel.html';
+    }
+    return 'index.html';
+}
 
+function irAlDashboard() {
+    window.location.href = getPanelUrl();
+}
 
+function cerrarSesion() {
+    localStorage.removeItem('userRole');
+    window.location.href = 'index.html';
+}
 
+function redirigirModuloDeshabilitado() {
+    window.location.href = getPanelUrl() + '?msg=modulo_deshabilitado';
+}
 
-
+// Auto-actualizar todos los enlaces del dashboard al cargar la pagina
+document.addEventListener('DOMContentLoaded', function() {
+    var role = localStorage.getItem('userRole');
+    if (!role) return;  // No hay sesion activa
+    
+    var targetUrl = (role === 'docente') ? 'teacher_panel.html' : 'student_panel.html';
+    var dashboardUrl = 'https://wmlumen.github.io/Asistencia/';
+    
+    // Actualizar todos los enlaces que apuntan al dashboard
+    var links = document.querySelectorAll('a[href="' + dashboardUrl + '"], a[href="index.html"]');
+    links.forEach(function(link) {
+        // No modificar enlaces en el propio index.html
+        if (window.location.pathname.indexOf('index.html') !== -1) return;
+        link.href = targetUrl;
+    });
+    
+    console.log('Navegacion actualizada para rol: ' + role + ' -> ' + targetUrl);
+});
 

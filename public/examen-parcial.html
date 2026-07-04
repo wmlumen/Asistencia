@@ -16,7 +16,7 @@
                 return;
             }
             if (!isModuleEnabled('examen_parcial')) {
-                window.location.href = 'https://wmlumen.github.io/Asistencia/?msg=modulo_deshabilitado';
+                redirigirModuloDeshabilitado();
             }
         }
         checkModule();
@@ -157,7 +157,7 @@
             <div class="header-actions">
                 <a href="asistencia.html"><i class="fas fa-check-circle"></i> Asistencia</a>
                 <a href="https://wmlumen.github.io/Asistencia/"><i class="fas fa-home"></i> Inicio</a>
-                <button class="btn-logout" onclick="logoutStudent(); window.location.href='https://wmlumen.github.io/Asistencia/';"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+                <button class="btn-logout" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
             </div>
         </div>
     </header>

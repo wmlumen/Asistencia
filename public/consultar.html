@@ -117,7 +117,7 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button class="btn-logout" onclick="logoutStudent(); window.location.href='https://wmlumen.github.io/Asistencia/';">
+                <button class="btn-logout" onclick="cerrarSesion()">
                     <i class="fas fa-sign-out-alt"></i> Cerrar sesión
                 </button>
                 <a href="https://wmlumen.github.io/Asistencia/">
@@ -301,7 +301,7 @@
             return;
         }
         if (!isModuleEnabled('student_consultar')) {
-            window.location.href = 'https://wmlumen.github.io/Asistencia/?msg=modulo_deshabilitado';
+            redirigirModuloDeshabilitado();
         }
     }
     checkModule();
