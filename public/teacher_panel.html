@@ -289,6 +289,54 @@
  </div>
  </div>
 
+ <!-- Configuración del Examen -->
+ <div x-data="{ open: false }" class="bg-white border border-amber-200 rounded-2xl p-6 shadow-xl space-y-5 animate-fade">
+ <div class="flex items-center justify-between border-b border-amber-100 pb-4">
+ <div class="flex items-center gap-3">
+ <div class="bg-amber-50 p-2.5 rounded-xl"><i class="fas fa-cog text-amber-600 text-sm"></i></div>
+ <div>
+ <h3 class="text-sm font-bold text-slate-900">Configuración del Examen</h3>
+ <p class="text-xs text-slate-500">Configure los parámetros del examen virtual (se guarda en el navegador)</p>
+ </div>
+ </div>
+ <button @click="open = !open" class="text-amber-600 hover:text-amber-800 transition-colors p-1">
+ <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+ </button>
+ </div>
+ <div x-show="open" x-transition class="space-y-4">
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+ <div>
+ <label class="block text-xs font-semibold text-slate-700 mb-1.5">Grupo(s)</label>
+ <input type="text" id="exam-grupo" placeholder="Ej: MJ 026, LV 026" class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-100 transition-all">
+ </div>
+ <div>
+ <label class="block text-xs font-semibold text-slate-700 mb-1.5">Tiempo Límite (minutos)</label>
+ <input type="number" id="exam-tiempo" placeholder="60" min="1" class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-100 transition-all">
+ </div>
+ <div>
+ <label class="block text-xs font-semibold text-slate-700 mb-1.5">Intentos Máximos</label>
+ <input type="number" id="exam-intentos" placeholder="2" min="1" class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-100 transition-all">
+ </div>
+ <div>
+ <label class="block text-xs font-semibold text-slate-700 mb-1.5">Fecha del Examen</label>
+ <input type="text" id="exam-fecha" placeholder="Ej: Sábado 27 de 13:00 a 14:00 hs." class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-100 transition-all">
+ </div>
+ </div>
+ <div class="flex items-center gap-3 pt-2">
+ <button onclick="guardarConfigExamen()" class="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-amber-500/20 transition-all hover:-translate-y-0.5">
+ <i class="fas fa-save mr-1.5"></i> Guardar Configuración
+ </button>
+ <button onclick="cargarConfigExamen()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs font-medium transition-all border border-slate-200">
+ <i class="fas fa-undo mr-1"></i> Restaurar Valores Iniciales
+ </button>
+ <span id="exam-config-status" class="text-xs text-emerald-600 font-medium ml-2"></span>
+ </div>
+ <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+ <p class="text-[10px] text-amber-800 font-medium"><i class="fas fa-info-circle mr-1"></i> Los cambios se guardan en el navegador y aplican inmediatamente al examen virtual. No afectan al archivo Datos_Generales.txt.</p>
+ </div>
+ </div>
+ </div>
+
  <!-- KPI Cards -->
  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
  <div class="kpi-hover bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
@@ -1609,5 +1657,72 @@ async function cargarFiltroCarreras() {
 }
 </script>
 
+
+<script>
+function guardarConfigExamen() {
+    const config = {
+        grupo: document.getElementById('exam-grupo')?.value.trim() || '',
+        tiempo_limite: document.getElementById('exam-tiempo')?.value.trim() || '',
+        intentos_maximos: document.getElementById('exam-intentos')?.value.trim() || '',
+        fecha_examen: document.getElementById('exam-fecha')?.value.trim() || ''
+    };
+    localStorage.setItem('examConfig', JSON.stringify(config));
+    const status = document.getElementById('exam-config-status');
+    if (status) {
+        status.textContent = '\u2713 Configuraci\u00f3n guardada';
+        setTimeout(function() { status.textContent = ''; }, 3000);
+    }
+    // Actualizar CONFIG en memoria
+    if (typeof CONFIG !== 'undefined') {
+        if (config.grupo) CONFIG.grupo = config.grupo;
+        if (config.tiempo_limite) CONFIG.tiempo_limite = config.tiempo_limite;
+        if (config.intentos_maximos) CONFIG.intentos_maximos = config.intentos_maximos;
+        if (config.fecha_examen) CONFIG.fecha_examen = config.fecha_examen;
+    }
+    console.log('Exam config saved:', config);
+}
+
+function cargarConfigExamen() {
+    // Cargar valores desde CONFIG
+    const grupo = document.getElementById('exam-grupo');
+    const tiempo = document.getElementById('exam-tiempo');
+    const intentos = document.getElementById('exam-intentos');
+    const fecha = document.getElementById('exam-fecha');
+    
+    if (typeof CONFIG !== 'undefined') {
+        if (grupo) grupo.value = CONFIG.grupo || '';
+        if (tiempo) tiempo.value = CONFIG.tiempo_limite || '';
+        if (intentos) intentos.value = CONFIG.intentos_maximos || '';
+        if (fecha) fecha.value = CONFIG.fecha_examen || '';
+    }
+    const status = document.getElementById('exam-config-status');
+    if (status) {
+        status.textContent = 'Valores cargados desde configuraci\u00f3n';
+        setTimeout(function() { status.textContent = ''; }, 3000);
+    }
+}
+
+// Auto-cargar al abrir
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar desde localStorage si existe
+    const saved = localStorage.getItem('examConfig');
+    if (saved) {
+        try {
+            const config = JSON.parse(saved);
+            const grupo = document.getElementById('exam-grupo');
+            const tiempo = document.getElementById('exam-tiempo');
+            const intentos = document.getElementById('exam-intentos');
+            const fecha = document.getElementById('exam-fecha');
+            if (grupo && config.grupo) grupo.value = config.grupo;
+            if (tiempo && config.tiempo_limite) tiempo.value = config.tiempo_limite;
+            if (intentos && config.intentos_maximos) intentos.value = config.intentos_maximos;
+            if (fecha && config.fecha_examen) fecha.value = config.fecha_examen;
+        } catch(e) { console.warn('Error loading exam config:', e); }
+    } else {
+        // Si no hay guardado, cargar desde CONFIG
+        cargarConfigExamen();
+    }
+});
+</script>
 </body>
 </html>

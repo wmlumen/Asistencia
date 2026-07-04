@@ -207,6 +207,21 @@ async function cargarConfiguracion() {
 
                 console.log('CONFIG merged with local overrides');
 
+    // Aplicar configuracion del examen desde localStorage (configurada por el docente)
+    try {
+        const examSaved = localStorage.getItem('examConfig');
+        if (examSaved) {
+            const examConfig = JSON.parse(examSaved);
+            if (examConfig.grupo) CONFIG.grupo = examConfig.grupo;
+            if (examConfig.tiempo_limite) CONFIG.tiempo_limite = examConfig.tiempo_limite;
+            if (examConfig.intentos_maximos) CONFIG.intentos_maximos = examConfig.intentos_maximos;
+            if (examConfig.fecha_examen) CONFIG.fecha_examen = examConfig.fecha_examen;
+            console.log('CONFIG overridden with exam config from localStorage:', examConfig);
+        }
+    } catch(e) {
+        console.warn('Error applying exam config from localStorage:', e);
+    }
+
 
 
 
