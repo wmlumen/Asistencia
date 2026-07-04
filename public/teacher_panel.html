@@ -21,7 +21,7 @@
               return;
           }
           if (!isModuleEnabled('teacher_panel')) {
-              window.location.href = 'index.html?msg=modulo_deshabilitado';
+              window.location.href = 'https://wmlumen.github.io/Asistencia/?msg=modulo_deshabilitado';
           }
       }
       checkModule();
@@ -138,7 +138,7 @@
                     <p style="font-size: 11px; margin: 0; opacity: 0.9;">Panel de Control Docente</p>
                 </div>
             </div>
-            <a href="index.html" style="color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+            <a href="https://wmlumen.github.io/Asistencia/" style="color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px;">
                 <i class="fas fa-home"></i> Volver al inicio
             </a>
         </div>
@@ -187,7 +187,7 @@
    </nav>
  </div>
  <div class="p-4 border-t border-white/10">
-  <button onclick="location.href='index.html'" class="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all text-xs py-3 rounded-xl border border-white/10 font-medium">
+  <button onclick="location.href='https://wmlumen.github.io/Asistencia/'" class="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all text-xs py-3 rounded-xl border border-white/10 font-medium">
   <i class="fas fa-home"></i> Volver al inicio
   </button>
  </div>
@@ -218,7 +218,7 @@
   <button onclick="renderAll()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl transition-all" title="Forzar sincronización manual">
   <i class="fas fa-sync-alt text-xs"></i>
   </button>
-  <button onclick="logoutTeacher(); window.location.href='index.html';" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-2 rounded-xl text-xs font-medium transition-all" title="Cerrar sesión">
+  <button onclick="logoutTeacher(); window.location.href='https://wmlumen.github.io/Asistencia/';" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-2 rounded-xl text-xs font-medium transition-all" title="Cerrar sesión">
   <i class="fas fa-sign-out-alt"></i>
   </button>
   </div>
@@ -679,7 +679,7 @@
           <p class="text-[10px] text-slate-500" id="docente-cedula">Cédula</p>
         </div>
       </div>
-      <button onclick="logoutTeacher(); window.location.href='index.html';" class="w-full flex items-center justify-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-2 rounded-lg text-xs font-medium transition-all border border-rose-200">
+      <button onclick="logoutTeacher(); window.location.href='https://wmlumen.github.io/Asistencia/';" class="w-full flex items-center justify-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-2 rounded-lg text-xs font-medium transition-all border border-rose-200">
         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
       </button>
     </div>
@@ -718,7 +718,7 @@
                 btn.className = 'text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors';
                 btn.addEventListener('click', function() {
                     logoutTeacher();
-                    window.location.href = 'index.html';
+                    window.location.href = 'https://wmlumen.github.io/Asistencia/';
                 });
                 header.querySelector('div').appendChild(btn);
             }
