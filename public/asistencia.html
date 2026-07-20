@@ -2180,10 +2180,10 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Hora</th>
-                            <th>Alumno</th>
-                            <th>Doc.</th>
-                            <th>Carrera</th>
+                            <th style="cursor:pointer; user-select:none;" onclick="sortPublicAttendance('hora')">Hora <i class="fas fa-sort" style="font-size:10px; color:#a0aec0; margin-left:4px;"></i></th>
+                            <th style="cursor:pointer; user-select:none;" onclick="sortPublicAttendance('nombre')">Alumno <i class="fas fa-sort" style="font-size:10px; color:#a0aec0; margin-left:4px;"></i></th>
+                            <th style="cursor:pointer; user-select:none;" onclick="sortPublicAttendance('cedula')">Doc. <i class="fas fa-sort" style="font-size:10px; color:#a0aec0; margin-left:4px;"></i></th>
+                            <th style="cursor:pointer; user-select:none;" onclick="sortPublicAttendance('carrera')">Carrera <i class="fas fa-sort" style="font-size:10px; color:#a0aec0; margin-left:4px;"></i></th>
                         </tr>
                     </thead>
                     <tbody id="public-attendance-body">
@@ -2248,6 +2248,21 @@
 
                 return { fecha, hora, nombre: (nombre || '').toUpperCase().trim(), cedula, carrera };
             }).filter(r => r.nombre || r.cedula);
+
+            // Variables globales para ordenamiento
+            window.currentAttendanceSort = window.currentAttendanceSort || { column: 'hora', asc: false };
+
+            window.sortPublicAttendance = function(column) {
+                if (window.currentAttendanceSort.column === column) {
+                    window.currentAttendanceSort.asc = !window.currentAttendanceSort.asc;
+                } else {
+                    window.currentAttendanceSort.column = column;
+                    window.currentAttendanceSort.asc = true;
+                }
+                if (typeof window.renderPublicAttendancePreview === 'function') {
+                    window.renderPublicAttendancePreview();
+                }
+            };
 
             // Funcion para formatear fecha corta
             function formatearFechaCorta(fechaStr) {
@@ -2319,6 +2334,19 @@
                 tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><div class="empty-state-text">Aún no hay registros</div></td></tr>';
                 return;
             }
+
+            // Aplicar ordenamiento
+            const sortCol = window.currentAttendanceSort ? window.currentAttendanceSort.column : 'hora';
+            const sortAsc = window.currentAttendanceSort ? window.currentAttendanceSort.asc : false;
+            
+            registrosUnicos.sort((a, b) => {
+                let valA = (a[sortCol] || '').toString().toLowerCase();
+                let valB = (b[sortCol] || '').toString().toLowerCase();
+                
+                if (valA < valB) return sortAsc ? -1 : 1;
+                if (valA > valB) return sortAsc ? 1 : -1;
+                return 0;
+            });
 
             const fechaCorta = formatearFechaCorta(fechaMostrar);
             const esHoy = fechaMostrar === hoyStr;
