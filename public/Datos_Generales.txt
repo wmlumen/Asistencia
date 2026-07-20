@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # DATOS GENERALES DEL EXAMEN - INSTITUTO CENTURIA
 # ============================================
 
@@ -38,7 +38,7 @@ motivo.otro=Otros
 
 # === LINKS ===
 link.google.forms=
-link.asistencia=https://docs.google.com/spreadsheets/d/1mMd2UbVxCQqLz4IaMUX88CE-Ov6F4ndp1NjxE9m-pY4
+link.asistencia=https://docs.google.com/spreadsheets/d/1aMr1KYx7FQ4YYh0WgqzWQQ4FZnOytMwae8JWskG5cPQ/edit#gid=55203459
 link.respuestas=https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R3fm8H6pnPxcp_eOHb5s
 link.solicitudes.extraordinarias=https://docs.google.com/forms/d/1ABC123XYZ/edit
 
