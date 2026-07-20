@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -974,6 +974,8 @@
                 html += '<td class="acciones-cell">';
                 html += '<button class="btn-small btn-copy" onclick="copiarCodigo(\'' + (p.CODIGO || p.codigo) + '\')" title="Copiar código"><i class="fas fa-copy"></i></button>';
                 html += '<button class="btn-small btn-edit" onclick="editarPlanif(' + index + ')" title="Editar"><i class="fas fa-edit"></i></button>';
+                html += '<button class="btn-small btn-clone" onclick="clonarPlanif(' + index + ')" title="Duplicar Planificaci&oacute;n" style="background: #17a2b8; color: white;"><i class="fas fa-clone"></i></button>';
+                html += '<button class="btn-small btn-clone" onclick="clonarPlanif(' + index + ')" title="Duplicar Planificaci&oacute;n" style="background: #17a2b8; color: white;"><i class="fas fa-clone"></i></button>';
                 html += '<button class="btn-small btn-delete" onclick="eliminarPlanif(' + index + ')" title="Eliminar"><i class="fas fa-trash"></i></button>';
                 html += '</td>';
                 html += '</tr>';
@@ -1052,6 +1054,32 @@
             window.scrollTo(0, 0);
         }
         
+        window.clonarPlanif = function(index) {
+            const planificaciones = window.planificacionesMemoria || [];
+            if (index < 0 || index >= planificaciones.length) return;
+            
+            const p = planificaciones[index];
+            
+            document.getElementById('planif-cedula').value = p.Cedula || p.cedula || '';
+            document.getElementById('planif-nombre').value = p['Nombre y Apellido'] || p.nombre || '';
+            document.getElementById('planif-asignatura').value = p.COD_ASIGNATURA || p.codAsignatura || '';
+            document.getElementById('planif-seccion').value = p.COD_SECCION || p.codSeccion || '';
+            document.getElementById('planif-carrera').value = p.COD_CARRERA || p.codCarrera || '';
+            document.getElementById('planif-fecha-inicio').value = p['Fecha de Inicio'] || p.fechaInicio || '';
+            document.getElementById('planif-fecha-cierre').value = p['Fecha de Cierre'] || p.fechaCierre || '';
+            document.getElementById('planif-sala').value = p.SALA || p.sala || '';
+            document.getElementById('planif-sede').value = p.SEDE || p.sede || '';
+            document.getElementById('planif-modalidad').value = p.Modalidad || p.modalidad || 'Presencial';
+            document.getElementById('planif-observaciones').value = p.Observaciones || p.observaciones || '';
+            
+            planifEditandoCodigo = null;
+            document.getElementById('form-titulo').textContent = 'Nueva Planificaci&oacute;n (Copia)';
+            document.getElementById('btn-guardar').innerHTML = '<i class="fas fa-save"></i> Guardar Nueva Planificaci&oacute;n';
+            document.getElementById('btn-cancelar').style.display = 'inline-block';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function eliminarPlanif(index) {
             if (!confirm('¿Eliminar esta planificación?\n\nNota: Esto solo elimina de la vista temporal. Para eliminar permanentemente de Google Sheets, debe hacerlo manualmente desde la planilla.')) return;
             planificaciones.splice(index, 1);
@@ -1102,12 +1130,21 @@
                 asignaturas.push('01-Sociología', '02-Contabilidad', '03-Administración', '04-Derecho', '05-Economía', '06-Matemáticas', '07-Informática', '08-Pedagogía', '09-Psicología', '10-Comunicación');
             }
             if (secciones.length === 0) {
-                secciones.push('01-S026', '02-LV026', '03-M026', '04-T026', '05-N026', '06-VL026');
+                secciones.push('01-S026', '02-LV026', '03-M026', '04-T026', '05-N026', '06-VL026', '07-IC026');
             }
             if (carreras.length === 0) {
                 carreras.push('01-Licenciatura Administración de Empresas', '02-Licenciatura Contabilidad', '03-Ingeniería Comercial', '04-Licenciatura Administración Aduanera', '05-Licenciatura Administración y Gestión Pública', '06-Maestría Administración y Gestión Pública', '07-Otro');
             }
             
+            const planifs = window.planificacionesMemoria || [];
+            planifs.forEach(p => {
+                const asig = p.COD_ASIGNATURA || p.codAsignatura;
+                const sec = p.COD_SECCION || p.codSeccion;
+                const car = p.COD_CARRERA || p.codCarrera;
+                if (asig && !asignaturas.includes(asig)) asignaturas.push(asig);
+                if (sec && !secciones.includes(sec)) secciones.push(sec);
+                if (car && !carreras.includes(car)) carreras.push(car);
+            });
             // Llenar selects
             llenarSelect('planif-asignatura', asignaturas);
             llenarSelect('planif-seccion', secciones);
