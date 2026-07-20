@@ -417,7 +417,7 @@ async function cargarConfiguracion() {
 
 
 
-            api_secret: ''  # definir en config local
+            api_secret: 'CenturiaApi2024!'  // Definido por defecto para la conexion con Sheets
 
 
 
