@@ -1123,6 +1123,7 @@
         function cargarCatalogosDinamicos() {
             const asignaturas = JSON.parse(localStorage.getItem('cat_asignaturas') || '[]');
             const secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
+            if (!secciones.includes('07-IC026')) secciones.push('07-IC026');
             const carreras = JSON.parse(localStorage.getItem('cat_carreras') || '[]');
             
             // Si no hay catálogos, usar defaults

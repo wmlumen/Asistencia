@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -2466,6 +2466,7 @@
             
             // Llenar select de secciones
             const secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
+            if (!secciones.includes('07-IC026')) secciones.push('07-IC026');
             const selectSeccion = document.getElementById('attendance-section');
             if (selectSeccion && secciones.length > 0) {
                 selectSeccion.innerHTML = '<option value="">-- Seleccione --</option>';

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -595,6 +595,9 @@
             // Intentar 2: Formato de otras páginas
             const asignaturasRaw = localStorage.getItem('cat_asignaturas');
             const seccionesRaw = localStorage.getItem('cat_secciones');
+            let secTemp = seccionesRaw ? JSON.parse(seccionesRaw) : ['01-S026', '02-LV026', '03-M026', '04-T026', '05-N026', '06-VL026'];
+            if (!secTemp.includes('07-IC026')) secTemp.push('07-IC026');
+            localStorage.setItem('cat_secciones', JSON.stringify(secTemp));
             const carrerasRaw = localStorage.getItem('cat_carreras');
             
             if (asignaturasRaw || seccionesRaw || carrerasRaw) {

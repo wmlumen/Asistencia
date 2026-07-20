@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -769,6 +769,7 @@
             
             const carreras = JSON.parse(localStorage.getItem('cat_carreras') || '[]');
             let secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
+            if (!secciones.includes('07-IC026')) secciones.push('07-IC026');
             const asignaturas = JSON.parse(localStorage.getItem('cat_asignaturas') || '[]');
             
             // Asegurar que existan las secciones exactas usadas en los datos
