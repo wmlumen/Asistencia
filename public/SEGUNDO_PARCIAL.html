@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -30,6 +30,35 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
+    <!-- Password Overlay -->
+    <div id="password-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div style="background: #f8fafc; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e2e8f0; max-width: 400px; width: 90%;">
+            <img src="logo_centuria.png" alt="Logo Centuria" style="height: 55px; margin: 0 auto 1rem auto;">
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #1e1e1e; margin-bottom: 0.5rem; font-weight: bold;">Acceso Restringido</h2>
+            <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem;">Por favor, ingrese la contraseña para acceder a este examen.</p>
+            <input type="password" id="exam-password" placeholder="Contraseña" style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 1rem; font-size: 1rem; text-align: center;">
+            <button onclick="checkPassword()" style="background: #28a745; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%;">Acceder</button>
+            <p id="password-error" style="color: #dc2626; font-size: 0.875rem; margin-top: 1rem; display: none;">Contraseña incorrecta.</p>
+            <a href="index.html" style="display: block; margin-top: 1rem; font-size: 0.875rem; color: #64748b; text-decoration: none;">Volver al inicio</a>
+        </div>
+    </div>
+    <script>
+        document.body.style.overflow = 'hidden';
+        function checkPassword() {
+            var pwd = document.getElementById('exam-password').value;
+            if (pwd === 'Centuri@2026') {
+                document.getElementById('password-overlay').style.display = 'none';
+                document.body.style.overflow = '';
+            } else {
+                document.getElementById('password-error').style.display = 'block';
+                document.getElementById('exam-password').value = '';
+                document.getElementById('exam-password').focus();
+            }
+        }
+        document.getElementById('exam-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkPassword();
+        });
+    </script>
 
     <!-- Navegación -->
     <div class="max-w-4xl mx-auto mb-4 no-print">
