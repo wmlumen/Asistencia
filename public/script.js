@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 
 
 
@@ -8885,3 +8885,27 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Navegacion actualizada para rol: ' + role + ' -> ' + targetUrl);
 });
 
+
+window.inicializarCatalogos = async function() {
+    try {
+        const apiUrl = getAttendanceApiUrl();
+        const apiKey = getApiKey();
+        if (!apiUrl || !apiKey) return;
+        const url = apiUrl + '?modo=catalogos&apiKey=' + encodeURIComponent(apiKey);
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.catalogos) {
+            const asig = data.catalogos.filter(c => c.Tipo === 'Asignatura').map(c => c.Codigo + '-' + c.Nombre);
+            const sec = data.catalogos.filter(c => c.Tipo === 'Seccion').map(c => c.Codigo + '-' + c.Nombre);
+            const car = data.catalogos.filter(c => c.Tipo === 'Carrera').map(c => c.Codigo + '-' + c.Nombre);
+            if (asig.length > 0) localStorage.setItem('cat_asignaturas', JSON.stringify(asig));
+            if (sec.length > 0) {
+                if (!sec.includes('07-IC026')) sec.push('07-IC026');
+                localStorage.setItem('cat_secciones', JSON.stringify(sec));
+            }
+            if (car.length > 0) localStorage.setItem('cat_carreras', JSON.stringify(car));
+        }
+    } catch (e) {
+        console.error('Error inicializando catalogos:', e);
+    }
+};
