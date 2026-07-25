@@ -1704,6 +1704,7 @@ function toggleOtroSeccion(val) {
                             <label><i class="fas fa-users"></i> Sección</label>
                             <select id="attendance-section" required onchange="this.style.borderColor=''; toggleOtroSeccion(this.value);">
                                 <option value="">-- Seleccione --</option>
+                                <option value="S 026">S 026</option>
                                 <option value="MJ 026">MJ 026</option>
                                 <option value="LV 026">LV 026</option>
                                 <option value="OTRO">Otro</option>
@@ -2489,8 +2490,7 @@ function toggleOtroSeccion(val) {
             
             // Llenar select de secciones
             let secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
-            secciones = secciones.filter(s => s !== 'S 026' && s !== 'S026' && s !== '07-S026');
-            ['LV 026', 'MJ 026', '07-IC026'].forEach(function(s) { if (!secciones.includes(s)) secciones.push(s); });
+            ['S 026', 'LV 026', 'MJ 026', '07-IC026'].forEach(function(s) { if (!secciones.includes(s)) secciones.push(s); });
             if (!secciones.includes('OTRO')) secciones.push('OTRO');
             const selectSeccion = document.getElementById('attendance-section');
             if (selectSeccion && secciones.length > 0) {
