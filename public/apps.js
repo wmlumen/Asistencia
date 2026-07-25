@@ -337,13 +337,29 @@ function doGet(e) {
     // ---- CATÁLOGOS ----
     if (modo === 'catalogos') {
       const sheet = getSheet_(SH.CATALOGOS);
-      const objetos = sheetToObjects_(sheet);
+      const data = sheet ? sheet.getDataRange().getValues() : [];
+      const objetos = sheet ? sheetToObjects_(sheet) : [];
       const agrupados = {};
       objetos.forEach(o => {
         const tipo = String(o.Tipo || '').trim();
         if (!agrupados[tipo]) agrupados[tipo] = [];
-        agrupados[tipo].push({ codigo: o.Codigo, nombre: o.Nombre });
+        const cod = String(o.Codigo || '').trim();
+        if (cod !== 'S 026' && cod !== 'S026') {
+          agrupados[tipo].push({ codigo: o.Codigo, nombre: o.Nombre });
+        }
       });
+      // Leer secciones adicionales de la Columna F (índice 5) de la hoja Catálogos
+      if (data.length > 1) {
+        data.slice(1).forEach(row => {
+          const colF = row[5] ? String(row[5]).trim() : '';
+          if (colF && colF.toUpperCase() !== 'SECCION' && colF.toUpperCase() !== 'SECCIÓN' && colF !== 'S 026' && colF !== 'S026') {
+            if (!agrupados['Seccion']) agrupados['Seccion'] = [];
+            if (!agrupados['Seccion'].some(s => s.codigo === colF || s.nombre === colF)) {
+              agrupados['Seccion'].push({ codigo: colF, nombre: colF });
+            }
+          }
+        });
+      }
       return jsonResponse(agrupados);
     }
     

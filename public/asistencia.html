@@ -1600,6 +1600,25 @@
             animation: pulse 2s ease-in-out infinite;
         }
     </style>
+
+<script>
+function toggleOtroSeccion(val) {
+    const customInput = document.getElementById('attendance-section-custom');
+    if (!customInput) return;
+    if (val === 'OTRO' || val === 'Otro') {
+        customInput.classList.remove('hidden');
+        customInput.style.display = 'block';
+        customInput.required = true;
+        customInput.focus();
+    } else {
+        customInput.classList.add('hidden');
+        customInput.style.display = 'none';
+        customInput.required = false;
+        customInput.value = '';
+    }
+}
+</script>
+
 </head>
 <body>
     <!-- Header Institucional -->
@@ -1683,13 +1702,13 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label><i class="fas fa-users"></i> Sección</label>
-                            <select id="attendance-section" required onchange="this.style.borderColor='';">
+                            <select id="attendance-section" required onchange="this.style.borderColor=''; toggleOtroSeccion(this.value);">
                                 <option value="">-- Seleccione --</option>
                                 <option value="MJ 026">MJ 026</option>
-                                <option value="VL 026">VL 026</option>
-                                <option value="S026">S026</option>
+                                <option value="LV 026">LV 026</option>
                                 <option value="OTRO">Otro</option>
                             </select>
+                            <input type="text" id="attendance-section-custom" class="form-control hidden" placeholder="Escriba su sección..." style="margin-top: 8px; display: none;" />
                         </div>
 
                         <div class="form-group">
@@ -1871,7 +1890,11 @@
                     const nombre = document.getElementById('attendance-name').value.trim().toUpperCase();
                     const cedula = document.getElementById('attendance-id').value.trim().replace(/\./g, '');
                     const carrera = document.getElementById('attendance-career').value;
-                    const seccion = document.getElementById('attendance-section').value;
+                    let seccion = document.getElementById('attendance-section').value;
+                    if (seccion === 'OTRO' || seccion === 'Otro') {
+                        const customSec = document.getElementById('attendance-section-custom');
+                        seccion = (customSec && customSec.value.trim()) ? customSec.value.trim().toUpperCase() : 'OTRO';
+                    }
                     const mes = document.getElementById('attendance-mes').value;
                     const observacion = document.getElementById('attendance-notes').value.trim();
                     const fechaAusencia = document.getElementById('attendance-fecha-ausencia') ? document.getElementById('attendance-fecha-ausencia').value : '';
@@ -2465,17 +2488,23 @@
             }
             
             // Llenar select de secciones
-            const secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
-            ['S 026', 'LV 026', 'MJ 026', 'S026', '07-IC026'].forEach(function(s) { if (!secciones.includes(s)) secciones.push(s); });
+            let secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
+            secciones = secciones.filter(s => s !== 'S 026' && s !== 'S026' && s !== '07-S026');
+            ['LV 026', 'MJ 026', '07-IC026'].forEach(function(s) { if (!secciones.includes(s)) secciones.push(s); });
+            if (!secciones.includes('OTRO')) secciones.push('OTRO');
             const selectSeccion = document.getElementById('attendance-section');
             if (selectSeccion && secciones.length > 0) {
                 selectSeccion.innerHTML = '<option value="">-- Seleccione --</option>';
                 secciones.forEach(s => {
                     const option = document.createElement('option');
                     option.value = s;
-                    option.textContent = s.split('-').slice(1).join('-') || s;
+                    option.textContent = (s === 'OTRO' || s === 'Otro') ? 'Otro' : (s.split('-').slice(1).join('-') || s);
                     selectSeccion.appendChild(option);
                 });
+                selectSeccion.onchange = function() {
+                    this.style.borderColor = '';
+                    toggleOtroSeccion(this.value);
+                };
             }
         }
         
