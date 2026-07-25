@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 
 
 
@@ -113,13 +113,14 @@ async function cargarConfiguracion() {
 
 
 
-        let respuesta = await fetch('Datos_Generales.txt');
+        const cacheBuster = '?v=' + new Date().getTime();
+        let respuesta = await fetch('Datos_Generales.txt' + cacheBuster);
 
 
 
         if (!respuesta.ok) {
 
-            respuesta = await fetch('../data/Datos_Generales.txt');
+            respuesta = await fetch('../data/Datos_Generales.txt' + cacheBuster);
 
         }
 
@@ -409,11 +410,11 @@ async function cargarConfiguracion() {
 
 
 
-            link_respuestas: 'https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R3fm8H6pnPxcp_eOHb5s',
+            link_respuestas: 'https://docs.google.com/spreadsheets/d/1aMr1KYx7FQ4YYh0WgqzWQQ4FZnOytMwae8JWskG5cPQ/edit',
 
 
 
-            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbyecUVEJPCYlRSbgA6XiP2vdkpoJ4x9-j6fLPRgHhFh-9dsefSsh9qSdWsXcuJN3eE/exec',
+            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbwbRXC4bIRmtZ5A7fdN9UkWXm-dKdLTKZdRHszQ6U4T60ieoUpaN_D9AtEKe-uS-MNT/exec',
 
 
 
