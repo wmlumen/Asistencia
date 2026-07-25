@@ -2466,7 +2466,7 @@
             
             // Llenar select de secciones
             const secciones = JSON.parse(localStorage.getItem('cat_secciones') || '[]');
-            if (!secciones.includes('07-IC026')) secciones.push('07-IC026');
+            ['S 026', 'LV 026', 'MJ 026', 'S026', '07-IC026'].forEach(function(s) { if (!secciones.includes(s)) secciones.push(s); });
             const selectSeccion = document.getElementById('attendance-section');
             if (selectSeccion && secciones.length > 0) {
                 selectSeccion.innerHTML = '<option value="">-- Seleccione --</option>';
