@@ -414,7 +414,7 @@ async function cargarConfiguracion() {
 
 
 
-            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbwbRXC4bIRmtZ5A7fdN9UkWXm-dKdLTKZdRHszQ6U4T60ieoUpaN_D9AtEKe-uS-MNT/exec',
+            asistencia_api_url: 'https://script.google.com/macros/s/AKfycbyN3p2f0CgygODFMrghC-8lwXEFnomATne6syXXVIRxlEjUUQwptXeiBuVOZM_Qp052/exec',
 
 
 
