@@ -8910,3 +8910,10 @@ window.inicializarCatalogos = async function() {
         console.error('Error inicializando catalogos:', e);
     }
 };
+
+// ============================================================
+// FIX PARA COMPATIBILIDAD CON VISTAS ANTIGUAS
+// ============================================================
+function isTeacherSessionActive() {
+    return localStorage.getItem('userRole') === 'docente';
+}
