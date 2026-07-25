@@ -8915,5 +8915,16 @@ window.inicializarCatalogos = async function() {
 // FIX PARA COMPATIBILIDAD CON VISTAS ANTIGUAS
 // ============================================================
 function isTeacherSessionActive() {
-    return localStorage.getItem('userRole') === 'docente';
+    try {
+        var role = localStorage.getItem('userRole');
+        var cedula = localStorage.getItem('teacher_cedula');
+        var sessionData = localStorage.getItem('teacher_session_data');
+        var sessionActive = sessionStorage.getItem('teacher_session_active');
+        
+        if (role === 'docente' || role === 'teacher') return true;
+        if (cedula && cedula.trim() !== '') return true;
+        if (sessionData && sessionData.trim() !== '') return true;
+        if (sessionActive === '1' || sessionActive === 'true') return true;
+    } catch(e) {}
+    return false;
 }
