@@ -31,7 +31,7 @@ const API_SECRET = 'CenturiaApi2024!';
 
 // Nombres de hojas del sistema unificado
 const SH = {
-  ASISTENCIA: 'Asistencia',
+  ASISTENCIA: 'Tabla_2', // Hoja principal de registros (con fallback a Asistencia/Tabla 2/Registro)
   CATALOGOS: 'Catálogos',
   PLANIFICACIONES: 'Planificaciones',
   PROGRESO_GRUPOS: 'ProgresoGrupos',
@@ -62,6 +62,15 @@ const HEADERS = {
 function getSheet_(name) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(name);
+  
+  // Buscar nombres alternativos comunes para la hoja de Asistencia (ej: Tabla_2, Tabla 2, Registro)
+  if (!sheet && name === SH.ASISTENCIA) {
+    sheet = ss.getSheetByName('Tabla_2') || 
+            ss.getSheetByName('Tabla 2') || 
+            ss.getSheetByName('Registro') || 
+            ss.getSheetByName('Respuestas de formulario 1');
+  }
+  
   if (!sheet) {
     sheet = ss.insertSheet(name);
     const h = HEADERS[name];
