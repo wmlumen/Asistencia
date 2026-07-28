@@ -31,7 +31,7 @@ const API_SECRET = 'CenturiaApi2024!';
 
 // Nombres de hojas del sistema unificado
 const SH = {
-  ASISTENCIA: 'Asistencia',
+  ASISTENCIA: 'AsistenciaVF',
   CATALOGOS: 'Catálogos',
   PLANIFICACIONES: 'Planificaciones',
   PROGRESO_GRUPOS: 'ProgresoGrupos',
@@ -45,6 +45,7 @@ const SH = {
 // Headers normalizados para cada hoja
 const HEADERS = {
   ASISTENCIA: ['Fecha', 'Nombre', 'Cedula', 'Carrera', 'Seccion', 'Asignatura', 'Estado', 'Observacion', 'MarcaTemporal'],
+  AsistenciaVF: ['Fecha', 'Nombre', 'Cedula', 'Carrera', 'Seccion', 'Asignatura', 'Estado', 'Observacion', 'MarcaTemporal'],
   CATALOGOS: ['Tipo', 'Codigo', 'Nombre', 'Activo'],
   PLANIFICACIONES: ['Codigo', 'CedulaDocente', 'NombreDocente', 'CodAsignatura', 'CodSeccion', 'CodCarrera', 'FechaInicio', 'FechaCierre', 'Sala', 'Sede', 'Modalidad', 'Observaciones', 'MarcaTemporal'],
   PROGRESO_GRUPOS: ['Codigo', 'CedulaDocente', 'Seccion', 'Asignatura', 'Unidad', 'Tema', 'Fecha', 'Observaciones', 'MarcaTemporal'],
