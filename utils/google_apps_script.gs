@@ -60,12 +60,20 @@ const HEADERS = {
 // FUNCIONES AUXILIARES
 // ============================================================
 
+function getSpreadsheet_() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (ss) return ss;
+  } catch (e) {}
+  return SpreadsheetApp.openById(SPREADSHEET_ID);
+}
+
 function getSheet_(name) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = getSpreadsheet_();
   let sheet = ss.getSheetByName(name);
   if (!sheet) {
     sheet = ss.insertSheet(name);
-    const h = HEADERS[name];
+    const h = HEADERS[name] || HEADERS['ASISTENCIA'];
     if (h) sheet.appendRow(h);
   }
   return sheet;
