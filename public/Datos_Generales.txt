@@ -43,5 +43,5 @@ link.respuestas=https://docs.google.com/spreadsheets/d/1isV0oyTbiSGAWB5DZuNUjU8R
 link.solicitudes.extraordinarias=https://docs.google.com/forms/d/1ABC123XYZ/edit
 
 # === API / BASE DE DATOS EN SHEET ===
-asistencia.api.url=https://script.google.com/macros/s/AKfycbz7-bhBJ15m9braG2ESmxTjiwFt2JV0vLB0WA14ETxk5qrFr31vaeOdRA1Rllvz1vVU/exec
+asistencia.api.url=https://script.google.com/macros/s/AKfycbz2_Uh5KwuyPbG8mENTP7ynJ-WiubciTm7EhMv-jkTWb_RQ-ph0gTJX0tVauRP_H3rs/exec
 api.secret=CenturiaApi2024!
