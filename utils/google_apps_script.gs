@@ -731,10 +731,37 @@ function doPost(e) {
     }
     
     sheet.appendRow([fechaStr, nombre, cedula, carrera, seccion, asignatura, estado, observacion, marcaTemp]);
+    
+    // ---- SINCRONIZAR AUTOMÁTICAMENTE EN PESTAÑA ESTUDIANTES ----
+    actualizarHojaEstudiantes_(cedula, nombre, carrera);
+    
     return jsonResponse({ ok: true, mensaje: estado === 'Ausencia Justificada' ? 'Ausencia justificada registrada' : 'Asistencia registrada', duplicado: false });
     
   } catch (error) {
     return jsonResponse({ ok: false, error: error.message });
+  }
+}
+
+function actualizarHojaEstudiantes_(cedula, nombre, carrera) {
+  try {
+    if (!cedula || !nombre) return;
+    const estSheet = getSheet_(SH.ESTUDIANTES || 'Estudiantes');
+    const datos = estSheet.getDataRange().getValues();
+    
+    let encontrado = false;
+    for (let i = 1; i < datos.length; i++) {
+      const rowCedula = (datos[i][0] || '').toString().replace(/[.\s-]/g, '').trim();
+      if (rowCedula === cedula) {
+        encontrado = true;
+        break;
+      }
+    }
+    
+    if (!encontrado) {
+      estSheet.appendRow([cedula, nombre, carrera || '', 'SI']);
+    }
+  } catch (e) {
+    console.error('Error al actualizar pestaña Estudiantes:', e);
   }
 }
 
