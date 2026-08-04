@@ -181,10 +181,15 @@
 
         <!-- Resultados -->
         <div class="card result-box" id="result-card">
-            <div class="score" id="score">0/20</div>
-            <div class="detail" id="detail"></div>
-            <div class="actions" style="margin-top:20px;">
-                <button class="btn" onclick="downloadResults()"><i class="fas fa-download mr-2"></i> Guardar resultado</button>
+            <div id="result-content" style="display:none;">
+                <div class="score" id="score">0/20</div>
+                <div class="detail" id="detail"></div>
+                <div id="result-screenshot" style="margin-top:16px;border:1px solid var(--border);border-radius:12px;overflow:hidden;"></div>
+                <div class="actions" style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+                    <button class="btn" onclick="downloadJpg()"><i class="fas fa-image mr-2"></i> Descargar JPG</button>
+                    <button class="btn" id="retry-btn" onclick="retryExam()"><i class="fas fa-redo mr-2"></i> Siguiente intento</button>
+                </div>
+                <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px;">Se registrará el mayor puntaje de los intentos.</p>
             </div>
         </div>
     </div>
@@ -194,13 +199,14 @@
         const ATTEMPT_KEY = 'primer_parcial_sociologia_2026_attempts';
         const MAX_ATTEMPTS = 2;
         const EXAM_TIME = 30 * 60;
+        const ACCESS_PASSWORD = 'Centuri@2026';
         let answers = {};
         let submitted = false;
         let startTime = null;
         let timerInterval = null;
         let currentAttempt = 1;
         let bestResult = null;
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8xQZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsMhkXil6RH8J60Kjs6HIGWV8r5X1wL2k7nk-7cj7HOhoI2jmvIrMTXot9X32RwvK9/exec';
 
         function checkAccess() {
             const pass = document.getElementById('access-password').value.trim();
@@ -408,7 +414,10 @@
             rc.style.display = 'block';
             document.getElementById('score').textContent = result.score + '/' + result.total + ' (' + result.percent + '%)';
             document.getElementById('detail').textContent = result.student + ' — Cédula: ' + result.cedula + ' — Intento ' + result.attempt;
+            document.getElementById('result-content').style.display = 'block';
+            document.getElementById('retry-btn').style.display = canAttempt() ? 'inline-block' : 'none';
             highlightAnswers();
+            captureResultCard();
         }
 
         function showBestResult() {
@@ -418,18 +427,53 @@
             rc.style.display = 'block';
             document.getElementById('score').textContent = bestResult.score + '/' + bestResult.total + ' (' + bestResult.percent + '%)';
             document.getElementById('detail').textContent = bestResult.student + ' — Cédula: ' + bestResult.cedula + ' — Mejor resultado';
+            document.getElementById('result-content').style.display = 'block';
+            document.getElementById('retry-btn').style.display = 'none';
+            captureResultCard();
         }
 
-        function downloadResults() {
-            const raw = bestResult ? JSON.stringify(bestResult) : localStorage.getItem(EXAM_KEY);
-            if (!raw) return;
-            const blob = new Blob([raw], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
+        async function captureResultCard() {
+            const el = document.getElementById('result-card');
+            if (typeof html2canvas !== 'undefined' && el) {
+                try {
+                    const canvas = await html2canvas(el, { backgroundColor: '#0f172a', scale: 2 });
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                    const container = document.getElementById('result-screenshot');
+                    if (container) {
+                        container.innerHTML = '<img src="' + dataUrl + '" style="width:100%;border-radius:10px;">';
+                    }
+                } catch (e) {
+                    console.error('No se pudo generar la imagen del resultado', e);
+                }
+            }
+        }
+
+        function downloadJpg() {
+            const img = document.querySelector('#result-screenshot img');
+            if (!img) { alert('Primero generá la vista previa del resultado.'); return; }
             const a = document.createElement('a');
-            a.href = url;
-            a.download = 'resultado_primer_parcial_' + Date.now() + '.json';
+            a.href = img.src;
+            a.download = 'resultado_primer_parcial_' + Date.now() + '.jpg';
             a.click();
-            URL.revokeObjectURL(url);
+        }
+
+        function retryExam() {
+            if (!canAttempt()) {
+                alert('Ya completó los 2 intentos permitidos. Se queda registrado el mayor puntaje.');
+                showBestResult();
+                return;
+            }
+            if (!confirm('Se registrará el mayor puntaje de ambos intentos. ¿Desea realizar el siguiente intento?')) {
+                showBestResult();
+                return;
+            }
+            answers = {};
+            submitted = false;
+            document.getElementById('result-card').style.display = 'none';
+            document.getElementById('result-content').style.display = 'none';
+            document.getElementById('exam-card').classList.remove('hidden');
+            renderQuestions();
+            startTimer();
         }
 
         async function sendToGoogleSheets(result) {
