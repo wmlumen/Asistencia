@@ -235,20 +235,11 @@
         <a href="validar.html" style="padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;background:white;color:var(--text-secondary);border:1px solid var(--border);"><i class="fas fa-check-circle"></i> Validar</a>
     </div>
 
-    <!-- Cursos Activos -->
-    <div class="course-tabs" id="active-courses"></div>
-
-    <!-- Alternar archivos -->
-    <div class="archive-toggle">
-        <button id="btn-archive" onclick="toggleArchived()">📂 Ver cursos anteriores</button>
-    </div>
-    <div class="archive-courses" id="archive-courses"></div>
-
-    <!-- Recursos del curso seleccionado -->
+    <!-- Recursos del curso por defecto -->
     <div id="course-content">
         <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
             <i class="fas fa-spinner fa-spin" style="font-size:24px;margin-bottom:12px;"></i>
-            <p>Cargando cursos...</p>
+            <p>Cargando recursos...</p>
         </div>
     </div>
 
@@ -263,105 +254,84 @@
 // ============================================================
 // DATOS DE CURSOS (hasta 10 activos + 10 anteriores)
 // ============================================================
-var COURSES = [];
+var COURSES = [
+    {
+        id: 'soc-2026-1',
+        nombre: 'Sociología',
+        periodo: '1er Cuatrimestre 2026',
+        estado: 'active',
+        grupos: 'S 026, LV 026 y MJ 026',
+        examenes: [
+            { n: 'Primer Parcial', u: 'PRIMER_PARCIAL.html?v=2', d: 'Evaluación parcial · 15 preguntas' },
+            { n: 'Segundo Parcial', u: 'SEGUNDO_PARCIAL.html?v=2', d: 'Evaluación parcial · 15 preguntas' },
+            { n: 'Examen Final', u: 'EXAMEN_FINAL.html?v=2', d: 'Evaluación final · 15 preguntas' }
+        ],
+        unidades: [
+            { n: 'Unidad 1', u: 'UNIDAD_1_MATERIAL_DE_ESTUDIO.html' },
+            { n: 'Unidad 2', u: 'UNIDAD_2_MATERIAL_DE_ESTUDIO.html' },
+            { n: 'Unidad 3', u: 'UNIDAD_3_MATERIAL_DE_ESTUDIO.html' },
+            { n: 'Unidad 4', u: 'UNIDAD_4_MATERIAL_DE_ESTUDIO.html' },
+            { n: 'Unidad 5', u: 'UNIDAD_5_MATERIAL_DE_ESTUDIO.html' },
+            { n: 'Unidad 6', u: 'UNIDAD_6_MATERIAL_DE_ESTUDIO.html' }
+        ],
+        tarjetas: [
+            { n: 'Tarjetas Parte 1', u: 'TARJETAS_ESTUDIO_P1.html', d: 'Unidades 1 a 3' },
+            { n: 'Tarjetas Parte 2', u: 'TARJETAS_ESTUDIO_P2.html', d: 'Unidades 4 a 6' }
+        ],
+        trabajos: [
+            { n: 'Trabajo Práctico Completo', u: 'TRABAJO_PRACTICO_COMPLETO.html', d: 'Trabajo práctico integrador' },
+            { n: 'Observación Sociológica', u: 'OBSERVACION_SOCIOLOGICA.html', d: 'Trabajo de campo' }
+        ],
+        programa: { n: 'Programa de Estudios', u: 'PROGRAMA_ESTUDIOS.html' }
+    },
+    {
+        id: 'soc-2026-b',
+        nombre: 'Sociología',
+        periodo: '1er Cuatrimestre 2026',
+        estado: 'active',
+        grupos: 'Grupo B',
+        examenes: [
+            { n: 'Primer Parcial', u: 'PRIMER_PARCIAL.html?v=2', d: 'Evaluación parcial' },
+            { n: 'Examen Final', u: 'EXAMEN_FINAL.html?v=2', d: 'Evaluación final' }
+        ],
+        unidades: [
+            { n: 'Unidad 1', u: 'UNIDAD_1_MATERIAL_DE_ESTUDIO.html' },
+            { n: 'Unidad 2', u: 'UNIDAD_2_MATERIAL_DE_ESTUDIO.html' },
+            { n: 'Unidad 3', u: 'UNIDAD_3_MATERIAL_DE_ESTUDIO.html' }
+        ],
+        tarjetas: [],
+        trabajos: [
+            { n: 'Observación Sociológica', u: 'OBSERVACION_SOCIOLOGICA.html', d: 'Trabajo de campo' }
+        ],
+        programa: { n: 'Programa de Estudios', u: 'PROGRAMA_ESTUDIOS.html' }
+    },
+    {
+        id: 'soc-2026-c',
+        nombre: 'Sociología',
+        periodo: '1er Cuatrimestre 2026',
+        estado: 'active',
+        grupos: 'Grupo C',
+        examenes: [
+            { n: 'Primer Parcial', u: 'PRIMER_PARCIAL.html?v=2', d: 'Evaluación parcial' },
+            { n: 'Examen Final', u: 'EXAMEN_FINAL.html?v=2', d: 'Evaluación final' }
+        ],
+        unidades: [
+            { n: 'Unidad 1', u: 'UNIDAD_1_MATERIAL_DE_ESTUDIO.html' },
+            { n: 'Unidad 2', u: 'UNIDAD_2_MATERIAL_DE_ESTUDIO.html' },
+            { n: 'Unidad 3', u: 'UNIDAD_3_MATERIAL_DE_ESTUDIO.html' }
+        ],
+        tarjetas: [],
+        trabajos: [
+            { n: 'Observación Sociológica', u: 'OBSERVACION_SOCIOLOGICA.html', d: 'Trabajo de campo' }
+        ],
+        programa: { n: 'Programa de Estudios', u: 'PROGRAMA_ESTUDIOS.html' }
+    }
+];
+
 var currentCourseId = null;
 
-// Inicializar cursos desde CONFIG + datos por defecto
+// Inicializar cursos desde datos estáticos ya definidos
 function initCourses() {
-    var materiaBase = (typeof CONFIG !== 'undefined' && CONFIG.materia) ? CONFIG.materia : 'Sociología General';
-    var gruposBase = (typeof CONFIG !== 'undefined' && CONFIG.grupo) ? CONFIG.grupo : 'S 026, LV 026, MJ 026';
-    
-    // Cursos activos (10)
-    COURSES = [
-        {
-            id: 'soc-2026-1',
-            nombre: materiaBase,
-            periodo: '1er Cuatrimestre 2026',
-            estado: 'active',
-            grupos: gruposBase,
-            examenes: [
-                { n: 'Primer Parcial', u: 'PRIMER_PARCIAL.html?v=2', d: 'Evaluación parcial · 15 preguntas' },
-                { n: 'Segundo Parcial', u: 'SEGUNDO_PARCIAL.html?v=2', d: 'Evaluación parcial · 15 preguntas' },
-                { n: 'Examen Final', u: 'EXAMEN_FINAL.html?v=2', d: 'Evaluación final · 15 preguntas' }
-            ],
-            unidades: [
-                { n: 'Unidad 1', u: 'UNIDAD_1_MATERIAL_DE_ESTUDIO.html' },
-                { n: 'Unidad 2', u: 'UNIDAD_2_MATERIAL_DE_ESTUDIO.html' },
-                { n: 'Unidad 3', u: 'UNIDAD_3_MATERIAL_DE_ESTUDIO.html' },
-                { n: 'Unidad 4', u: 'UNIDAD_4_MATERIAL_DE_ESTUDIO.html' },
-                { n: 'Unidad 5', u: 'UNIDAD_5_MATERIAL_DE_ESTUDIO.html' },
-                { n: 'Unidad 6', u: 'UNIDAD_6_MATERIAL_DE_ESTUDIO.html' }
-            ],
-            tarjetas: [
-                { n: 'Tarjetas Parte 1', u: 'TARJETAS_ESTUDIO_P1.html', d: 'Unidades 1 a 3' },
-                { n: 'Tarjetas Parte 2', u: 'TARJETAS_ESTUDIO_P2.html', d: 'Unidades 4 a 6' }
-            ],
-            trabajos: [
-                { n: 'Trabajo Práctico Completo', u: 'TRABAJO_PRACTICO_COMPLETO.html', d: 'Trabajo práctico integrador' },
-                { n: 'Observación Sociológica', u: 'OBSERVACION_SOCIOLOGICA.html', d: 'Trabajo de campo' }
-            ],
-            programa: { n: 'Programa de Estudios', u: 'PROGRAMA_ESTUDIOS.html' }
-        }
-    ];
-    
-    // Generar cursos adicionales (simulados hasta 10 activos)
-    var variantes = ['A', 'B', 'C'];
-    var turnos = ['Mañana', 'Tarde', 'Noche'];
-    for (var i = 2; i <= 10; i++) {
-        var v = variantes[(i-1) % 3];
-        var t = turnos[(i-1) % 3];
-        COURSES.push({
-            id: 'soc-2026-' + i,
-            nombre: materiaBase + ' - ' + t + ' Grupo ' + v,
-            periodo: '1er Cuatrimestre 2026',
-            estado: 'active',
-            grupos: 'Grupo ' + v,
-            examenes: [
-                { n: 'Primer Parcial', u: 'PRIMER_PARCIAL.html?v=2', d: 'Evaluación parcial' },
-                { n: 'Examen Final', u: 'EXAMEN_FINAL.html?v=2', d: 'Evaluación final' }
-            ],
-            unidades: [
-                { n: 'Unidad 1', u: 'UNIDAD_1_MATERIAL_DE_ESTUDIO.html' },
-                { n: 'Unidad 2', u: 'UNIDAD_2_MATERIAL_DE_ESTUDIO.html' },
-                { n: 'Unidad 3', u: 'UNIDAD_3_MATERIAL_DE_ESTUDIO.html' }
-            ],
-            tarjetas: [],
-            trabajos: [
-                { n: 'Observación Sociológica', u: 'OBSERVACION_SOCIOLOGICA.html', d: 'Trabajo de campo' }
-            ],
-            programa: { n: 'Programa de Estudios', u: 'PROGRAMA_ESTUDIOS.html' }
-        });
-    }
-    
-    // Cursos archivados (hasta 10 anteriores)
-    var anios = ['2025', '2024'];
-    var periodos = ['1er Cuatrimestre', '2do Cuatrimestre'];
-    var idx = 0;
-    for (var a = 0; a < anios.length && idx < 10; a++) {
-        for (var p = 0; p < periodos.length && idx < 10; p++) {
-            idx++;
-            COURSES.push({
-                id: 'soc-' + anios[a] + '-' + idx,
-                nombre: materiaBase,
-                periodo: periodos[p] + ' ' + anios[a],
-                estado: 'archived',
-                grupos: gruposBase,
-                examenes: [
-                    { n: 'Primer Parcial', u: 'PRIMER_PARCIAL.html?v=2', d: 'Evaluación parcial' },
-                    { n: 'Examen Final', u: 'EXAMEN_FINAL.html?v=2', d: 'Evaluación final' }
-                ],
-                unidades: [
-                    { n: 'Unidad 1', u: 'UNIDAD_1_MATERIAL_DE_ESTUDIO.html' },
-                    { n: 'Unidad 2', u: 'UNIDAD_2_MATERIAL_DE_ESTUDIO.html' },
-                    { n: 'Unidad 3', u: 'UNIDAD_3_MATERIAL_DE_ESTUDIO.html' }
-                ],
-                tarjetas: [],
-                trabajos: [],
-                programa: { n: 'Programa de Estudios', u: 'PROGRAMA_ESTUDIOS.html' }
-            });
-        }
-    }
-    
     renderCourses();
 }
 
@@ -378,9 +348,7 @@ function renderCourses() {
     var html = '';
     activeCourses.forEach(function(c, i) {
         html += '<div class="course-tab' + (i === 0 ? ' active' : '') + '" onclick="selectCourse(\'' + c.id + '\', this)">';
-        html += '   <div>' + c.nombre.split(' - ')[0] + '</div>';
-        html += '   <div class="tab-sub">' + c.periodo + (c.grupos ? ' · ' + c.grupos : '') + '</div>';
-        if (i === 0) html += '   <span class="tab-badge">ACTUAL</span>';
+        html += '   <div>' + (c.grupos || c.nombre.split(' - ')[0]) + '</div>';
         html += '</div>';
     });
     activeContainer.innerHTML = html;
@@ -447,7 +415,7 @@ function renderCourseContent(course) {
     // Badge del curso
     html += '<div style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">';
     html += '   <div><strong style="font-size:16px;">' + course.nombre + '</strong>';
-    html += '   <p style="font-size:12px;opacity:0.85;margin-top:2px;">' + course.periodo + (course.grupos ? ' · ' + course.grupos : '') + '</p></div>';
+    html += '   <p style="font-size:12px;opacity:0.85;margin-top:2px;">' + course.periodo + '</p></div>';
     html += '   <span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:11px;">' + (course.estado === 'active' ? '🟢 En curso' : '📦 Archivado') + '</span>';
     html += '</div>';
     
@@ -539,18 +507,11 @@ function getIconForTipo(titulo) {
 
 // Inicializar al cargar
 document.addEventListener('DOMContentLoaded', function() {
-    // Esperar a que CONFIG esté disponible
-    var checkConfig = setInterval(function() {
-        if (typeof CONFIG !== 'undefined' || window.configLoaded) {
-            clearInterval(checkConfig);
-            initCourses();
-        }
-    }, 100);
-    // Timeout de seguridad
-    setTimeout(function() {
-        clearInterval(checkConfig);
-        if (COURSES.length === 0) initCourses();
-    }, 3000);
+    if (typeof COURSES !== 'undefined' && COURSES.length > 0) {
+        renderCourseContent(COURSES[0]);
+    } else {
+        document.getElementById('course-content').innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p>No hay recursos disponibles.</p></div>';
+    }
 });
 </script>
 

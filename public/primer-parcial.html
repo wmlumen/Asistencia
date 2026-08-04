@@ -3531,6 +3531,49 @@ async function enviarResultadoASheet(record) {
         params.append('nota', (record.score || '0') + '/' + (record.total || '30'));
         params.append('tipoExamen', 'Parcial');
 
+        // Generar ExamId y construir array de detalles
+        const dateStr = record.date ? record.date.split('/').reverse().join('') : new Date().toISOString().slice(0,10).replace(/-/g,'');
+        const examId = `EXM-${dateStr}-${record.ci}-${record.attempt || 1}`;
+        params.append('examId', examId);
+
+        const detalles = [];
+        
+        if (typeof examData !== 'undefined') {
+            // Sección I
+            if (examData.section1) {
+                examData.section1.forEach((item, i) => {
+                    const opciones = ['A', 'B', 'C', 'D'];
+                    const resIdx = record.rawAnswers[`q1_${i}`];
+                    const correctaIdx = item.answer;
+                    detalles.push({
+                        seccion: 'SECCION I - SELECCION MULTIPLE',
+                        numero: i + 1,
+                        pregunta: item.q.replace(/^\d+\.\s*/, ''),
+                        respuesta_alumno: resIdx !== undefined ? opciones[resIdx] : 'NR',
+                        respuesta_correcta: opciones[correctaIdx],
+                        es_correcta: resIdx === correctaIdx
+                    });
+                });
+            }
+            // Sección II
+            if (examData.section2) {
+                examData.section2.forEach((item, i) => {
+                    const res = record.rawAnswers[`q2_${i}`];
+                    const correcta = item.isTrue ? 'V' : 'F';
+                    detalles.push({
+                        seccion: 'SECCION II - VERDADERO/FALSO',
+                        numero: i + 1,
+                        pregunta: item.q.replace(/^\d+\.\s*/, ''),
+                        respuesta_alumno: res || 'NR',
+                        respuesta_correcta: correcta,
+                        es_correcta: res === correcta
+                    });
+                });
+            }
+        }
+        
+        params.append('detalle', JSON.stringify(detalles));
+
         await fetch(apiUrl, {
             method: 'POST',
             mode: 'cors',

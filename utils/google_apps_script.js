@@ -600,7 +600,7 @@ function doPost(e) {
       }
     }
     
-    // ---- GUARDAR EXAMEN ----
+    // ---- GUARDAR EXÁMEN ----
     if (modo === 'guardar_examen' || modo === 'guardar_examen_999') {
       const targetSheet = modo === 'guardar_examen_999' ? 'Examen999' : SH.EXAMENES;
       const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(targetSheet) || getSheet_(SH.EXAMENES);
@@ -619,32 +619,30 @@ function doPost(e) {
         return jsonResponse({ ok: false, error: 'Faltan datos requeridos' });
       }
       
-      // Guardar cabecera
+      // Guardar cabecera agregando examId
       sheet.appendRow([examId, fecha, hora, nombre, cedula, carrera, seccion, materia, nota, tipoExamen, marcaTemp]);
       
-      // Guardar detalle
+      // Guardar detalle si se proporcionó
       if (data.detalle && examId) {
         try {
           const detalles = JSON.parse(data.detalle);
           const detalleSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SH.EXAMEN_DETALLE) || getSheet_(SH.EXAMEN_DETALLE);
           
-          const filasDetalle = detalles.map(function(d) {
-            return [
-              examId,
-              d.seccion,
-              d.numero,
-              d.pregunta,
-              d.respuesta_alumno,
-              d.respuesta_correcta,
-              d.es_correcta
-            ];
-          });
+          const filasDetalle = detalles.map(d => [
+            examId,
+            d.seccion,
+            d.numero,
+            d.pregunta,
+            d.respuesta_alumno,
+            d.respuesta_correcta,
+            d.es_correcta
+          ]);
           
           if (filasDetalle.length > 0) {
             detalleSheet.getRange(detalleSheet.getLastRow() + 1, 1, filasDetalle.length, filasDetalle[0].length).setValues(filasDetalle);
           }
         } catch (e) {
-          // err
+          // Ignorar error de parseo si no es válido
         }
       }
 
