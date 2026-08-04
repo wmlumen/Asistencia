@@ -136,7 +136,8 @@
             <div class="login-form">
                 <input type="text" id="student-name" placeholder="Nombre y Apellido" required>
                 <input type="text" id="student-id" placeholder="Cédula de Identidad" required>
-                <button class="btn" onclick="beginExam()"><i class="fas fa-play mr-2"></i> Iniciar examen</button>
+                <button class="btn" id="start-btn" onclick="beginExam()"><i class="fas fa-play mr-2"></i> Iniciar examen</button>
+                <p id="attempt-info" style="font-size:12px;color:#94a3b8;text-align:center;"></p>
             </div>
         </div>
 
@@ -164,9 +165,56 @@
 
     <script>
         const EXAM_KEY = 'primer_parcial_sociologia_2026_results';
+        const ATTEMPT_KEY = 'primer_parcial_sociologia_2026_attempts';
+        const MAX_ATTEMPTS = 2;
+        const EXAM_TIME = 30 * 60;
         let answers = {};
         let submitted = false;
-        const questions = generateQuestions();
+        let startTime = null;
+        let timerInterval = null;
+        let currentAttempt = 1;
+        let bestResult = null;
+
+        function loadAttempts() {
+            try {
+                const raw = localStorage.getItem(ATTEMPT_KEY);
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    currentAttempt = data.attempts ? data.attempts.length + 1 : 1;
+                    bestResult = data.bestResult || null;
+                }
+            } catch (e) {
+                currentAttempt = 1;
+                bestResult = null;
+            }
+        }
+
+        function saveAttempt(result) {
+            try {
+                const raw = localStorage.getItem(ATTEMPT_KEY);
+                let data = raw ? JSON.parse(raw) : { attempts: [], bestResult: null };
+                data.attempts = data.attempts || [];
+                data.attempts.push(result);
+                if (!bestResult || result.score > bestResult.score) {
+                    bestResult = result;
+                    data.bestResult = bestResult;
+                }
+                localStorage.setItem(ATTEMPT_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.error('Error saving attempt', e);
+            }
+        }
+
+        function canAttempt() {
+            try {
+                const raw = localStorage.getItem(ATTEMPT_KEY);
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    return (data.attempts || []).length < MAX_ATTEMPTS;
+                }
+            } catch (e) {}
+            return true;
+        }
 
         function generateQuestions() {
             return [
@@ -215,6 +263,12 @@
         }
 
         function beginExam() {
+            loadAttempts();
+            if (!canAttempt()) {
+                alert('Ya completó los 2 intentos permitidos. Su mejor puntaje fue: ' + (bestResult ? bestResult.score + '/' + bestResult.total + ' (' + bestResult.percent + '%)' : 'N/A'));
+                showBestResult();
+                return;
+            }
             const name = document.getElementById('student-name').value.trim();
             const id = document.getElementById('student-id').value.trim();
             if (!name || !id) { alert('Ingrese nombre y cédula'); return; }
@@ -225,7 +279,8 @@
         }
 
         function startTimer() {
-            let time = 30 * 60;
+            startTime = Date.now();
+            let time = EXAM_TIME;
             const el = document.getElementById('timer');
             const int = setInterval(() => {
                 if (submitted) { clearInterval(int); return; }
@@ -234,11 +289,13 @@
                 el.textContent = m+':'+s;
                 if (time-- <= 0) { clearInterval(int); submitExam(); }
             }, 1000);
+            timerInterval = int;
         }
 
         function submitExam() {
             if (submitted) return;
             submitted = true;
+            if (timerInterval) clearInterval(timerInterval);
             let score = 0;
             const details = questions.map(q => {
                 const ok = answers[q.id] === q.answer;
@@ -249,18 +306,41 @@
                 student: document.getElementById('student-name').value.trim(),
                 cedula: document.getElementById('student-id').value.trim(),
                 date: new Date().toISOString(),
+                attempt: currentAttempt,
                 score,
                 total: questions.length,
                 percent: Math.round((score/questions.length)*100),
                 details
             };
             localStorage.setItem(EXAM_KEY, JSON.stringify(result));
+            saveAttempt(result);
             document.getElementById('exam-card').classList.add('hidden');
             const rc = document.getElementById('result-card');
             rc.style.display = 'block';
             document.getElementById('score').textContent = result.score + '/' + result.total + ' (' + result.percent + '%)';
-            document.getElementById('detail').textContent = result.student + ' — Cédula: ' + result.cedula;
+            document.getElementById('detail').textContent = result.student + ' — Cédula: ' + result.cedula + ' — Intento ' + result.attempt;
             highlightAnswers();
+        }
+
+        function showBestResult() {
+            if (!bestResult) return;
+            document.getElementById('login-card').classList.add('hidden');
+            const rc = document.getElementById('result-card');
+            rc.style.display = 'block';
+            document.getElementById('score').textContent = bestResult.score + '/' + bestResult.total + ' (' + bestResult.percent + '%)';
+            document.getElementById('detail').textContent = bestResult.student + ' — Cédula: ' + bestResult.cedula + ' — Mejor resultado';
+        }
+
+        function downloadResults() {
+            const raw = bestResult ? JSON.stringify(bestResult) : localStorage.getItem(EXAM_KEY);
+            if (!raw) return;
+            const blob = new Blob([raw], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'resultado_primer_parcial_' + Date.now() + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         function highlightAnswers() {
@@ -275,18 +355,6 @@
             });
         }
 
-        function downloadResults() {
-            const raw = localStorage.getItem(EXAM_KEY);
-            if (!raw) return;
-            const blob = new Blob([raw], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'resultado_primer_parcial_' + Date.now() + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
         window.addEventListener('beforeunload', () => {
             if (submitted) {
                 const raw = localStorage.getItem(EXAM_KEY);
@@ -294,6 +362,14 @@
                     const blob = new Blob([raw], { type: 'application/json' });
                     navigator.sendBeacon && navigator.sendBeacon('data:application/json,' + encodeURIComponent(raw));
                 }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAttempts();
+            const info = document.getElementById('attempt-info');
+            if (info) {
+                info.textContent = 'Intentos restantes: ' + Math.max(0, MAX_ATTEMPTS - ((currentAttempt - 1))) + ' / ' + MAX_ATTEMPTS;
             }
         });
     </script>
