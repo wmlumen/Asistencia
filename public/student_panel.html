@@ -19,16 +19,16 @@
         .panel-container { max-width: 1280px; margin: 0 auto; }
         .panel-header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
         .panel-header h1 {
-            font-size: 26px;
+            font-size: 20px;
             color: var(--primary-dark);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .panel-header p {
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: 12px;
         }
 
         /* ---- Course Selector ---- */
@@ -36,16 +36,16 @@
             display: flex;
             gap: 6px;
             overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 20px;
+            padding-bottom: 6px;
+            margin-bottom: 16px;
             scrollbar-width: thin;
             -webkit-overflow-scrolling: touch;
         }
         .course-tab {
             flex-shrink: 0;
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 13px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 12px;
             font-weight: 600;
             border: 1px solid var(--border);
             background: white;
@@ -53,14 +53,14 @@
             cursor: pointer;
             transition: all 0.2s ease;
             text-align: left;
-            min-width: 140px;
+            min-width: 120px;
             position: relative;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
         }
         .course-tab:hover {
             border-color: var(--primary);
             color: var(--primary);
-            box-shadow: 0 2px 8px rgba(59,130,246,0.12);
+            box-shadow: 0 2px 6px rgba(59,130,246,0.12);
         }
         .course-tab.active {
             background: var(--primary);
@@ -123,45 +123,45 @@
         }
 
         /* ---- Categorias ---- */
-        .categoria { margin-bottom: 28px; }
+        .categoria { margin-bottom: 20px; }
         .categoria-titulo {
-            font-size: 17px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--primary);
-            margin-bottom: 10px;
-            padding-bottom: 6px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
             border-bottom: 2px solid var(--border-light);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .categoria-titulo i {
-            width: 28px; height: 28px;
+            width: 24px; height: 24px;
             background: var(--primary-light);
             color: var(--primary);
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 12px;
             flex-shrink: 0;
         }
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 8px;
         }
         .recurso-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 14px 16px;
+            border-radius: 8px;
+            padding: 10px 12px;
             text-decoration: none;
             color: var(--text);
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             box-shadow: var(--shadow-sm);
         }
         .recurso-card:hover {
@@ -170,24 +170,26 @@
             transform: translateY(-2px);
         }
         .recurso-card .icono {
-            width: 40px; height: 40px;
-            border-radius: 10px;
+            width: 32px; height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
             flex-shrink: 0;
         }
         .recurso-card .info { flex: 1; min-width: 0; }
         .recurso-card .info .titulo {
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text);
+            line-height: 1.2;
         }
         .recurso-card .info .subtitulo {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
             margin-top: 2px;
+            line-height: 1.2;
         }
         .recurso-card .info .badge {
             display: inline-block;
