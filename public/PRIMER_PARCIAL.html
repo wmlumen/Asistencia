@@ -186,11 +186,11 @@
                 <div class="score" id="score">0/20</div>
                 <div class="detail" id="detail"></div>
                 <div id="result-screenshot" style="margin-top:16px;border:1px solid var(--border);border-radius:12px;overflow:hidden;"></div>
-                <div class="actions" style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+                <div class="actions" data-html2canvas-ignore="true" style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
                     <button class="btn" onclick="downloadJpg()"><i class="fas fa-image mr-2"></i> Descargar JPG</button>
                     <button class="btn" id="retry-btn" onclick="retryExam()"><i class="fas fa-redo mr-2"></i> Siguiente intento</button>
                 </div>
-                <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px;">Se registrará el mayor puntaje de los intentos.</p>
+                <p data-html2canvas-ignore="true" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px;">Se registrará el mayor puntaje de los intentos.</p>
             </div>
         </div>
     </div>
@@ -479,8 +479,11 @@
             document.getElementById('exam-card').classList.add('hidden');
             const rc = document.getElementById('result-card');
             rc.style.display = 'block';
+            
+            const timeString = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
             document.getElementById('score').textContent = result.score + '/' + result.total + ' (' + result.percent + '%)';
-            document.getElementById('detail').textContent = result.student + ' — Cédula: ' + result.cedula + ' — Intento ' + result.attempt;
+            document.getElementById('detail').innerHTML = result.student + ' — Cédula: ' + result.cedula + '<br>Intento ' + result.attempt + ' — Hora de entrega: ' + timeString;
             document.getElementById('result-content').style.display = 'block';
             document.getElementById('retry-btn').style.display = canAttempt() ? 'inline-block' : 'none';
             highlightAnswers();
@@ -492,8 +495,15 @@
             document.getElementById('login-card').classList.add('hidden');
             const rc = document.getElementById('result-card');
             rc.style.display = 'block';
+            
+            let timeInfo = '';
+            if (bestResult.date) {
+                const dateObj = new Date(bestResult.date);
+                timeInfo = ' — Hora de entrega: ' + dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            }
+
             document.getElementById('score').textContent = bestResult.score + '/' + bestResult.total + ' (' + bestResult.percent + '%)';
-            document.getElementById('detail').textContent = bestResult.student + ' — Cédula: ' + bestResult.cedula + ' — Mejor resultado';
+            document.getElementById('detail').innerHTML = bestResult.student + ' — Cédula: ' + bestResult.cedula + '<br>Mejor resultado' + timeInfo;
             document.getElementById('result-content').style.display = 'block';
             document.getElementById('retry-btn').style.display = 'none';
             captureResultCard();
