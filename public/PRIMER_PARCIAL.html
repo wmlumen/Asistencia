@@ -171,7 +171,7 @@
         <!-- Examen -->
         <div class="card hidden" id="exam-card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <span style="font-size:12px;color:#94a3b8;">20 preguntas — Selección múltiple y Verdadero/Falso</span>
+                <span style="font-size:12px;color:#94a3b8;">20 preguntas — Selección múltiple</span>
                 <span id="timer" style="font-size:12px;color:#fbbf24;">30:00</span>
             </div>
             <div id="questions"></div>
@@ -273,7 +273,7 @@
         }
 
         function generateQuestions() {
-            const raw = [
+            const items = [
                 { q: "¿Qué autor es considerado el padre del Positivismo y de la sociología científica?", a: "Augusto Comte." },
                 { q: "¿En qué consiste la Ley de los Tres Estados de Comte?", a: "Teológico, Metafísico y Positivo." },
                 { q: "¿Qué es la 'Estática Social' según Comte?", a: "Estudio del orden social y la cohesión social." },
@@ -295,24 +295,22 @@
                 { q: "¿Qué es el 'Relativismo Cultural'?", a: "Comprender las prácticas culturales desde su propio contexto, sin juzgarlas." },
                 { q: "¿Qué es una 'Institución' en sentido sociológico?", a: "Patrones estables de comportamiento, normas y prácticas que estructuran la vida social." }
             ];
-            return raw.map((item, idx) => {
-                const isVF = idx % 2 === 1;
-                if (isVF) {
-                    const text = item.q;
-                    const answer = item.a.toLowerCase().includes('no') || item.a.toLowerCase().includes('separación') || item.a.toLowerCase().includes('juzgar') ? 'Falso' : 'Verdadero';
-                    return { id: idx + 1, type: 'vf', text, answer };
-                }
-                const distractors = [
-                    'Karl Marx', 'Emile Durkheim', 'Max Weber',
-                    'Racional con fines', 'Afectiva', 'Tradicional',
-                    'Lucha de clases', 'Plusvalía', 'Alienación',
-                    'Confianza Social', 'Redes Sociales', 'Desigualdad Social',
-                    'Socialización', 'Normas Sociales', 'Identidad Social',
-                    'Matemáticas, Física, Sociología', 'Biología, Química, Sociología'
-                ];
+            const distractors = [
+                'Karl Marx', 'Emile Durkheim', 'Max Weber', 'Auguste Comte',
+                'Racional con fines', 'Afectiva', 'Tradicional', 'Comprensión',
+                'Lucha de clases', 'Plusvalía', 'Alienación', 'Ideología',
+                'Confianza Social', 'Redes Sociales', 'Desigualdad Social', 'Movilidad Social',
+                'Socialización', 'Normas Sociales', 'Identidad Social', 'Cultura',
+                'Matemáticas, Física, Sociología', 'Biología, Química, Sociología', 'Astronomía, Química, Sociología',
+                'Solidaridad por similitud', 'Solidaridad por diferenciación',
+                'Juzgar otras culturas', 'Comprender otras culturas',
+                'Tierra y capital', 'Fábricas y herramientas'
+            ];
+            return items.map((item, idx) => {
                 const options = [item.a];
-                for (let i = 0; i < 3 && distractors.length > 0; i++) {
-                    const pick = distractors.splice(Math.floor(Math.random() * distractors.length), 1)[0];
+                const pool = distractors.filter(d => d !== item.a);
+                for (let i = 0; i < 3 && pool.length > 0; i++) {
+                    const pick = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
                     options.push(pick);
                 }
                 while (options.length < 4) options.push('Ninguna de las anteriores');
@@ -329,27 +327,15 @@
         function renderQuestions() {
             const container = document.getElementById('questions');
             container.innerHTML = questions.map(q => {
-                let optsHtml = '';
-                if (q.type === 'mc') {
-                    optsHtml = q.options.map(opt => {
-                        return `<label class="option">
-                            <input type="radio" name="q${q.id}" value="${opt.replace(/"/g, '&quot;')}" onchange="saveAnswer(${q.id}, '${opt.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
-                            <span>${opt}</span>
-                        </label>`;
-                    }).join('');
-                } else {
-                    optsHtml = ['Verdadero', 'Falso'].map(opt => {
-                        return `<label class="option">
-                            <input type="radio" name="q${q.id}" value="${opt}" onchange="saveAnswer(${q.id}, '${opt}')">
-                            <span>${opt}</span>
-                        </label>`;
-                    }).join('');
-                }
-                const typeLabel = q.type === 'mc' ? 'Selección múltiple' : 'Verdadero / Falso';
+                const optsHtml = q.options.map(opt => {
+                    return `<label class="option">
+                        <input type="radio" name="q${q.id}" value="${opt.replace(/"/g, '&quot;')}" onchange="saveAnswer(${q.id}, '${opt.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
+                        <span>${opt}</span>
+                    </label>`;
+                }).join('');
                 return `<div class="question" data-q="${q.id}">
                     <div class="question-text"><span class="q-num">${q.id}</span><span>${q.text}</span></div>
                     <div class="options">${optsHtml}</div>
-                    <p style="font-size:11px;color:#64748b;margin-top:6px;margin-left:38px;">${typeLabel}</p>
                 </div>`;
             }).join('');
         }
