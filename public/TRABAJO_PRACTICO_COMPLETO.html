@@ -595,6 +595,19 @@
                 item.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dotted #ccc;font-size:14px;color:#333;';
             });
 
+            // Get all styles from the document
+            var styleElements = document.querySelectorAll('style');
+            var pageStyles = '';
+            styleElements.forEach(function(el) {
+                pageStyles += el.innerHTML;
+            });
+            
+            // Replace CSS variables with actual colors for MS Word
+            pageStyles = pageStyles.replace(/var\(--green-primary\)/g, '#0a4d2a')
+                                   .replace(/var\(--green-dark\)/g, '#073a20')
+                                   .replace(/var\(--green-light\)/g, '#d4edda')
+                                   .replace(/var\(--green-accent\)/g, '#10b981');
+
             var docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
             docHtml += '<head>';
             docHtml += '<meta charset="utf-8">';
@@ -614,6 +627,10 @@
             docHtml += '@page Section1 { mso-header-margin: 1.5cm; mso-footer-margin: 1.5cm; }';
             // Footer with page numbers
             docHtml += '@page Section1 { mso-footer: f1; }';
+            
+            // Inject the extracted page styles
+            docHtml += pageStyles;
+            
             docHtml += '</style>';
             docHtml += '</head>';
             docHtml += '<body style="font-family: Arial, sans-serif; font-size: 12pt; color: #000; line-height: 1.5;">';
@@ -630,11 +647,11 @@
             // Get the inner HTML of the cloned content, preserving all styles
             var innerContent = content.innerHTML;
             
-            // Replace CSS variables with actual green colors for Word compatibility
-            innerContent = innerContent.replace(/var\(--green-primary\)/g, '#0a4d2a');
-            innerContent = innerContent.replace(/var\(--green-dark\)/g, '#073a20');
-            innerContent = innerContent.replace(/var\(--green-light\)/g, '#d4edda');
-            innerContent = innerContent.replace(/var\(--green-accent\)/g, '#10b981');
+            // Replace CSS variables in inline styles as well
+            innerContent = innerContent.replace(/var\(--green-primary\)/g, '#0a4d2a')
+                                       .replace(/var\(--green-dark\)/g, '#073a20')
+                                       .replace(/var\(--green-light\)/g, '#d4edda')
+                                       .replace(/var\(--green-accent\)/g, '#10b981');
 
             docHtml += innerContent;
             docHtml += '</body></html>';
