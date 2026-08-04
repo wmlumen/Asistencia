@@ -171,7 +171,7 @@
         <!-- Examen -->
         <div class="card hidden" id="exam-card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <span style="font-size:12px;color:#94a3b8;">20 preguntas — Selección múltiple</span>
+                <span style="font-size:12px;color:#94a3b8;">20 preguntas — Selección múltiple y Verdadero/Falso</span>
                 <span id="timer" style="font-size:12px;color:#fbbf24;">30:00</span>
             </div>
             <div id="questions"></div>
@@ -274,210 +274,128 @@
 
         function generateQuestions() {
             return [
+                // SECCIÓN 1: SELECCIÓN MÚLTIPLE
                 {
                     id: 1,
                     text: "¿Qué autor es considerado el padre del Positivismo y de la sociología científica?",
-                    options: ["Karl Marx", "Augusto Comte", "Emile Durkheim", "Max Weber"],
+                    options: ["Augusto Comte", "Karl Marx", "Max Weber", "Emile Durkheim"],
                     answer: "Augusto Comte"
                 },
                 {
                     id: 2,
-                    text: "La Ley de los Tres Estados de Comte incluye las siguientes etapas, excepto:",
-                    options: ["Teológico", "Metafísico", "Positivo", "Dialéctico"],
-                    answer: "Dialéctico"
+                    text: "¿Cómo define Durkheim el 'Hecho Social'?",
+                    options: ["Como acciones individuales irracionales", "Como maneras de actuar externas al individuo con poder coercitivo", "Como la lucha constante por los medios de producción", "Como una acción social racional con fines"],
+                    answer: "Como maneras de actuar externas al individuo con poder coercitivo"
                 },
                 {
                     id: 3,
-                    text: "¿En qué consiste la 'Estática Social' según Comte?",
-                    options: [
-                        "Estudio del progreso social",
-                        "Estudio del orden y la cohesión social",
-                        "Estudio de la economía",
-                        "Estudio de la cultura"
-                    ],
-                    answer: "Estudio del orden y la cohesión social"
+                    text: "¿Qué es el método 'Verstehen' de Max Weber?",
+                    options: ["El análisis puramente matemático de las estadísticas", "La comprensión interpretativa del sentido subjetivo de la acción social", "El estudio de la evolución de las especies", "La revolución del proletariado contra la burguesía"],
+                    answer: "La comprensión interpretativa del sentido subjetivo de la acción social"
                 },
                 {
                     id: 4,
-                    text: "¿En qué consiste la 'Dinámica Social' según Comte?",
-                    options: [
-                        "Estudio del cambio y transformación social",
-                        "Estudio de las instituciones",
-                        "Estudio de los roles",
-                        "Estudio de la estratificación"
-                    ],
-                    answer: "Estudio del cambio y transformación social"
+                    text: "Según Karl Marx, ¿qué es la 'Plusvalía'?",
+                    options: ["El costo total de la materia prima", "El salario justo que recibe el trabajador", "La diferencia entre el valor producido por el trabajador y el salario que recibe", "El impuesto que cobra el Estado al capitalista"],
+                    answer: "La diferencia entre el valor producido por el trabajador y el salario que recibe"
                 },
                 {
                     id: 5,
-                    text: "¿Cómo define Durkheim el 'Hecho Social'?",
-                    options: [
-                        "Como acciones individuales",
-                        "Como fenómenos externos al individuo con poder coercitivo",
-                        "Como construcciones teóricas",
-                        "Como valores culturales"
-                    ],
-                    answer: "Como fenómenos externos al individuo con poder coercitivo"
+                    text: "¿Qué es el 'Capital Social' según Putnam?",
+                    options: ["El dinero acumulado en las cuentas bancarias de las corporaciones", "Recursos obtenidos a través de redes de contactos y confianza interpersonal", "El capital físico utilizado para la manufactura de bienes", "El presupuesto estatal asignado a obras públicas"],
+                    answer: "Recursos obtenidos a través de redes de contactos y confianza interpersonal"
                 },
                 {
                     id: 6,
-                    text: "¿Qué característica NO corresponde a un Hecho Social según Durkheim?",
-                    options: [
-                        "Es externo al individuo",
-                        "Es coercitivo",
-                        "Es general en la sociedad",
-                        "Es subjetivo y personal"
-                    ],
-                    answer: "Es subjetivo y personal"
+                    text: "¿Qué plantea el modelo del 'Homo Economicus'?",
+                    options: ["Asume que el humano es un actor racional que busca maximizar beneficios y minimizar costos", "Asume que las decisiones económicas están motivadas por normas sociales", "Propone que la economía debe basarse en el trueque", "Sugiere que los individuos no tienen interés en el mercado"],
+                    answer: "Asume que el humano es un actor racional que busca maximizar beneficios y minimizar costos"
                 },
                 {
                     id: 7,
-                    text: "La 'Solidaridad Mecánica' se da en:",
-                    options: [
-                        "Sociedades tradicionales basadas en la similitud",
-                        "Sociedades industriales complejas",
-                        "Economías de mercado",
-                        "Instituciones burocráticas"
-                    ],
-                    answer: "Sociedades tradicionales basadas en la similitud"
+                    text: "¿Qué es el 'Neoliberalismo'?",
+                    options: ["Sistema económico basado en la propiedad estatal de las empresas", "Corriente económica que promueve la libertad de mercado y la reducción del estado", "Una teoría marxista sobre la explotación", "Un movimiento exclusivamente político sin impacto económico"],
+                    answer: "Corriente económica que promueve la libertad de mercado y la reducción del estado"
                 },
                 {
                     id: 8,
-                    text: "La 'Solidaridad Orgánica' se caracteriza por:",
-                    options: [
-                        "Similitud entre individuos",
-                        "Diferenciación e interdependencia funcional",
-                        "Ausencia de normas",
-                        "Dominio de la coerción"
-                    ],
-                    answer: "Diferenciación e interdependencia funcional"
+                    text: "¿Qué es la 'Cultura' en sociología?",
+                    options: ["Exclusivamente las bellas artes (música clásica, pintura, escultura)", "El grado de estudios académicos de un individuo", "Conjunto de conocimientos, creencias, normas, valores y prácticas compartidas por una sociedad", "Las características biológicas hereditarias"],
+                    answer: "Conjunto de conocimientos, creencias, normas, valores y prácticas compartidas por una sociedad"
                 },
                 {
                     id: 9,
-                    text: "¿Qué sociólogo desarrolló el método 'Verstehen'?",
-                    options: ["Augusto Comte", "Emile Durkheim", "Max Weber", "Karl Marx"],
-                    answer: "Max Weber"
+                    text: "¿Qué es la 'Socialización Primaria'?",
+                    options: ["Proceso en la primera infancia donde se internalizan el lenguaje y valores básicos (ej. familia)", "El aprendizaje de conocimientos técnicos en el entorno laboral", "La adaptación de los adultos a un nuevo país", "La interacción a través de redes sociales en internet"],
+                    answer: "Proceso en la primera infancia donde se internalizan el lenguaje y valores básicos (ej. familia)"
                 },
                 {
                     id: 10,
-                    text: "Según Weber, ¿cuál NO es un tipo de Acción Social?",
-                    options: [
-                        "Racional con fines",
-                        "Racional con valores",
-                        "Afectiva",
-                        "Dialéctica"
-                    ],
-                    answer: "Dialéctica"
+                    text: "¿Qué significa 'Etnocentrismo'?",
+                    options: ["Comprender cada cultura desde su propio punto de vista histórico", "La tendencia a juzgar otras culturas usando los estándares de la propia asumiendo su superioridad", "La mezcla armónica de diferentes grupos étnicos en una sociedad", "Ignorar las costumbres y tradiciones del pasado"],
+                    answer: "La tendencia a juzgar otras culturas usando los estándares de la propia asumiendo su superioridad"
                 },
+                
+                // SECCIÓN 2: VERDADERO Y FALSO
                 {
                     id: 11,
-                    text: "¿Cuáles son los 4 tipos de Acción Social según Weber?",
-                    options: [
-                        "Tradicional, Afectiva, Racional y Social",
-                        "Racional con fines, Racional con valores, Afectiva y Tradicional",
-                        "Económica, Política, Cultural y Social",
-                        "Individual, Colectiva, Formal e Informal"
-                    ],
-                    answer: "Racional con fines, Racional con valores, Afectiva y Tradicional"
+                    text: "Según Augusto Comte, la Ley de los Tres Estados consiste en las fases: Teológico, Metafísico y Positivo.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Verdadero"
                 },
                 {
                     id: 12,
-                    text: "¿Qué es el 'Tipo Ideal' en Weber?",
-                    options: [
-                        "Un modelo estadístico",
-                        "Una construcción teórica de elementos esenciales de un fenómeno social",
-                        "Una forma de gobierno",
-                        "Una clase social dominante"
-                    ],
-                    answer: "Una construcción teórica de elementos esenciales de un fenómeno social"
+                    text: "En la teoría de Durkheim, la 'Solidaridad Mecánica' es propia de las sociedades modernas industriales con alta diferenciación de funciones.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Falso"
                 },
                 {
                     id: 13,
-                    text: "¿Qué define a la 'Burocracia' según Weber?",
-                    options: [
-                        "Jerarquía, reglas impersonales y división del trabajo",
-                        "Dominio de la clase obrera",
-                        "Producción industrial",
-                        "Distribución de la riqueza"
-                    ],
-                    answer: "Jerarquía, reglas impersonales y división del trabajo"
+                    text: "Para Karl Marx, la 'Alienación' se refiere a la separación del trabajador respecto al producto que crea, a su propio trabajo y a los demás.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Verdadero"
                 },
                 {
                     id: 14,
-                    text: "Según Karl Marx, ¿cuál es el motor de la historia?",
-                    options: [
-                        "El cambio tecnológico",
-                        "La lucha de clases",
-                        "La solidaridad social",
-                        "La racionalización"
-                    ],
-                    answer: "La lucha de clases"
+                    text: "El modelo del 'Homo Sociologicus' afirma que las decisiones económicas están completamente aisladas de los valores, normas y la presión de grupo.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Falso"
                 },
                 {
                     id: 15,
-                    text: "¿Qué son los 'Medios de Producción' en Marx?",
-                    options: [
-                        "Las ideas dominantes",
-                        "Los recursos para producir bienes",
-                        "Las relaciones sociales",
-                        "Las instituciones educativas"
-                    ],
-                    answer: "Los recursos para producir bienes"
+                    text: "El 'Institucionalismo' es una corriente que enfatiza el papel nulo o irrelevante de las instituciones en la sociedad.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Falso"
                 },
                 {
                     id: 16,
-                    text: "¿Qué es la 'Plusvalía' según Marx?",
-                    options: [
-                        "El salario del trabajador",
-                        "La diferencia entre el valor producido y el salario",
-                        "El costo de producción",
-                        "La ganancia del Estado"
-                    ],
-                    answer: "La diferencia entre el valor producido y el salario"
+                    text: "La 'Movilidad Social' se refiere al movimiento de individuos o grupos entre diferentes posiciones en la estructura social.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Verdadero"
                 },
                 {
                     id: 17,
-                    text: "¿En qué consiste la 'Alienación' en Marx?",
-                    options: [
-                        "En la integración social del trabajador",
-                        "En la separación del trabajador de su producto y proceso",
-                        "En la acumulación de capital",
-                        "En la burocracia estatal"
-                    ],
-                    answer: "En la separación del trabajador de su producto y proceso"
+                    text: "La 'Cultura Inmaterial' incluye exclusivamente objetos tangibles como herramientas, monumentos arquitectónicos y tecnología.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Falso"
                 },
                 {
                     id: 18,
-                    text: "¿Qué es la 'Incrustación Social' (Embeddedness) de Polanyi?",
-                    options: [
-                        "La independencia de la economía",
-                        "La economía sumergida en redes sociales y normas",
-                        "El libre mercado absoluto",
-                        "La privatización estatal"
-                    ],
-                    answer: "La economía sumergida en redes sociales y normas"
+                    text: "Un 'Agente de Socialización' es aquella persona o institución (como la escuela o la familia) que transmite normas y valores durante la socialización.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Verdadero"
                 },
                 {
                     id: 19,
-                    text: "¿Qué es el 'Capital Social' según Putnam?",
-                    options: [
-                        "El dinero acumulado en empresas",
-                        "Los recursos obtenidos por redes y confianza interpersonal",
-                        "Los bienes materiales",
-                        "El poder político"
-                    ],
-                    answer: "Los recursos obtenidos por redes y confianza interpersonal"
+                    text: "La 'Cultura de Masas' hace referencia a la producción cultural estandarizada que va destinada a grandes audiencias a través de las industrias culturales.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Verdadero"
                 },
                 {
                     id: 20,
-                    text: "¿Qué es el 'Etnocentrismo'?",
-                    options: [
-                        "Comprender otras culturas desde su contexto",
-                        "Juzgar otras culturas con los estándares de la propia",
-                        "Respetar todas las culturas",
-                        "Ignorar las diferencias culturales"
-                    ],
-                    answer: "Juzgar otras culturas con los estándares de la propia"
+                    text: "La 'Desigualdad Social' implica que todos los individuos de una sociedad tienen exactamente las mismas oportunidades y acceso equitativo a recursos y poder.",
+                    options: ["Verdadero", "Falso"],
+                    answer: "Falso"
                 }
             ];
         }
