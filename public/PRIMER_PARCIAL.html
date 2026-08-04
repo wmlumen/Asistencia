@@ -273,53 +273,213 @@
         }
 
         function generateQuestions() {
-            const items = [
-                { q: "¿Qué autor es considerado el padre del Positivismo y de la sociología científica?", a: "Augusto Comte." },
-                { q: "¿En qué consiste la Ley de los Tres Estados de Comte?", a: "Teológico, Metafísico y Positivo." },
-                { q: "¿Qué es la 'Estática Social' según Comte?", a: "Estudio del orden social y la cohesión social." },
-                { q: "¿Qué es la 'Dinámica Social' según Comte?", a: "Estudio del progreso y transformación de la sociedad." },
-                { q: "¿Cómo define Durkheim el 'Hecho Social'?", a: "Maneras de actuar externas al individuo, con poder coercitivo y generalidad." },
-                { q: "¿Qué es la 'Solidaridad Mecánica' en Durkheim?", a: "Solidaridad por similitud en sociedades tradicionales." },
-                { q: "¿Qué es la 'Solidaridad Orgánica' en Durkheim?", a: "Solidaridad por diferenciación e interdependencia funcional." },
-                { q: "¿Qué es el método 'Verstehen' de Max Weber?", a: "Comprensión interpretativa del sentido de las acciones sociales." },
-                { q: "¿Cuáles son los 4 tipos de Acción Social según Weber?", a: "Racional con fines, Racional con valores, Afectiva y Tradicional." },
-                { q: "¿Qué es la 'Burocracia' según Weber?", a: "Organización racional con jerarquía, reglas impersonales y división del trabajo." },
-                { q: "¿Qué es el 'Tipo Ideal' en Weber?", a: "Construcción teórica de los elementos esenciales de un fenómeno social." },
-                { q: "¿Cuál es el motor de la historia para Karl Marx?", a: "La lucha de clases por el control de los medios de producción." },
-                { q: "¿Qué son los 'Medios de Producción' en Marx?", a: "Tierra, fábricas, herramientas y capital para producir bienes." },
-                { q: "¿Qué es la 'Plusvalía' según Marx?", a: "Diferencia entre el valor producido y el salario, que genera ganancia." },
-                { q: "¿Qué es la 'Alienación' en Marx?", a: "Separación del trabajador de su producto, proceso, naturaleza humana y demás." },
-                { q: "¿Qué es la 'Incrustación Social' (Embeddedness) de Polanyi?", a: "La economía está sumergida en redes sociales, confianza y normas." },
-                { q: "¿Qué es el 'Capital Social' según Putnam?", a: "Recursos obtenidos por redes de contactos y confianza interpersonal." },
-                { q: "¿Qué es el 'Etnocentrismo'?", a: "Juzgar otras culturas con los estándares de la propia, asumiendo superioridad." },
-                { q: "¿Qué es el 'Relativismo Cultural'?", a: "Comprender las prácticas culturales desde su propio contexto, sin juzgarlas." },
-                { q: "¿Qué es una 'Institución' en sentido sociológico?", a: "Patrones estables de comportamiento, normas y prácticas que estructuran la vida social." }
-            ];
-            const distractors = [
-                'Karl Marx', 'Emile Durkheim', 'Max Weber', 'Auguste Comte',
-                'Racional con fines', 'Afectiva', 'Tradicional', 'Comprensión',
-                'Lucha de clases', 'Plusvalía', 'Alienación', 'Ideología',
-                'Confianza Social', 'Redes Sociales', 'Desigualdad Social', 'Movilidad Social',
-                'Socialización', 'Normas Sociales', 'Identidad Social', 'Cultura',
-                'Matemáticas, Física, Sociología', 'Biología, Química, Sociología', 'Astronomía, Química, Sociología',
-                'Solidaridad por similitud', 'Solidaridad por diferenciación',
-                'Juzgar otras culturas', 'Comprender otras culturas',
-                'Tierra y capital', 'Fábricas y herramientas'
-            ];
-            return items.map((item, idx) => {
-                const options = [item.a];
-                const pool = distractors.filter(d => d !== item.a);
-                for (let i = 0; i < 3 && pool.length > 0; i++) {
-                    const pick = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-                    options.push(pick);
+            return [
+                {
+                    id: 1,
+                    text: "¿Qué autor es considerado el padre del Positivismo y de la sociología científica?",
+                    options: ["Karl Marx", "Augusto Comte", "Emile Durkheim", "Max Weber"],
+                    answer: "Augusto Comte"
+                },
+                {
+                    id: 2,
+                    text: "La Ley de los Tres Estados de Comte incluye las siguientes etapas, excepto:",
+                    options: ["Teológico", "Metafísico", "Positivo", "Dialéctico"],
+                    answer: "Dialéctico"
+                },
+                {
+                    id: 3,
+                    text: "¿En qué consiste la 'Estática Social' según Comte?",
+                    options: [
+                        "Estudio del progreso social",
+                        "Estudio del orden y la cohesión social",
+                        "Estudio de la economía",
+                        "Estudio de la cultura"
+                    ],
+                    answer: "Estudio del orden y la cohesión social"
+                },
+                {
+                    id: 4,
+                    text: "¿En qué consiste la 'Dinámica Social' según Comte?",
+                    options: [
+                        "Estudio del cambio y transformación social",
+                        "Estudio de las instituciones",
+                        "Estudio de los roles",
+                        "Estudio de la estratificación"
+                    ],
+                    answer: "Estudio del cambio y transformación social"
+                },
+                {
+                    id: 5,
+                    text: "¿Cómo define Durkheim el 'Hecho Social'?",
+                    options: [
+                        "Como acciones individuales",
+                        "Como fenómenos externos al individuo con poder coercitivo",
+                        "Como construcciones teóricas",
+                        "Como valores culturales"
+                    ],
+                    answer: "Como fenómenos externos al individuo con poder coercitivo"
+                },
+                {
+                    id: 6,
+                    text: "¿Qué característica NO corresponde a un Hecho Social según Durkheim?",
+                    options: [
+                        "Es externo al individuo",
+                        "Es coercitivo",
+                        "Es general en la sociedad",
+                        "Es subjetivo y personal"
+                    ],
+                    answer: "Es subjetivo y personal"
+                },
+                {
+                    id: 7,
+                    text: "La 'Solidaridad Mecánica' se da en:",
+                    options: [
+                        "Sociedades tradicionales basadas en la similitud",
+                        "Sociedades industriales complejas",
+                        "Economías de mercado",
+                        "Instituciones burocráticas"
+                    ],
+                    answer: "Sociedades tradicionales basadas en la similitud"
+                },
+                {
+                    id: 8,
+                    text: "La 'Solidaridad Orgánica' se caracteriza por:",
+                    options: [
+                        "Similitud entre individuos",
+                        "Diferenciación e interdependencia funcional",
+                        "Ausencia de normas",
+                        "Dominio de la coerción"
+                    ],
+                    answer: "Diferenciación e interdependencia funcional"
+                },
+                {
+                    id: 9,
+                    text: "¿Qué sociólogo desarrolló el método 'Verstehen'?",
+                    options: ["Augusto Comte", "Emile Durkheim", "Max Weber", "Karl Marx"],
+                    answer: "Max Weber"
+                },
+                {
+                    id: 10,
+                    text: "Según Weber, ¿cuál NO es un tipo de Acción Social?",
+                    options: [
+                        "Racional con fines",
+                        "Racional con valores",
+                        "Afectiva",
+                        "Dialéctica"
+                    ],
+                    answer: "Dialéctica"
+                },
+                {
+                    id: 11,
+                    text: "¿Cuáles son los 4 tipos de Acción Social según Weber?",
+                    options: [
+                        "Tradicional, Afectiva, Racional y Social",
+                        "Racional con fines, Racional con valores, Afectiva y Tradicional",
+                        "Económica, Política, Cultural y Social",
+                        "Individual, Colectiva, Formal e Informal"
+                    ],
+                    answer: "Racional con fines, Racional con valores, Afectiva y Tradicional"
+                },
+                {
+                    id: 12,
+                    text: "¿Qué es el 'Tipo Ideal' en Weber?",
+                    options: [
+                        "Un modelo estadístico",
+                        "Una construcción teórica de elementos esenciales de un fenómeno social",
+                        "Una forma de gobierno",
+                        "Una clase social dominante"
+                    ],
+                    answer: "Una construcción teórica de elementos esenciales de un fenómeno social"
+                },
+                {
+                    id: 13,
+                    text: "¿Qué define a la 'Burocracia' según Weber?",
+                    options: [
+                        "Jerarquía, reglas impersonales y división del trabajo",
+                        "Dominio de la clase obrera",
+                        "Producción industrial",
+                        "Distribución de la riqueza"
+                    ],
+                    answer: "Jerarquía, reglas impersonales y división del trabajo"
+                },
+                {
+                    id: 14,
+                    text: "Según Karl Marx, ¿cuál es el motor de la historia?",
+                    options: [
+                        "El cambio tecnológico",
+                        "La lucha de clases",
+                        "La solidaridad social",
+                        "La racionalización"
+                    ],
+                    answer: "La lucha de clases"
+                },
+                {
+                    id: 15,
+                    text: "¿Qué son los 'Medios de Producción' en Marx?",
+                    options: [
+                        "Las ideas dominantes",
+                        "Los recursos para producir bienes",
+                        "Las relaciones sociales",
+                        "Las instituciones educativas"
+                    ],
+                    answer: "Los recursos para producir bienes"
+                },
+                {
+                    id: 16,
+                    text: "¿Qué es la 'Plusvalía' según Marx?",
+                    options: [
+                        "El salario del trabajador",
+                        "La diferencia entre el valor producido y el salario",
+                        "El costo de producción",
+                        "La ganancia del Estado"
+                    ],
+                    answer: "La diferencia entre el valor producido y el salario"
+                },
+                {
+                    id: 17,
+                    text: "¿En qué consiste la 'Alienación' en Marx?",
+                    options: [
+                        "En la integración social del trabajador",
+                        "En la separación del trabajador de su producto y proceso",
+                        "En la acumulación de capital",
+                        "En la burocracia estatal"
+                    ],
+                    answer: "En la separación del trabajador de su producto y proceso"
+                },
+                {
+                    id: 18,
+                    text: "¿Qué es la 'Incrustación Social' (Embeddedness) de Polanyi?",
+                    options: [
+                        "La independencia de la economía",
+                        "La economía sumergida en redes sociales y normas",
+                        "El libre mercado absoluto",
+                        "La privatización estatal"
+                    ],
+                    answer: "La economía sumergida en redes sociales y normas"
+                },
+                {
+                    id: 19,
+                    text: "¿Qué es el 'Capital Social' según Putnam?",
+                    options: [
+                        "El dinero acumulado en empresas",
+                        "Los recursos obtenidos por redes y confianza interpersonal",
+                        "Los bienes materiales",
+                        "El poder político"
+                    ],
+                    answer: "Los recursos obtenidos por redes y confianza interpersonal"
+                },
+                {
+                    id: 20,
+                    text: "¿Qué es el 'Etnocentrismo'?",
+                    options: [
+                        "Comprender otras culturas desde su contexto",
+                        "Juzgar otras culturas con los estándares de la propia",
+                        "Respetar todas las culturas",
+                        "Ignorar las diferencias culturales"
+                    ],
+                    answer: "Juzgar otras culturas con los estándares de la propia"
                 }
-                while (options.length < 4) options.push('Ninguna de las anteriores');
-                for (let i = options.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [options[i], options[j]] = [options[j], options[i]];
-                }
-                return { id: idx + 1, type: 'mc', text: item.q, options, answer: item.a };
-            });
+            ];
         }
 
         let questions = generateQuestions();
