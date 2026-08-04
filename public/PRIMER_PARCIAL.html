@@ -217,42 +217,81 @@
         }
 
         function generateQuestions() {
-            return [
-                { id: 1, type: 'mc', text: '¿Quién es considerado el padre de la sociología?', options: ['Auguste Comte', 'Karl Marx', 'Emile Durkheim', 'Max Weber'], answer: 'Auguste Comte' },
-                { id: 2, type: 'vf', text: 'La sociología estudia únicamente el comportamiento individual.', answer: 'Falso' },
-                { id: 3, type: 'mc', text: '¿Cuál es el método sociológico que busca comprender el sentido de las acciones sociales?', options: ['Explicación causal', 'Comprensión', 'Observación', 'Comparación histórica'], answer: 'Comprensión' },
-                { id: 4, type: 'vf', text: 'Durkheim analizó el suicidio como hecho social.', answer: 'Verdadero' },
-                { id: 5, type: 'mc', text: 'La cultura se transmite principalmente por:', options: ['Herencia biológica', 'Socialización', 'Mutación genética', 'Selección natural'], answer: 'Socialización' },
-                { id: 6, type: 'vf', text: 'Los valores son normas concretas de conducta.', answer: 'Falso' },
-                { id: 7, type: 'mc', text: 'Ejemplo de contracultura:', options: ['La música pop', 'El movimiento hippie', 'El sistema educativo', 'La moda'], answer: 'El movimiento hippie' },
-                { id: 8, type: 'vf', text: 'La socialización primaria se da en la primera infancia.', answer: 'Verdadero' },
-                { id: 9, type: 'mc', text: 'La estratificación social se refiere a:', options: ['La división del trabajo', 'La jerarquía por clase, status y poder', 'La educación formal', 'Las instituciones políticas'], answer: 'La jerarquía por clase, status y poder' },
-                { id: 10, type: 'vf', text: 'Un rol social es un conjunto de expectativas asociadas a una posición.', answer: 'Verdadero' },
-                { id: 11, type: 'mc', text: 'Según Weber, las clases sociales se organizan por:', options: ['Solo riqueza', 'Situación de clase, status y partido', 'Raza', 'Religión'], answer: 'Situación de clase, status y partido' },
-                { id: 12, type: 'vf', text: 'La anomia es la falta de normas sociales.', answer: 'Verdadero' },
-                { id: 13, type: 'mc', text: 'El método que usa encuestas y estadísticas es:', options: ['Cualiitativo', 'Cuantitativo', 'Histórico', 'Comparativo'], answer: 'Cuantitativo' },
-                { id: 14, type: 'vf', text: 'Marx centró su análisis en la lucha de clases.', answer: 'Verdadero' },
-                { id: 15, type: 'mc', text: 'La institución que transmite conocimientos oficiales es:', options: ['La familia', 'La escuela', 'El mercado', 'El Estado'], answer: 'La escuela' },
-                { id: 16, type: 'vf', text: 'Las sanciones pueden ser positivas o negativas.', answer: 'Verdadero' },
-                { id: 17, type: 'mc', text: 'Una sociedad de castas se caracteriza por:', options: ['Movilidad social alta', 'Poca movilidad social', 'Igualdad jurídica', 'Competencia económica'], answer: 'Poca movilidad social' },
-                { id: 18, type: 'vf', text: 'La cultura material incluye creencias y valores.', answer: 'Falso' },
-                { id: 19, type: 'mc', text: '¿Qué sociólogo estudió la ética protestante y el espíritu del capitalismo?', options: ['Durkheim', 'Weber', 'Marx', 'Comte'], answer: 'Weber' },
-                { id: 20, type: 'vf', text: 'El estatus social depende únicamente del ingreso económico.', answer: 'Falso' }
+            const raw = [
+                { q: "¿Qué autor es considerado el padre del Positivismo y de la sociología científica?", a: "Augusto Comte." },
+                { q: "¿En qué consiste la Ley de los Tres Estados de Comte?", a: "Teológico, Metafísico y Positivo." },
+                { q: "¿Qué es la 'Estática Social' según Comte?", a: "Estudio del orden social y la cohesión social." },
+                { q: "¿Qué es la 'Dinámica Social' según Comte?", a: "Estudio del progreso y transformación de la sociedad." },
+                { q: "¿Cómo define Durkheim el 'Hecho Social'?", a: "Maneras de actuar externas al individuo, con poder coercitivo y generalidad." },
+                { q: "¿Qué es la 'Solidaridad Mecánica' en Durkheim?", a: "Solidaridad por similitud en sociedades tradicionales." },
+                { q: "¿Qué es la 'Solidaridad Orgánica' en Durkheim?", a: "Solidaridad por diferenciación e interdependencia funcional." },
+                { q: "¿Qué es el método 'Verstehen' de Max Weber?", a: "Comprensión interpretativa del sentido de las acciones sociales." },
+                { q: "¿Cuáles son los 4 tipos de Acción Social según Weber?", a: "Racional con fines, Racional con valores, Afectiva y Tradicional." },
+                { q: "¿Qué es la 'Burocracia' según Weber?", a: "Organización racional con jerarquía, reglas impersonales y división del trabajo." },
+                { q: "¿Qué es el 'Tipo Ideal' en Weber?", a: "Construcción teórica de los elementos esenciales de un fenómeno social." },
+                { q: "¿Cuál es el motor de la historia para Karl Marx?", a: "La lucha de clases por el control de los medios de producción." },
+                { q: "¿Qué son los 'Medios de Producción' en Marx?", a: "Tierra, fábricas, herramientas y capital para producir bienes." },
+                { q: "¿Qué es la 'Plusvalía' según Marx?", a: "Diferencia entre el valor producido y el salario, que genera ganancia." },
+                { q: "¿Qué es la 'Alienación' en Marx?", a: "Separación del trabajador de su producto, proceso, naturaleza humana y demás." },
+                { q: "¿Qué es la 'Incrustación Social' (Embeddedness) de Polanyi?", a: "La economía está sumergida en redes sociales, confianza y normas." },
+                { q: "¿Qué es el 'Capital Social' según Putnam?", a: "Recursos obtenidos por redes de contactos y confianza interpersonal." },
+                { q: "¿Qué es el 'Etnocentrismo'?", a: "Juzgar otras culturas con los estándares de la propia, asumiendo superioridad." },
+                { q: "¿Qué es el 'Relativismo Cultural'?", a: "Comprender las prácticas culturales desde su propio contexto, sin juzgarlas." },
+                { q: "¿Qué es una 'Institución' en sentido sociológico?", a: "Patrones estables de comportamiento, normas y prácticas que estructuran la vida social." }
             ];
+            return raw.map((item, idx) => {
+                const isVF = idx % 2 === 1;
+                if (isVF) {
+                    const text = item.q;
+                    const answer = item.a.toLowerCase().includes('no') || item.a.toLowerCase().includes('separación') || item.a.toLowerCase().includes('juzgar') ? 'Falso' : 'Verdadero';
+                    return { id: idx + 1, type: 'vf', text, answer };
+                }
+                const distractors = [
+                    'Karl Marx', 'Emile Durkheim', 'Max Weber',
+                    'Racional con fines', 'Afectiva', 'Tradicional',
+                    'Lucha de clases', 'Plusvalía', 'Alienación',
+                    'Confianza Social', 'Redes Sociales', 'Desigualdad Social',
+                    'Socialización', 'Normas Sociales', 'Identidad Social',
+                    'Matemáticas, Física, Sociología', 'Biología, Química, Sociología'
+                ];
+                const options = [item.a];
+                for (let i = 0; i < 3 && distractors.length > 0; i++) {
+                    const pick = distractors.splice(Math.floor(Math.random() * distractors.length), 1)[0];
+                    options.push(pick);
+                }
+                while (options.length < 4) options.push('Ninguna de las anteriores');
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+                return { id: idx + 1, type: 'mc', text: item.q, options, answer: item.a };
+            });
         }
 
         function renderQuestions() {
             const container = document.getElementById('questions');
             container.innerHTML = questions.map(q => {
-                const opts = q.options.map(opt => {
-                    return `<label class="option">
-                        <input type="radio" name="q${q.id}" value="${opt}" onchange="saveAnswer(${q.id}, '${opt.replace(/'/g, "\\'")}')">
-                        <span>${opt}</span>
-                    </label>`;
-                }).join('');
+                let optsHtml = '';
+                if (q.type === 'mc') {
+                    optsHtml = q.options.map(opt => {
+                        return `<label class="option">
+                            <input type="radio" name="q${q.id}" value="${opt.replace(/"/g, '&quot;')}" onchange="saveAnswer(${q.id}, '${opt.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
+                            <span>${opt}</span>
+                        </label>`;
+                    }).join('');
+                } else {
+                    optsHtml = ['Verdadero', 'Falso'].map(opt => {
+                        return `<label class="option">
+                            <input type="radio" name="q${q.id}" value="${opt}" onchange="saveAnswer(${q.id}, '${opt}')">
+                            <span>${opt}</span>
+                        </label>`;
+                    }).join('');
+                }
+                const typeLabel = q.type === 'mc' ? 'Selección múltiple' : 'Verdadero / Falso';
                 return `<div class="question" data-q="${q.id}">
                     <div class="question-text"><span class="q-num">${q.id}</span><span>${q.text}</span></div>
-                    <div class="options">${opts}</div>
+                    <div class="options">${optsHtml}</div>
+                    <p style="font-size:11px;color:#64748b;margin-top:6px;margin-left:38px;">${typeLabel}</p>
                 </div>`;
             }).join('');
         }
