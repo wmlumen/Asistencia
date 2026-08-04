@@ -130,8 +130,34 @@
             <p style="color:#94a3b8;margin-top:6px;">Instituto Superior Centuria — Sociología 2026</p>
         </div>
 
+        <!-- Pantalla de acceso con contraseña -->
+        <div class="card" id="access-card">
+            <h2 style="margin-bottom:16px;font-size:18px;"><i class="fas fa-lock mr-2"></i> Acceso al Examen</h2>
+            <div class="login-form">
+                <input type="password" id="access-password" placeholder="Contraseña de acceso" required>
+                <button class="btn" onclick="checkAccess()"><i class="fas fa-key mr-2"></i> Ingresar</button>
+                <p id="access-error" style="font-size:12px;color:#ef4444;text-align:center;"></p>
+            </div>
+        </div>
+
+        <!-- Condiciones del examen -->
+        <div class="card hidden" id="conditions-card">
+            <h2 style="margin-bottom:16px;font-size:18px;"><i class="fas fa-clipboard-list mr-2"></i> Condiciones del Examen</h2>
+            <ul style="line-height:2;font-size:14px;color:#cbd5e1;">
+                <li><i class="fas fa-clock mr-2" style="color:#fbbf24;"></i> <strong>Duración:</strong> 30 minutos por intento</li>
+                <li><i class="fas fa-redo mr-2" style="color:#10b981;"></i> <strong>Intentos:</strong> 2 intentos permitidos</li>
+                <li><i class="fas fa-trophy mr-2" style="color:#fbbf24;"></i> <strong>Puntaje:</strong> Se guarda el mayor puntaje de los 2 intentos</li>
+                <li><i class="fas fa-list-ol mr-2" style="color:#60a5fa;"></i> <strong>Preguntas:</strong> 20 ejercicios (selección múltiple y verdadero/falso)</li>
+                <li><i class="fas fa-check-circle mr-2" style="color:#10b981;"></i> <strong>Aprobación:</strong> 100% de respuestas correctas</li>
+                <li><i class="fas fa-user mr-2" style="color:#a78bfa;"></i> <strong>Datos:</strong> Registro automático de nombre y cédula</li>
+            </ul>
+            <div class="actions" style="margin-top:24px;">
+                <button class="btn" onclick="showLogin()"><i class="fas fa-arrow-right mr-2"></i> Comenzar</button>
+            </div>
+        </div>
+
         <!-- Login del alumno -->
-        <div class="card" id="login-card">
+        <div class="card hidden" id="login-card">
             <h2 style="margin-bottom:16px;font-size:18px;"><i class="fas fa-user-graduate mr-2"></i> Datos del alumno</h2>
             <div class="login-form">
                 <input type="text" id="student-name" placeholder="Nombre y Apellido" required>
@@ -174,6 +200,29 @@
         let timerInterval = null;
         let currentAttempt = 1;
         let bestResult = null;
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8xQZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1a5xZ1/exec';
+
+        function checkAccess() {
+            const pass = document.getElementById('access-password').value.trim();
+            const errorEl = document.getElementById('access-error');
+            if (pass === 'Centuri@2026') {
+                document.getElementById('access-card').classList.add('hidden');
+                document.getElementById('conditions-card').classList.remove('hidden');
+                errorEl.textContent = '';
+            } else {
+                errorEl.textContent = 'Contraseña incorrecta.';
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('conditions-card').classList.add('hidden');
+            document.getElementById('login-card').classList.remove('hidden');
+            loadAttempts();
+            const info = document.getElementById('attempt-info');
+            if (info) {
+                info.textContent = 'Intentos restantes: ' + Math.max(0, MAX_ATTEMPTS - ((currentAttempt - 1))) + ' / ' + MAX_ATTEMPTS;
+            }
+        }
 
         function loadAttempts() {
             try {
@@ -353,6 +402,7 @@
             };
             localStorage.setItem(EXAM_KEY, JSON.stringify(result));
             saveAttempt(result);
+            sendToGoogleSheets(result);
             document.getElementById('exam-card').classList.add('hidden');
             const rc = document.getElementById('result-card');
             rc.style.display = 'block';
@@ -380,6 +430,34 @@
             a.download = 'resultado_primer_parcial_' + Date.now() + '.json';
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        async function sendToGoogleSheets(result) {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('a5xZ1')) {
+                console.warn('Google Sheets URL no configurada');
+                return;
+            }
+            try {
+                const payload = {
+                    student: result.student,
+                    cedula: result.cedula,
+                    attempt: result.attempt,
+                    score: result.score,
+                    total: result.total,
+                    percent: result.percent,
+                    date: result.date,
+                    details: result.details
+                };
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                console.log('Enviado a Google Sheets');
+            } catch (error) {
+                console.error('Error enviando a Google Sheets:', error);
+            }
         }
 
         function highlightAnswers() {
