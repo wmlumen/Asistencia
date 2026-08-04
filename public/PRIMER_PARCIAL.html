@@ -182,15 +182,32 @@
 
         <!-- Resultados -->
         <div class="card result-box" id="result-card">
-            <div id="result-content" style="display:none;">
-                <div class="score" id="score">0/20</div>
-                <div class="detail" id="detail"></div>
-                <div id="result-screenshot" style="margin-top:16px;border:1px solid var(--border);border-radius:12px;overflow:hidden;"></div>
+            <div id="result-content" style="display:none; text-align:left; padding: 10px;">
+                
+                <div style="text-align:center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+                    <img src="logo_centuria_blanco_1.png" alt="Logo Centuria" style="height: 40px; margin-bottom: 10px;">
+                    <h2 style="font-size: 18px; margin: 0; color: #fff;">CERTIFICADO DE EXAMEN</h2>
+                    <p style="font-size: 14px; color: var(--text-secondary); margin: 5px 0 0 0;">Instituto Superior Centuria — Sociología 2026</p>
+                </div>
+
+                <div id="cert-student-info" style="margin-bottom: 20px; font-size: 14px;">
+                    <!-- Student name and ID -->
+                </div>
+
+                <div id="cert-attempts" style="margin-bottom: 20px;">
+                    <!-- Attempt 1 and Attempt 2 boxes -->
+                </div>
+
+                <div id="cert-final-score" style="text-align:center; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); padding: 15px; border-radius: 8px;">
+                    <!-- Final Score -->
+                </div>
+
+                <div id="result-screenshot" data-html2canvas-ignore="true" style="margin-top:20px;border:1px solid var(--border);border-radius:12px;overflow:hidden;"></div>
+                
                 <div class="actions" data-html2canvas-ignore="true" style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
                     <button class="btn" onclick="downloadJpg()"><i class="fas fa-image mr-2"></i> Descargar JPG</button>
                     <button class="btn" id="retry-btn" onclick="retryExam()"><i class="fas fa-redo mr-2"></i> Siguiente intento</button>
                 </div>
-                <p data-html2canvas-ignore="true" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px;">Se registrará el mayor puntaje de los intentos.</p>
             </div>
         </div>
     </div>
@@ -480,10 +497,8 @@
             const rc = document.getElementById('result-card');
             rc.style.display = 'block';
             
-            const timeString = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            renderCertificate();
             
-            document.getElementById('score').textContent = result.score + '/' + result.total + ' (' + result.percent + '%)';
-            document.getElementById('detail').innerHTML = result.student + ' — Cédula: ' + result.cedula + '<br>Intento ' + result.attempt + ' — Hora de entrega: ' + timeString;
             document.getElementById('result-content').style.display = 'block';
             document.getElementById('retry-btn').style.display = canAttempt() ? 'inline-block' : 'none';
             highlightAnswers();
@@ -496,17 +511,59 @@
             const rc = document.getElementById('result-card');
             rc.style.display = 'block';
             
-            let timeInfo = '';
-            if (bestResult.date) {
-                const dateObj = new Date(bestResult.date);
-                timeInfo = ' — Hora de entrega: ' + dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            }
-
-            document.getElementById('score').textContent = bestResult.score + '/' + bestResult.total + ' (' + bestResult.percent + '%)';
-            document.getElementById('detail').innerHTML = bestResult.student + ' — Cédula: ' + bestResult.cedula + '<br>Mejor resultado' + timeInfo;
+            renderCertificate();
+            
             document.getElementById('result-content').style.display = 'block';
             document.getElementById('retry-btn').style.display = 'none';
             captureResultCard();
+        }
+
+        function renderCertificate() {
+            try {
+                const raw = localStorage.getItem(ATTEMPT_KEY);
+                let data = raw ? JSON.parse(raw) : { attempts: [], bestResult: null };
+                const attempts = data.attempts || [];
+                const student = attempts.length > 0 ? attempts[0].student : '';
+                const cedula = attempts.length > 0 ? attempts[0].cedula : '';
+                
+                document.getElementById('cert-student-info').innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+                        <strong style="color:#fff;">Alumno:</strong> <span>${student}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong style="color:#fff;">Cédula:</strong> <span>${cedula}</span>
+                    </div>
+                `;
+
+                let attemptsHtml = '<h3 style="font-size:13px; color:var(--text-secondary); margin-bottom: 10px; text-transform:uppercase;">Detalle de Intentos</h3>';
+                
+                attempts.forEach((att, idx) => {
+                    const timeString = att.date ? new Date(att.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '--:--';
+                    attemptsHtml += `
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-bottom: 8px; display:flex; justify-content: space-between; align-items:center;">
+                            <div>
+                                <strong style="color:#fff; font-size:14px;">Intento ${idx + 1}</strong>
+                                <div style="font-size:12px; color:var(--text-muted); margin-top:3px;">Hora de entrega: ${timeString}</div>
+                            </div>
+                            <div style="font-size:16px; font-weight:bold; color:#fbbf24;">
+                                ${att.score}/${att.total} <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">(${att.percent}%)</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('cert-attempts').innerHTML = attemptsHtml;
+
+                if (data.bestResult) {
+                    document.getElementById('cert-final-score').innerHTML = `
+                        <div style="font-size:12px; color: #4ade80; font-weight:bold; text-transform:uppercase; margin-bottom:5px;">Calificación Final Registrada</div>
+                        <div style="font-size:24px; font-weight:bold; color: #fff;">${data.bestResult.score}/${data.bestResult.total} <span style="font-size:16px; font-weight:normal; color:var(--text-muted);">(${data.bestResult.percent}%)</span></div>
+                        <div style="font-size:11px; color: var(--text-muted); margin-top:5px;">(Se registra el mayor puntaje)</div>
+                    `;
+                }
+            } catch(e) {
+                console.error("Error rendering cert", e);
+            }
         }
 
         async function captureResultCard() {
